@@ -1,0 +1,21 @@
+{
+    "name": "IoTaaP OS",
+    "keywords": "iot, os, gateway, cloud, esp32",
+    "description": "Open Source IoT Operating System",
+    "homepage": "https://www.iotaap.io",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/iotaap/iotaap-os.git"
+    },
+    "authors": [
+      {
+        "name": "IoTaaP Team",
+        "email": "contact@iotaap.io",
+        "url": "https://www.iotaap.io",
+        "maintainer": true
+      }
+    ],
+    "version": "3.0.0",
+    "frameworks": "arduino",
+    "platforms": "espressif32"
+  }
