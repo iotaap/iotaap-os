@@ -10,9 +10,9 @@ Include IoTaaP_OS.h to your project and define IoTaaP OS object
 ## Usage example
 
 ```
-#include "IoTaaP_OS.h"
+#include <IoTaaP_OS.h>
 
-IoTaaP_OS iotaapOs;
+IoTaaP_OS iotaapOs("1.0.1");
 ```
 
 ## Hardware
