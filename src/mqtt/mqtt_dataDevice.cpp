@@ -26,6 +26,7 @@ int uDeviceCloudPublishParam(const char *name, float value)
     char Time[TIME_STRING_LENGTH];
 
     paramPublishDoc.clear();
+    paramPublishDoc["device_id"] = SystemGetDeviceId();
     paramPublishDoc["name"] = name;
     paramPublishDoc["value"] = value;
     paramPublishDoc["time"] = getSystemTimeString( Time);
@@ -57,6 +58,7 @@ int uDeviceCloudPublishParam(const char *name, const char *value)
     char Time[TIME_STRING_LENGTH];
 
     paramPublishDoc.clear();
+    paramPublishDoc["device_id"] = SystemGetDeviceId();
     paramPublishDoc["name"] = name;
     paramPublishDoc["value"] = value;
     paramPublishDoc["time"] = getSystemTimeString( Time);
