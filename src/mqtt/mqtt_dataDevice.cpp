@@ -1,10 +1,10 @@
 #include "mqtt_dataDevice.h"
 
 
+#include "./system/definitions.h"
 #include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
 #include "./system/utils.h"
 #include "./system/system_tasks.h"
-#include "./system/definitions.h"
 #include "./fs/local_data.h"
 #include "./mqtt/mqtt_client.h"
 #include "./fs/sys_cfg.h"
@@ -26,6 +26,7 @@ int uDeviceCloudPublishParam(const char *name, float value)
     char Time[TIME_STRING_LENGTH];
 
     paramPublishDoc.clear();
+    paramPublishDoc["device_id"] = SystemGetDeviceId();
     paramPublishDoc["name"] = name;
     paramPublishDoc["value"] = value;
     paramPublishDoc["time"] = getSystemTimeString( Time);
@@ -57,6 +58,7 @@ int uDeviceCloudPublishParam(const char *name, const char *value)
     char Time[TIME_STRING_LENGTH];
 
     paramPublishDoc.clear();
+    paramPublishDoc["device_id"] = SystemGetDeviceId();
     paramPublishDoc["name"] = name;
     paramPublishDoc["value"] = value;
     paramPublishDoc["time"] = getSystemTimeString( Time);
