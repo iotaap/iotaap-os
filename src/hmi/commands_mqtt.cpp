@@ -1,5 +1,6 @@
 #include "commands_mqtt.h"
 
+#include "./system/definitions.h"
 #include "string.h"
 #include "stdint.h"
 #include "./fs/sys_logs_data.h"
@@ -9,7 +10,6 @@
 #include "./mqtt/mqtt_systemLogs.h"
 #include "./system/system_configuration.h"
 #include "./system/utils.h"
-#include "./system/definitions.h"
 
 #define MAX_JSON_RESPONSE_SIZE  1024
 #define HTTP_OVERHEAD           100
