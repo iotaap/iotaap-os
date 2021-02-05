@@ -6,12 +6,11 @@
  * User can fetch any data from JSON via uGetUserParameter() function.
  */
 
+#include "./system/definitions.h"
 #include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
 #include "./libs_3rd_party/micro-sdcard/mySD.h"
-#include "./system/definitions.h"
 #include "./fs/json_memory.h"
 #include "./fs/sys_logs_data.h"
-
 
 DynamicJsonDocument userConfigDoc(0);
 
