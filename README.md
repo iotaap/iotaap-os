@@ -23,7 +23,7 @@ For development you can use official [IoTaaP Hardware modules](https://www.iotaa
 
 ## Tutorials
 
-Follow [official tutorials](https://docs.iotaap.io/iotaap-tutorials/) for even faster IoT development process!
+Follow [official tutorials](https://docs.iotaap.io/docs-tutorials/) for even faster IoT development process!
 
 ## Documentation
 
