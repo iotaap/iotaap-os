@@ -1,6 +1,7 @@
 ## IoTaaP OS File system structure
 Must be burned to the SD card before usage. 
 
+```
 ├── etc
 │   ├── device
 │   │   ├── custom.cfg 
@@ -14,7 +15,7 @@ Must be burned to the SD card before usage.
 └── var
     └── log
         └── SYS00000.LOG
-
+```
 
 - etc/device/default.cfg should be edited to match parameters given on IoTaaP console
 - etc/device/custom.cfg can optionally contain custom jSON formatted data to be used from main program
