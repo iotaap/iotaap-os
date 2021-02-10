@@ -17,9 +17,10 @@ IoTaaP_OS iotaapOs("1.0.1");
 
 ## Hardware
 
-For development you can use official [IoTaaP Hardware modules](https://www.iotaap.io/)
+For development you can use official [IoTaaP Hardware](https://www.iotaap.io/)
 
-* [IoTaaP Magnolia](https://www.iotaap.io/platform/)
+* [IoTaaP Boards](https://www.iotaap.io/boards/)
+* [IoTaaP Modules](https://www.iotaap.io/iot-modules/)
 
 ## Tutorials
 
