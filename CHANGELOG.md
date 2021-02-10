@@ -1,3 +1,9 @@
+## [3.0.2] - 2021-02-10
+
+### Changed
+
+- Updated CONTRIBUTING.md, new PR procedure
+
 ## [3.0.1] - 2021-02-05
 
 ### Added
