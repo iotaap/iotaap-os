@@ -47,8 +47,7 @@ void checkUpdate()
 {
     systemLog(tINFO, "Checking for updates");
     DynamicJsonDocument versionJson(128);
-    wifiClientSecure.stop();
-    wifiClientSecure.setCACert(SystemGetCAcertificate());
+
     wifiClientSecure.setTimeout(12000 / 1000); // timeout argument is defined in seconds for setTimeout
 
     if (strlen(SystemGetGroupId()) == 0)
@@ -91,8 +90,6 @@ void checkUpdate()
         systemLog(tERROR, "Cannot check for updates");
     }
 
-    wifiClientSecure.stop();
-    wifiClientSecure.setCACert( SystemGetCAcertificate());
 }
 
 /**
