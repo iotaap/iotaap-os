@@ -25,7 +25,7 @@ float getBatteryPercentage()
 /**
  * @brief Reads analog value from analog pin
  * 
- * @param pin Andalog pin to read value from
+ * @param pin Analog pin assigned
  * @return unsigned long 12bit analog value
  */
 unsigned long getAdcValue(int pin)

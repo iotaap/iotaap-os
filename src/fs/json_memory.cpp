@@ -6,7 +6,7 @@
  */
 int CalculateDynamicMemorySizeForJson( File JsonOpenedfile)
 {
-    /* Max number od characters between '\"', ':' and/or ',' */
+    /* Max number of characters between '\"', ':' and/or ',' */
     const int MaxJsonValueLength = 100;
 
     enum eJsonStage
@@ -40,7 +40,6 @@ int CalculateDynamicMemorySizeForJson( File JsonOpenedfile)
     {
         ThisChar = JsonOpenedfile.read();
 
-        // Serial.print(ThisChar);
         
         /* Wrong data or algorithm detection */
         DataTimeout++;

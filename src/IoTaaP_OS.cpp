@@ -54,7 +54,7 @@ void IoTaaP_OS::startMqtt(MQTT_CALLBACK_SIGNATURE)
  * 
  * @param payload - Payload (JSON)
  * @param uTopic - Topic to publish to
- * @return int Returns 0 if successfull
+ * @return int Returns 0 if successful
  */
 int IoTaaP_OS::deviceCloudPublish(const char *payload, const char *uTopic)
 {
@@ -62,11 +62,11 @@ int IoTaaP_OS::deviceCloudPublish(const char *payload, const char *uTopic)
 }
 
 /**
- * @brief Pulishes payload to the topic. Root topic (username) will be automatically added
+ * @brief Publishes payload to the topic. Root topic (username) will be automatically added
  * 
  * @param payload - Payload (JSON)
  * @param uTopic - Topic to publish to
- * @return int - Returns 0 if successfull
+ * @return int - Returns 0 if successful
  */
 int IoTaaP_OS::basicCloudPublish(const char *payload, const char *uTopic)
 {
@@ -74,10 +74,10 @@ int IoTaaP_OS::basicCloudPublish(const char *payload, const char *uTopic)
 }
 
 /**
- * @brief Subsribe to a specific topic. Root topic (username) will be added automatically
+ * @brief Subscribe to a specific topic. Root topic (username) will be added automatically
  * 
  * @param uTopic - Topic to subscribe to
- * @return int Returns 0 if successfull
+ * @return int Returns 0 if successful
  */
 int IoTaaP_OS::basicSubscribe(const char *uTopic)
 {
@@ -96,7 +96,7 @@ int IoTaaP_OS::basicUnsubscribe(const char *uTopic)
 }
 
 /**
- * @brief Publishes measured parameter to the cloud in predefined format
+ * @brief Publishes measured parameter to the cloud in predefined format (Numeric input)
  * 
  * @param name Parameter name
  * @param value Numeric parameter value
@@ -108,7 +108,7 @@ int IoTaaP_OS::deviceCloudPublishParam(const char *name, float value)
 }
 
 /**
- * @brief Publishes measured parameter to the cloud in predefined format
+ * @brief Publishes measured parameter to the cloud in predefined format (Non-Numeric input)
  * 
  * @param name Parameter name
  * @param value Non-numeric parameter value

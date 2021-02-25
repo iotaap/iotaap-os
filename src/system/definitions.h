@@ -3,8 +3,8 @@
 
 /* GENERAL CONFIG */
 #define LIB_VERSION "3.0.2"
-#define STATUS_PUBLISH_TIME 1000 // how often system status is published in ms
-#define OTA_CHECK_TIME 21600000 // period in ms for checking for OTA updates
+#define STATUS_PUBLISH_TIME 1000 // How often system status is published in ms
+#define OTA_CHECK_TIME 21600000 // Period in ms for checking for OTA updates
 #define CUSTOM_WDT_TIMEOUT 30 // Watchdog timeout in seconds
 #define WIFI_CONNECT_TIMEOUT 5  // WiFi timeout in seconds
 #undef ARDUINOJSON_USE_LONG_LONG
