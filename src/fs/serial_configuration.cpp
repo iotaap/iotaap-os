@@ -8,7 +8,7 @@
 
 /* Pointer to a filename, system or user */
 const char *SelectedFile = NULL;
-/* Is wizard to change data now active */
+/* data change wizard active flag */
 bool IsWizardActive = false;
 /* Flag to command write new data to JSON */
 bool WriteDataToNewJson = false;
@@ -69,7 +69,7 @@ void HandleJsonCfgFile( void)
         return;
     }
 
-    /* Prepeare new JSON */
+    /* Prepare new JSON */
     File ConfigFile = SD.open( SelectedFile, FILE_READ);
     if (!ConfigFile)
     {
@@ -174,7 +174,7 @@ void SerialJsonCfgSetValue( char *Data)
         JsonDocNew[KeyNum->key().c_str()] = JsonDocOld[KeyNum->key().c_str()];
     }
     else
-    {
+    {   /*New Data Detected */
         Serial.print( "--> New \"");
         Serial.print( KeyNum->key().c_str());
         Serial.print( "\":");

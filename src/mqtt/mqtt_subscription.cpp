@@ -12,7 +12,7 @@ Queue<String> unsubsTopicsQueue(UNSUBS_TOPIC_QUEUE_SIZE);
 
 
 /**
- * @brief Unsubscribes from topics in queue
+ * @brief Unsubscribes from selected topics in unsubcribe topic queue
  * 
  */
 void unsubscribeFromTopics()
@@ -35,7 +35,7 @@ void unsubscribeFromTopics()
 }
 
 /**
- * @brief Subscribes to topics from queue
+ * @brief Subscribes to topics from subscribe topic pending queue
  * 
  */
 void subscribeToTopics()
@@ -85,7 +85,7 @@ void mqttSubscribe(const char *topic)
 }
 
 /**
- * @brief Unubscribe from the MQTT topic - adds to unsubscribe queue
+ * @brief Unsubscribe from the MQTT topic - adds to unsubscribe queue
  * 
  * @param topic Topic name
  */

@@ -9,9 +9,9 @@ struct sSystemConfig
     char deviceToken[30];
     char groupID[30];
     char groupToken[30];
-    int timezone; // Only signed number form GMT
+    int timezone; // Only signed number offsetting from GMT Timezone
     char ntp1[20];   // First NTP server
-    char ntp2[20];   // Seconf NTP server
+    char ntp2[20];   // Second NTP server
     const char *fwVersion;
     bool automaticUpdates; // True if automatic updates are turned on
     char CAcert[8192];
@@ -39,7 +39,7 @@ struct sJsonKeys JsonSysData[] =
 /******************************************************************************/
 
 /**
- * @brief Save data from JSON document to local structure
+ * @brief Saves data from JSON document to local structure
  */
 void InitSystemConfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 {

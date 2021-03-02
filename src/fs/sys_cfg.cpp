@@ -1,7 +1,7 @@
 #include "sys_cfg.h"
 
 /**
- * This module initialize system configuration, dynamicaly create JSON document
+ * This module initialize system configuration, dynamically creates JSON document
  * and saves it to system structures.
  * User can fetch any data from JSON via uGetSystemParameter() function.
  */
@@ -32,7 +32,7 @@ int InitSystemParameters( void)
         return 1;
     }
 
-    /* Calculate memory for JSON */
+    /* Calculate memory needed for JSON */
     int MemSizeForJson = CalculateDynamicMemorySizeForJson( SysCfgFile);
     if (ESP.getMaxAllocHeap() < MemSizeForJson)
     {

@@ -1,9 +1,10 @@
 #include "local_data.h"
 
 /**
- * This module saves data data to queue (saveDataLocally()), 
- * then saves from queue to file if system is not connected to web or
- * sends to web if it is connected.
+ * This module saves data to queue (saveDataLocally()), 
+ * determines if connected to web.
+ * If not connected to web then saves from queue to file system.
+ * If connected to web then sends data on.
  */
 
 #include "./system/definitions.h"
@@ -59,10 +60,10 @@ void handleAndPublishLocalData()
         LocalDataFile = SD.open(LOCAL_DATA_PATH, FILE_WRITE);
 
         /* Send from queue to file 
-         *  - System is in state without connection (save to file) OR
-         *  - System is in state with connection but with data in file. In this
-         *      case data to web must go in right order, so first save data to
-         *      end of file. Later this data will be sent in right order.
+         *  - System is in a state without connection (save to file) OR
+         *  - System is in a state with connection but with data in file. In this
+         *    case data to web must go in right order, so first save data to
+         *    end of file. Later this data will be sent in right order.
          */
         if (LocalDataFile)
         {

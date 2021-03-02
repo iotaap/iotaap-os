@@ -1,6 +1,5 @@
 #include "mqtt_dataDevice.h"
 
-
 #include "./system/definitions.h"
 #include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
 #include "./system/utils.h"
@@ -14,12 +13,12 @@
 DynamicJsonDocument paramPublishDoc(512);
 char paramPublishPayload[512];
 /**
- * @brief Creates and publishes parameter document
+ * @brief Creates and publishes parameter document to cloud or local
  * 
  * @param name Value name
- * @param value Numeric Value 
+ * @param value Numeric Value
  * @param time Time
- * @return int 
+ * @return int - expects 0 return on success
  */
 int uDeviceCloudPublishParam(const char *name, float value)
 {
@@ -46,7 +45,7 @@ int uDeviceCloudPublishParam(const char *name, float value)
 }
 
 /**
- * @brief Creates and publishes parameter document
+ * @brief Creates and publishes parameter document to cloud or local
  * 
  * @param name Value name
  * @param value Non-numeric Value 
