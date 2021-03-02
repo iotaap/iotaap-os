@@ -7,7 +7,7 @@
  * Maximum file size is defined by MAX_SYSTEM_LOG_FILE_SIZE.
  * Maximum number of files is defined by MAX_SYSTEM_LOGS_FILE_NUM.
  * 
- * When the file exceed max size, system opens new file logs data to new file.
+ * When the file exceedes max size, system opens new file logs data to new file.
  * When maximum number of files is reached, system deletes the oldest file and
  * creates new one.
  */

@@ -57,7 +57,7 @@ void SerialCommandSetResponse( char *Response)
 
 
 /**
- * @brief Add data to array. If data exceed given memory, send data and create new json
+ * @brief Add data to array. If data exceed given memory, send data and create new JSON
  */
 void SerialCommandAddData( char *Data)
 {
@@ -66,7 +66,7 @@ void SerialCommandAddData( char *Data)
 
 
 /**
- * @brief Send crreated JSON
+ * @brief Send created JSON
  */
 void SerialCommandSendResponse( void)
 {

@@ -31,6 +31,7 @@ const char SetParUsr[] = "set-user";
 
 /* Number of lines to print via COM port */
 int LinesNumToSend = 20;
+
 /* Starting time for output */
 char Timestamp[MaxTimestampLen];
 
@@ -40,6 +41,7 @@ unsigned int FileLocation = 0;
 /* Output location in file - this vars sets while searching */
 unsigned int FileLocationPageStart = 0;
 unsigned int FileIdPageStart = 0;
+
 /* Next page output in file - this vars sets while printing */
 unsigned int FileIdNextPageStart = 0;
 unsigned int FileLocationNextPageStart = 0;
@@ -289,7 +291,7 @@ void CheckAndPrintLogFileData( File *OpenedLogFile)
         IsStringFound = OpenedLogFile->find(Timestamp, SearchLen);
         SearchFilePointer = NULL;
 
-        /* If search is canceled */
+        /* If search is cancelled */
         if (!NewTimeStampSearch)
         {
             char ResponseSearchCanceled[] = "Search canceled!";
@@ -309,14 +311,14 @@ void CheckAndPrintLogFileData( File *OpenedLogFile)
             IsStringAtLeastPartiallyFound = false;
             return;
         }
-        /* Locate string, enlarge search string if possible */
+        /* Locate string, expand search string if possible */
         else if (IsStringFound)
         {
             int Position = OpenedLogFile->position();
             Position = SearchLen>Position ? 0 : Position-SearchLen;
             OpenedLogFile->seek(Position);
 
-            /* When found - enlarge search string length */
+            /* When found - expand search string length */
             SearchLen += 3;
             if (SearchLen > MaxSearchStringLen)
             {
@@ -385,8 +387,10 @@ void CheckAndPrintLogFileData( File *OpenedLogFile)
     {
         static bool NewPpSearchActive = true;
         static bool FirstIterationInThisFile = true;
+
         /* Count new lines */
         static int NewLinesCounter = 0;
+
         /* Position in file */
         int Position;
         char FileChar;
@@ -440,7 +444,7 @@ void CheckAndPrintLogFileData( File *OpenedLogFile)
 
 
         /* We found everything OR */
-        /* We cannot move backward and no files backward, print begining of first file */
+        /* We cannot move backward and no files backward, print beginning of first file */
         if (SearchSysLogFileId <= FirstSysLogFileId ||
             NewLinesCounter > LinesNumToSend)
         {
@@ -453,7 +457,7 @@ void CheckAndPrintLogFileData( File *OpenedLogFile)
             FileIdPageStart = SearchSysLogFileId;
             FileLocation = Position;
         }
-        /* At this point we are on begining of file */
+        /* At this point we are at beginning of the file */
         /* Move backward to new file */
         else
         {
@@ -496,7 +500,7 @@ void CheckAndPrintLogFileData( File *OpenedLogFile)
                     Polje[StringLen] = '\0';
                 }
 
-                /* Remember for next call */
+                /* Remember position for next call */
                 OutputFileLocation = OpenedLogFile->position();
 
                 /* Remember data for future ("np" command) */
@@ -651,7 +655,7 @@ static void CommandAddData( char *Data)
 
 
 /**
- * @brief Send crreated JSON
+ * @brief Send created JSON
  */
 static void CommandSendResponse( void)
 {

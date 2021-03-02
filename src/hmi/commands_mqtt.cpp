@@ -29,6 +29,7 @@ void MqttCommandHandler( char *Json, int Length)
     char DeviceId[50];
 
     Json[Length] = '\0';
+
 //Serial.println("Command arrived!");
 
     /* Incoming JSON */
@@ -37,8 +38,10 @@ void MqttCommandHandler( char *Json, int Length)
     strncpy( DeviceId, MqttCommandJson["device"],  sizeof(DeviceId));
 
     /* Outgoing JSON */
+
 //Serial.print("command_: ");
 //Serial.println(Input);
+
     MqttCommandStartResponse( Input);
 
     if (strcmp( DeviceId, SystemGetDeviceId()))
@@ -65,6 +68,7 @@ void MqttCommandStartResponse( char* Command)
     char Time[TIME_STRING_LENGTH];
 
 // Serial.println("MqttCommandStartResponse");
+
     MqttCommandJson.clear();
     
     MqttCommandJson["device"] = SystemGetDeviceId();
@@ -84,7 +88,7 @@ void MqttCommandSetResponse( char *Response)
 
 
 /**
- * @brief Add data to array. If data exceed given memory, send data and create new json
+ * @brief Add data to array. If data exceeds given memory, send data and create new JSON
  */
 void MqttCommandAddData( char *Data)
 {
@@ -101,7 +105,7 @@ void MqttCommandAddData( char *Data)
     {
         MqttCommandSendResponse();
 
-        /* Rectreate new JSON without data[] */
+        /* Recreate new JSON without data[] */
         char Command[MaxCommandLen];
         int Part = MqttCommandJson["part"];
         strcpy( Command, MqttCommandJson["command"]);
@@ -120,7 +124,7 @@ void MqttCommandAddData( char *Data)
 
 
 /**
- * @brief Send crreated JSON
+ * @brief Send created JSON
  */
 
 void MqttCommandSendResponse( void)

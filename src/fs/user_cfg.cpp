@@ -1,7 +1,7 @@
 #include "user_cfg.h"
 
 /**
- * This module initialize user configuration, dynamicaly create JSON document
+ * This module initialize user configuration, dynamically creates JSON document
  * and store data in JSON document.
  * User can fetch any data from JSON via uGetUserParameter() function.
  */
@@ -76,7 +76,7 @@ int InitUserParameters( void)
 }
 
 /**
- * @brief Get user parameters
+ * @brief Get user parameters, output type string
  * 
  */
 bool uGetUserParameter( const char *Element, char *Output)
@@ -88,6 +88,10 @@ bool uGetUserParameter( const char *Element, char *Output)
     }
     return false;
 }
+/**
+ * @brief Gets user parameters, output type int
+ * 
+ */
 bool uGetUserParameter( const char *Element, int *Output)
 {
     if (userConfigDoc.containsKey(Element))
@@ -97,6 +101,10 @@ bool uGetUserParameter( const char *Element, int *Output)
     }
     return false;
 }
+/**
+ * @brief Gets user parameter, output type bool
+ * 
+ */
 bool uGetUserParameter( const char *Element, bool *Output)
 {
     if (userConfigDoc.containsKey(Element))

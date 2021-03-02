@@ -12,7 +12,7 @@ static char SystemReqTopic[64];
 static char SystemRespTopic[64];
 
 /**
- * @brief Subsribe to a system req topic.
+ * @brief Subscribe to a system requested topic.
  */
 void mqttSubscribeToSystemRequestTopic( void)
 {
@@ -27,7 +27,7 @@ void mqttSubscribeToSystemRequestTopic( void)
 
 /**
  * @brief This function is called when data comes to subscribed topics.
- *        Function choose if this is system request or data for user.
+ *        Function chooses if this data is a system request or for user.
  */
 void MqttCallback(char *topic, unsigned char *message, unsigned int length)
 {
@@ -43,7 +43,7 @@ void MqttCallback(char *topic, unsigned char *message, unsigned int length)
 }
 
 /**
- * @brief Send respond to request
+ * @brief Send response to request
  */
 void MqttRespondToRq( char *Data)
 {
