@@ -47,10 +47,9 @@ void checkUpdate()
 {
     systemLog(tINFO, "Checking for updates");
     DynamicJsonDocument versionJson(128);
+    
     wifiClientSecure.stop();
-    wifiClientSecure.setCACert(SystemGetCAcertificate());
-    wifiClientSecure.setTimeout(12000 / 1000); // timeout argument is defined in seconds for setTimeout
-
+    
     if (strlen(SystemGetGroupId()) == 0)
     { // Checking either this device is part of a group or a standalone device
         updatesHttpClient.begin(wifiClientSecure, OTA_CHECK_DEVICE_URL + String(SystemGetDeviceId()));
@@ -92,7 +91,7 @@ void checkUpdate()
     }
 
     wifiClientSecure.stop();
-    wifiClientSecure.setCACert( SystemGetCAcertificate());
+
 }
 
 /**

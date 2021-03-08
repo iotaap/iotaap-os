@@ -189,6 +189,7 @@ static void MqttTask(void *parameter)
         if (WifiIsConnected())
         {
             //Initalises security certificate
+            wifiClientSecure.setTimeout(12); // timeout argument is defined in seconds for setTimeout
             wifiClientSecure.setCACert(SystemGetCAcertificate());
             _mqttClient.setBufferSize(1024);
             _mqttClient.setServer(mqttConfig.mqttServer, mqttConfig.port);
@@ -235,6 +236,10 @@ static void MqttTask(void *parameter)
                 * 
                 * Ideal solution for this issue should be parallel MQTTS and OTA connection, but currently it's not possible to use two WiFiClientSecure instances
                 * in parallel due to heap issues (consumes large amount of memory) and causes crashes.
+                * 
+                * Update: second instance of WiFiClientSecure has been removed as both MQTTS and OTA are now using the same certificate, OTA cert change code has been removed.
+                * 
+                * 
                 */
                 handleUpdates();
                 //
