@@ -19,8 +19,8 @@ static TaskHandle_t SyncNTPhandler = NULL;
 static TaskHandle_t FSmanagerHandler = NULL;
 static TaskHandle_t LedTaskHandler = NULL;
 static TaskHandle_t SerialHandler = NULL;
-//
 
+// System tasks
 void createSystemTasks()
 {
     xTaskCreate(

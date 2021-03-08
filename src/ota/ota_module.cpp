@@ -15,7 +15,7 @@
 HTTPClient updatesHttpClient;
 
 /**
- * @brief Checks if updates are available and if all conditions are met runs checking for update accordingly
+ * @brief Checks if updates are available, if all conditions are met then runs checking for update accordingly
  * 
  */
 void handleUpdates()
@@ -47,12 +47,11 @@ void checkUpdate()
 {
     systemLog(tINFO, "Checking for updates");
     DynamicJsonDocument versionJson(128);
+    
     wifiClientSecure.stop();
-    wifiClientSecure.setCACert(SystemGetCAcertificate());
-    wifiClientSecure.setTimeout(12000 / 1000); // timeout argument is defined in seconds for setTimeout
-
+    
     if (strlen(SystemGetGroupId()) == 0)
-    { // Checking either this device is part of a gorup or standalone
+    { // Checking either this device is part of a group or a standalone device
         updatesHttpClient.begin(wifiClientSecure, OTA_CHECK_DEVICE_URL + String(SystemGetDeviceId()));
     }
     else
@@ -60,10 +59,10 @@ void checkUpdate()
         updatesHttpClient.begin(wifiClientSecure, OTA_CHECK_GROUP_URL + String(SystemGetGroupId()));
     }
 
-    int httpCode = updatesHttpClient.GET();
+    int httpCode = updatesHttpClient.GET(); // return code for HTTP Get request
 
     if (httpCode == 200)
-    {
+    { // Sucess return code
         String payload = updatesHttpClient.getString();
         deserializeJson(versionJson, payload);
 
@@ -81,22 +80,22 @@ void checkUpdate()
         }
     }
     else if (httpCode == 404)
-    {
+    { // Not found return code
         updatesHttpClient.end();
         systemLog(tINFO, "No firmware available");
     }
     else
-    {
+    {   //return code not identified
         updatesHttpClient.end();
         systemLog(tERROR, "Cannot check for updates");
     }
 
     wifiClientSecure.stop();
-    wifiClientSecure.setCACert( SystemGetCAcertificate());
+
 }
 
 /**
- * @brief Begin OTA update. Firmware will be downloaded in the background and device will be restarted if it was successfull. System
+ * @brief Begin OTA update. Firmware image will be downloaded in the background and device will be restarted if it was successfull. System
  * will be then booted to the new firmware. This approach minimizes downtime.
  * 
  */
@@ -108,13 +107,13 @@ void otaUpdate()
     httpUpdate.setLedPin(LED1);
     httpUpdate.rebootOnUpdate(true);
 
-    // Disable WDT before starting update
+    // Disable WDT before starting update - prevents WDT causing hardware reboot during update
     rtc_wdt_protect_off();
     rtc_wdt_disable();
     disableCore0WDT();
     // WDT for core 1 is disabled by default
-    //
     
+    // Update respective to device group or standalone
     if (strlen(SystemGetGroupId()) == 0)
     {
         ret = httpUpdate.update(wifiClientSecure, OTA_DOWNLOAD_DEVICE_URL +
@@ -142,7 +141,7 @@ void otaUpdate()
 
     case HTTP_UPDATE_OK:
         systemLog(tERROR, "Update successfull!");
-        // We do not have to restart update task since system will be restarted on successfull update
+        // We do not have to restart update task since system will be restarted on successful update
         break;
     default:
 

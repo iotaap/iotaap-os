@@ -8,7 +8,8 @@
 #include "./system/system_configuration.h"
 
 
-DynamicJsonDocument doc(256);/**
+DynamicJsonDocument doc(256);
+/**
  * @brief Publishing system status, everything must be done
  * in one task to avoid using mutex and semaphore
  * 

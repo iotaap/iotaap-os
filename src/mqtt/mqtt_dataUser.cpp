@@ -5,15 +5,15 @@
 
 
 /**
- * @brief Pulishes payload to the topic. Root topic (username) will be automatically added
+ * @brief Publishes payloads to the MQTT topic. Root topic (username) will be automatically added
  * 
  * @param payload - Payload (JSON)
  * @param uTopic - Topic to publish to
- * @return int - Returns 0 if successfull
+ * @return int - Returns 0 if successful
  */
 int uBasicCloudPublish(const char *payload, const char *uTopic)
 {
-    /* Generate endpoint url and publish */
+    /* Generates endpoint url and publishes */
     char topicChar[256];
     sprintf( topicChar, "/%s/%s", MqttGetUser(), uTopic);
     mqttPublish(topicChar, payload, false);
@@ -22,14 +22,14 @@ int uBasicCloudPublish(const char *payload, const char *uTopic)
 }
 
 /**
- * @brief Subsribe to a specific topic. Root topic (username) will be added automatically
+ * @brief Subscribe to a specific topic. Root topic (username) will be added automatically
  * 
  * @param uTopic - Topic to subscribe to
- * @return int Returns 0 if successfull
+ * @return int Returns 0 if successful
  */
 int uBasicSubscribe(const char *uTopic)
 {
-    /* Generate endpoint url and subscribe */
+    /* Generates endpoint url and subscribes to topic */
     char topicChar[256];
     sprintf( topicChar, "/%s/%s", MqttGetUser(), uTopic);
     mqttSubscribe(topicChar);
@@ -41,11 +41,11 @@ int uBasicSubscribe(const char *uTopic)
  * @brief Unsubscribe from the specific topic
  * 
  * @param uTopic Topic (without root)
- * @return int Returns 0 if successfull
+ * @return int Returns 0 if successful
  */
 int uBasicUnsubscribe(const char *uTopic)
 {
-    /* Generate endpoint url and unsubscribe */
+    /* Generates endpoint url and unsubscribes */
     char topicChar[256];
     sprintf( topicChar, "/%s/%s", MqttGetUser(), uTopic);
     mqttUnsubscribe(topicChar);

@@ -72,7 +72,7 @@ PubSubClient _mqttClient(wifiClientSecure);
 
 /* Task */
 static void MqttTask( void *parameter);
-/* Phisically send message */
+/* Physically send message */
 static void publishMqttMessages( void);
 
 /******************************************************************************/
@@ -80,7 +80,7 @@ static void publishMqttMessages( void);
 /******************************************************************************/
 
 /**
- * @brief Ceate MqttProcess
+ * @brief Create MqttProcess task
  * 
  */
 static TaskHandle_t MqttHandler = NULL;
@@ -120,7 +120,7 @@ void InitMqttconfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 
 
 /**
- * @brief Adds new message to queue, it will be picked up by MqttProcess task and published
+ * @brief Adds new message to queue, it will be picked up by the MqttProcess task and published to topic
  * 
  * @param topic MQTT topic
  * @param payload MQTT topic payload
@@ -128,7 +128,7 @@ void InitMqttconfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
  */
 void mqttPublish(const char *topic, const char *payload, boolean retain)
 {
-    // If Queue is full data will be dropped
+    // If Queue is full, data will be dropped
     mqttMessageQueue.push({topic, payload, retain});
 }
 
@@ -137,13 +137,12 @@ void mqttPublish(const char *topic, const char *payload, boolean retain)
 /******************************************************************************/
 
 /**
- * @brief Check if mqtt is connected
+ * @brief Check if MQTT is connected
  */
 bool MqttIsConnected( void)
 {
     return mqttStat.mqttConnected;
 }
-
 
 /**
  * @brief Set MQTT callback function
@@ -153,15 +152,23 @@ void MqttSetCallback( MQTT_CALLBACK_SIGNATURE)
     mqttConfig.callback = MqttCallback;
     mqttConfig.user_callback = callback;
 }
-
+/**
+ * @brief Returns MQTT user
+ */
 const char *MqttGetUser( void)
 {
     return mqttConfig.mqttUser;
 }
-
-void MqttRunUserCallback( char *Topic, uint8_t *Message, unsigned int Length)
+/**
+ * @brief Runs Callback Function 
+ * 
+ * @param Topic MQTT Topic
+ * @param Message MQTT Message
+ * @param Length MQTT Message Length
+ */
+void MqttRunUserCallback( char *topic, uint8_t *message, unsigned int length)
 {
-    return mqttConfig.user_callback( Topic, Message, Length);
+    return mqttConfig.user_callback( topic, message, length);
 }
 
 /******************************************************************************/
@@ -174,13 +181,15 @@ void MqttRunUserCallback( char *Topic, uint8_t *Message, unsigned int Length)
  */
 static void MqttTask(void *parameter)
 {
-    mqttSubscribeToSystemRequestTopic();
+    mqttSubscribeToSystemRequestTopic(); 
 
-    mqttStat.mqttConnected = false;
+    mqttStat.mqttConnected = false; 
     while (1)
     {
         if (WifiIsConnected())
         {
+            //Initalises security certificate
+            wifiClientSecure.setTimeout(12); // timeout argument is defined in seconds for setTimeout
             wifiClientSecure.setCACert(SystemGetCAcertificate());
             _mqttClient.setBufferSize(1024);
             _mqttClient.setServer(mqttConfig.mqttServer, mqttConfig.port);
@@ -199,9 +208,9 @@ static void MqttTask(void *parameter)
             if (!mqttStat.mqttConnected)
             {
                 systemLog(tWARNING, "Not connected to MQTT broker");
-                vTaskDelay(1000 / portTICK_PERIOD_MS); // Try to connect every 1 second
+                vTaskDelay(1000 / portTICK_PERIOD_MS); // Re-attempts to connect every second
                 _mqttClient.connect(SystemGetDeviceId(), mqttConfig.mqttUser, mqttConfig.mqttPassword);
-                LedBlinkFast();
+                LedBlinkFast(); // Sets LED operating into fast mode - indicates not connected
                 systemLog(tINFO, "Restoring subscribed topics");
                 restoreSubscribedTopics();
             }
@@ -227,11 +236,15 @@ static void MqttTask(void *parameter)
                 * 
                 * Ideal solution for this issue should be parallel MQTTS and OTA connection, but currently it's not possible to use two WiFiClientSecure instances
                 * in parallel due to heap issues (consumes large amount of memory) and causes crashes.
+                * 
+                * Update: second instance of WiFiClientSecure has been removed as both MQTTS and OTA are now using the same certificate, OTA cert change code has been removed.
+                * 
+                * 
                 */
                 handleUpdates();
                 //
 
-                LedBlinkPeriodic();
+                LedBlinkPeriodic(); // Sets LED operating into periodic mode - indicates connected
             }
             vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
         }
@@ -243,7 +256,7 @@ static void MqttTask(void *parameter)
 
 
 /**
- * @brief Publish MQTT messages from queue
+ * @brief Publishes MQTT messages from the queue
  */
 static void publishMqttMessages( void)
 {
@@ -257,7 +270,7 @@ static void publishMqttMessages( void)
                                 mqttMessageQueue.peek().payload.c_str(),
                                 mqttMessageQueue.peek().retain))
         {
-            mqttMessageQueue.pop(); // just to remove member from queue
+            mqttMessageQueue.pop(); // Removes message being published from Queue
             systemLog(tINFO, "Message successfully published!");
         }
         else
