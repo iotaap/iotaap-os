@@ -1,3 +1,10 @@
+## [3.0.3] - 2021-03-08
+  
+### Fixed
+
+- Fixed Duplicated Certification reuse
+- Syntax & Grammar cleanup on comments
+
 ## [3.0.2] - 2021-02-10
 
 ### Changed
