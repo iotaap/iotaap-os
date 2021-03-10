@@ -13,6 +13,7 @@
 #include "./fs/serial_configuration.h"
 #include "./system/system_tasks.h"
 
+static bool CheckDirStructure( void);
 
 /**
  * @brief Initializes onboard SD card. It will restart ESP if failed
@@ -21,7 +22,7 @@
 void initializeFileSystem()
 {
     systemLog(tINFO, "Initializing filesystem");
-    if (!SD.begin(SD_CS_PIN))
+    if (!SD.begin(SD_CS_PIN) || !CheckDirStructure())
     {
         systemStat.fsInitialized = false;
         systemLog(tERROR, "Filesystem initialization failed");
@@ -79,4 +80,35 @@ void loadCertificate(const char *path, char *buffer)
     {
         systemLog(tERROR, "Failed to load SSL certificate");
     }
+}
+
+/**
+ * @brief   Check if directory structure exists
+ * @details If not - create new dir tree
+ * 
+ * @return  true/false
+ */
+static bool CheckDirStructure( void)
+{
+    const char *DirNames[] = 
+    {
+        SYSTEM_LOG_DIR,
+        CA_CRT_DIR,
+        CFG_DIR,
+        LOCAL_DATA_DIR,
+    };
+    int Len = sizeof(DirNames)/sizeof(*DirNames);
+
+    for (int i=0; i<Len; i++)
+    {
+        if (!SD.exists( (char *)DirNames[i]))
+        {
+            if (!SD.mkdir( (char *)DirNames[i]))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
