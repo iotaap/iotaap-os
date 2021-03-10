@@ -29,10 +29,17 @@
 #define MAX_SYSTEM_LOG_FILE_SIZE      50            // File max size (50MB)
 #define MAX_SYSTEM_LOGS_SIZE          2048          // Max is 2048 MB (2 GB)
 #define MAX_SYSTEM_LOGS_FILE_NUM      (MAX_SYSTEM_LOGS_SIZE/MAX_SYSTEM_LOG_FILE_SIZE)
-#define CA_CRT_PATH "etc/ssl/certs/ca.crt" // CA certificate path
-#define SYS_CFG_PATH "etc/device/default.cfg"  // System configuration file path
-#define USER_CFG_PATH "etc/device/custom.cfg"  // Custom configuration file path
-#define LOCAL_DATA_PATH "home/iotaap/data.log"  // System temporary publishing data log path
+/* CA certificate path */
+#define CA_CRT_DIR          "etc/ssl/certs/"
+#define CA_CRT_PATH         CA_CRT_DIR"ca.crt"
+/* System configuration file path */
+#define CFG_DIR             "etc/device/"
+#define SYS_CFG_PATH        CFG_DIR"default.cfg"
+/* Custom configuration file path */
+#define USER_CFG_PATH       CFG_DIR"custom.cfg"
+/* System temporary publishing data log path */
+#define LOCAL_DATA_DIR      "home/iotaap/"
+#define LOCAL_DATA_PATH     LOCAL_DATA_DIR"data.log"
 
 /* OTA */
 #define OTA_CHECK_DEVICE_URL "https://ota.iotaap.io/v1/ota/device/latest/"      // OTA update check endpoint for device
