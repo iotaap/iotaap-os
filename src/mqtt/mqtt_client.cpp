@@ -89,7 +89,7 @@ void connectToMqtt()
     xTaskCreate(
         MqttTask,
         "MqttProcess",
-        35000,
+        10000,
         NULL,
         1,
         &MqttHandler);
