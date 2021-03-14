@@ -97,7 +97,7 @@ void SyncNTPtask(void *parameter)
             systemStat.systemTimeSynced = true;
             getLocalTime(&systemStat.systemTime);
             systemStat.bootTime = getSystemTimeMs();
-            systemLog(tINFO, "Synced system time with NTP");
+            systemLog(tSYSTEM, "Synced system time with NTP");
         }
         if (!WifiIsConnected() && systemStat.systemTimeSynced)
         {

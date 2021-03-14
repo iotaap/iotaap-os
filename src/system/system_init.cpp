@@ -37,10 +37,10 @@ void systemInfo()
 {
     char sysInfoBuff[512];
     sprintf(sysInfoBuff, "IoTaaP OS - v%s", SystemGetFwVersion());
-    systemLog(tINFO, sysInfoBuff);
+    systemLog(tSYSTEM, sysInfoBuff);
     sprintf(sysInfoBuff, "Core version: %s", LIB_VERSION);
-    systemLog(tINFO, sysInfoBuff);
+    systemLog(tSYSTEM, sysInfoBuff);
     sprintf(sysInfoBuff, "Device ID: %s", SystemGetDeviceId());
-    systemLog(tINFO, sysInfoBuff);
-    systemLog(tINFO, "I come in peace!");
+    systemLog(tSYSTEM, sysInfoBuff);
+    systemLog(tSYSTEM, "I come in peace!");
 }
