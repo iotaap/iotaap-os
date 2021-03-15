@@ -3,7 +3,7 @@
 
 /* GENERAL CONFIG */
 #define LIB_VERSION "3.0.3"
-#define STATUS_PUBLISH_TIME 1000 // How often system status is published in ms
+#define STATUS_PUBLISH_TIME 5000 // How often system status is published in ms
 #define OTA_CHECK_TIME 21600000 // Period in ms for checking for OTA updates
 #define CUSTOM_WDT_TIMEOUT 30 // Watchdog timeout in seconds
 #define WIFI_CONNECT_TIMEOUT 5  // WiFi timeout in seconds
@@ -11,11 +11,11 @@
 #define ARDUINOJSON_USE_LONG_LONG 1 // Using int64 variables in JSON
 
 /* QUEUE SIZES */
-#define LOGS_QUEUE_SIZE 30
-#define LOCAL_DATA_QUEUE_SIZE 30
+#define LOGS_QUEUE_SIZE 10
+#define LOCAL_DATA_QUEUE_SIZE 20
 #define SUBS_TOPIC_QUEUE_SIZE 10
 #define UNSUBS_TOPIC_QUEUE_SIZE 10
-#define MQTT_MESSAGES_QUEUE_SIZE 60
+#define MQTT_MESSAGES_QUEUE_SIZE 50
 
 /* PINS */
 #define BATSENS_PIN 36 // Battery voltage sensor pin

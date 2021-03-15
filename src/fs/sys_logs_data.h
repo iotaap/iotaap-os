@@ -5,6 +5,7 @@
 enum logType
 {
     tINFO = 0,
+    tSYSTEM,
     tERROR,
     tWARNING,
     tUSER

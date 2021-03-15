@@ -21,7 +21,7 @@ static bool CheckDirStructure( void);
  */
 void initializeFileSystem()
 {
-    systemLog(tINFO, "Initializing filesystem");
+    systemLog(tSYSTEM, "Initializing filesystem");
     if (!SD.begin(SD_CS_PIN) || !CheckDirStructure())
     {
         systemStat.fsInitialized = false;
@@ -31,7 +31,7 @@ void initializeFileSystem()
     else
     {
         systemStat.fsInitialized = true;
-        systemLog(tINFO, "Filesystem initialized");
+        systemLog(tSYSTEM, "Filesystem initialized");
     }
 }
 

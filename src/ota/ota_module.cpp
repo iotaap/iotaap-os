@@ -45,7 +45,7 @@ void handleUpdates()
  */
 void checkUpdate()
 {
-    systemLog(tINFO, "Checking for updates");
+    systemLog(tSYSTEM, "Checking for updates");
     DynamicJsonDocument versionJson(128);
     
     wifiClientSecure.stop();
@@ -70,19 +70,19 @@ void checkUpdate()
 
         if (version != SystemGetFwVersion())
         {
-            systemLog(tINFO, "New update available!");
+            systemLog(tSYSTEM, "New update available!");
             otaUpdate();
         }
         else
         {
             updatesHttpClient.end();
-            systemLog(tINFO, "No new updates");
+            systemLog(tSYSTEM, "No new updates");
         }
     }
     else if (httpCode == 404)
     { // Not found return code
         updatesHttpClient.end();
-        systemLog(tINFO, "No firmware available");
+        systemLog(tSYSTEM, "No firmware available");
     }
     else
     {   //return code not identified
@@ -101,7 +101,7 @@ void checkUpdate()
  */
 void otaUpdate()
 {
-    systemLog(tINFO, "Starting update process...");
+    systemLog(tSYSTEM, "Starting update process...");
     systemStat.updateInProgress = true;
     t_httpUpdate_return ret;
     httpUpdate.setLedPin(LED1);
@@ -135,7 +135,7 @@ void otaUpdate()
         break;
 
     case HTTP_UPDATE_NO_UPDATES:
-        systemLog(tINFO, "No new updates available");
+        systemLog(tSYSTEM, "No new updates available");
         systemStat.updateInProgress = false;
         break;
 
