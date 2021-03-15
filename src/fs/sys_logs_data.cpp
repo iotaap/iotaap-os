@@ -209,6 +209,11 @@ void systemLog(logType type, const char *message)
         typeS = "INFO";
         break;
     }
+    case tSYSTEM:
+    {
+        typeS = "SYSTEM";
+        break;
+    }
     case tERROR:
     {
         typeS = "ERROR";
@@ -231,7 +236,10 @@ void systemLog(logType type, const char *message)
 
     sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), typeS, message);
     PrintDebugInfo(logBuff);
-    createFSlog(logBuff);
+    
+    if(type != tINFO){
+        createFSlog(logBuff);
+    }
 }
 
 
