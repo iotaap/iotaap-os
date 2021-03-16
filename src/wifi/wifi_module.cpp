@@ -31,7 +31,7 @@ struct sWifiConfig
 /* WIFI status */
 sWifiStat wifiStat;
 /* WIFI configuration */
-sWifiConfig wifiConfig;
+sWifiConfig wifiConfig = {0};
 /* Secure connection - EXTERN - shared between MQTT and OTA update */
 WiFiClientSecure wifiClientSecure;
 
@@ -40,9 +40,9 @@ WiFiClientSecure wifiClientSecure;
  */
 struct sJsonKeys JsonWifiData[] = 
 {
-    { wifiConfig.wifiSSID, JsonDataTypeString_32, "ssid"     },
-    { wifiConfig.wifiPASS, JsonDataTypeString_32, "ssid_pass"},
-    {&wifiConfig.rof     , JsonDataTypeBool     , "rof"      },
+    { wifiConfig.wifiSSID, JsonDataTypeString_32, "ssid"     , "SSID"              },
+    { wifiConfig.wifiPASS, JsonDataTypePass_32  , "ssid_pass", "SSID Password"     },
+    {&wifiConfig.rof     , JsonDataTypeBool     , "rof"      , "Restart on Failure"},
 };
 
 
@@ -87,6 +87,18 @@ void InitWificonfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 #endif
 }
 
+/**
+ * @brief Does wifi credentials exist
+ */
+bool WifiCredentialsExist( void)
+{
+    if (wifiConfig.wifiSSID[0])
+    {
+        return true;
+    }
+
+    return false;
+}
 
 /******************************************************************************/
 /***** DATA FUNCTIONS *********************************************************/

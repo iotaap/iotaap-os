@@ -58,10 +58,10 @@ struct sMqttConfig mqttConfig;
 /* Data from JSON in structure */
 struct sJsonKeys JsonMqttData[] = 
 {
-    { mqttConfig.mqttServer  , JsonDataTypeString_20, "mqtt_server"},
-    { mqttConfig.mqttUser    , JsonDataTypeString_20, "mqtt_user"  },
-    { mqttConfig.mqttPassword, JsonDataTypeString_20, "mqtt_pass"  },
-    {&mqttConfig.port        , JsonDataTypeInt      , "mqtt_port"  }
+    { mqttConfig.mqttServer  , JsonDataTypeString_20, "mqtt_server", "MQTT Server"  },
+    { mqttConfig.mqttUser    , JsonDataTypeString_20, "mqtt_user"  , "MQTT User"    },
+    { mqttConfig.mqttPassword, JsonDataTypePass_20  , "mqtt_pass"  , "MQTT Password"},
+    {&mqttConfig.port        , JsonDataTypeInt      , "mqtt_port"  , "MQTT Port"    }
 };
 /* Queue for MQTT messaging */
 Queue<sMqttMessage> mqttMessageQueue(MQTT_MESSAGES_QUEUE_SIZE);

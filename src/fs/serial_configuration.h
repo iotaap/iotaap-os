@@ -9,5 +9,6 @@ void SerialJsonCfgSelectFile( const char *FilePath);
 bool SerialJsonCfgPrintKey( void);
 void SerialJsonCfgSetValue( char *Data);
 void HandleJsonCfgFile( void);
+bool FromCfgSaveData( bool ResetAfter);
 
 #endif // __SERIAL_CONFIGURATION_H__

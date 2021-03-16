@@ -49,8 +49,8 @@ int InitSystemParameters( void)
     SysCfgFile.close();
 
     /* Load system configuration */
-    InitSystemConfigDataFromJsonDocument( sysConfigDoc);
     InitWificonfigDataFromJsonDocument( sysConfigDoc);
+    InitSystemConfigDataFromJsonDocument( sysConfigDoc);
     InitMqttconfigDataFromJsonDocument( sysConfigDoc);
 
     /* TEST CODE */
