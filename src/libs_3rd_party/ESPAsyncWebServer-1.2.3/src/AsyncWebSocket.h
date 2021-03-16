@@ -23,7 +23,7 @@
 
 #include <Arduino.h>
 #ifdef ESP32
-#include "..\..\AsyncTCP-1.1.1\src\AsyncTCP.h"
+#include "../../AsyncTCP-1.1.1/src/AsyncTCP.h"
 #define WS_MAX_QUEUED_MESSAGES 32
 #else
 #include <ESPAsyncTCP.h>

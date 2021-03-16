@@ -2,15 +2,15 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
-#include ".\libs_3rd_party\AsyncTCP-1.1.1\src\AsyncTCP.h"
-#include ".\libs_3rd_party\ESPAsyncWebServer-1.2.3\src\ESPAsyncWebServer.h"
+#include "./libs_3rd_party/AsyncTCP-1.1.1/src/AsyncTCP.h"
+#include "./libs_3rd_party/ESPAsyncWebServer-1.2.3/src/ESPAsyncWebServer.h"
 #include "configPage.h"
 #include "mbedtls/md5.h"
-#include ".\system\system_json.h"
-#include ".\system\definitions.h"
-#include ".\system\system_configuration.h"
-#include ".\fs\serial_configuration.h"
-#include ".\hmi\led_task.h"
+#include "./system/system_json.h"
+#include "./system/definitions.h"
+#include "./system/system_configuration.h"
+#include "./fs/serial_configuration.h"
+#include "./hmi/led_task.h"
 
 #define MAX_REGISTERED_CONFS    5
 AsyncWebServer server(80);
