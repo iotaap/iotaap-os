@@ -105,7 +105,7 @@ const char configPageStyleRedH1[] PROGMEM = R"rawliteral(
 h1 {color: red;}
 )rawliteral";
 const char configPageStyleGreenH1[] PROGMEM = R"rawliteral(
-h1 {color: red;}
+h1 {color: green;}
 )rawliteral";
 const char configPageStyleDiv[] PROGMEM = R"rawliteral(
 div {background: #fff;max-width: 500px;margin: 75px auto;
