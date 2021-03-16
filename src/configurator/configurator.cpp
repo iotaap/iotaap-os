@@ -2,8 +2,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
+#include ".\libs_3rd_party\AsyncTCP-1.1.1\src\AsyncTCP.h"
+#include ".\libs_3rd_party\ESPAsyncWebServer-1.2.3\src\ESPAsyncWebServer.h"
 #include "configPage.h"
 #include "mbedtls/md5.h"
 #include ".\system\system_json.h"
