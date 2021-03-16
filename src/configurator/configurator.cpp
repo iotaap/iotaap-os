@@ -10,6 +10,7 @@
 #include ".\system\definitions.h"
 #include ".\system\system_configuration.h"
 #include ".\fs\serial_configuration.h"
+#include ".\hmi\led_task.h"
 
 #define MAX_REGISTERED_CONFS    5
 AsyncWebServer server(80);
@@ -50,6 +51,8 @@ void startConfigurator( void)
     /* Create a Unique AP from MAC address */
     char ssid[32];
     char password[32];
+
+    LedBlinkConfigurator();
 
     Serial.begin(115200);
 

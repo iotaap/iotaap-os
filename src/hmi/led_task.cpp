@@ -106,6 +106,7 @@ void LedPinInit(unsigned int PinNum)
  * @details LedSwitchOn()
  *          LedSwitchOff()
  *          LedBlinkFast() 80/80 ms
+ *          LedBlinkConfigurator() 500/50 ms
  *          LedBlinkSlow() 300/300 ms
  *          LedBlinkPeriodic() 50/10000 ms
  *          LedBlinkUser(unsigned int, unsigned int) on/off ms
@@ -125,6 +126,12 @@ void LedBlinkFast(void)
     Led.TaskState = LED_STATE_BLINK;
     Led.HighPeriod = 80;
     Led.LowPeriod = 80;
+}
+void LedBlinkConfigurator(void)
+{
+    Led.TaskState = LED_STATE_BLINK;
+    Led.HighPeriod = 500;
+    Led.LowPeriod = 50;
 }
 void LedBlinkSlow(void)
 {
