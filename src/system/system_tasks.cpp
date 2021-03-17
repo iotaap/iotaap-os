@@ -10,6 +10,7 @@
 #include "./wifi/wifi_module.h"
 #include "./fs/sys_cfg.h"
 #include "./system/system_configuration.h"
+#include "./configurator/configurator.h"
 
 sSystemStat systemStat;
 
@@ -19,6 +20,7 @@ static TaskHandle_t SyncNTPhandler = NULL;
 static TaskHandle_t FSmanagerHandler = NULL;
 static TaskHandle_t LedTaskHandler = NULL;
 static TaskHandle_t SerialHandler = NULL;
+static TaskHandle_t ConfiguratorTaskHandler = NULL;
 
 // System tasks
 void createSystemTasks()
@@ -30,6 +32,14 @@ void createSystemTasks()
         NULL,
         1,
         &LedTaskHandler);
+        
+    xTaskCreate(
+        HandleConfiguratorActivity,
+        "HandleConfiguratorActivity",
+        2000,
+        NULL,
+        1,
+        &ConfiguratorTaskHandler);
 
     xTaskCreate(
         FSmanagerTask,
@@ -97,7 +107,7 @@ void SyncNTPtask(void *parameter)
             systemStat.systemTimeSynced = true;
             getLocalTime(&systemStat.systemTime);
             systemStat.bootTime = getSystemTimeMs();
-            systemLog(tINFO, "Synced system time with NTP");
+            systemLog(tSYSTEM, "Synced system time with NTP");
         }
         if (!WifiIsConnected() && systemStat.systemTimeSynced)
         {

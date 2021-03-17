@@ -12,7 +12,9 @@
 #include "./fs/local_data.h"
 #include "./fs/serial_configuration.h"
 #include "./system/system_tasks.h"
+#include "./system/utils.h"
 
+static bool CheckDirStructure( void);
 
 /**
  * @brief Initializes onboard SD card. It will restart ESP if failed
@@ -20,18 +22,25 @@
  */
 void initializeFileSystem()
 {
-    systemLog(tINFO, "Initializing filesystem");
-    if (!SD.begin(SD_CS_PIN))
+    systemLog(tSYSTEM, "Initializing filesystem");
+    if (!SD.begin(SD_CS_PIN) || !CheckDirStructure())
     {
+        char logBuff[255];
+        char Time[TIME_STRING_LENGTH];
         systemStat.fsInitialized = false;
-        systemLog(tERROR, "Filesystem initialization failed");
+        /*Huge system issue, SD card not present or broken, display issue on debug port*/
+        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Filesystem initialization failed");
+        Serial.println(logBuff);
+        vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
         ESP.restart();
     }
     else
     {
         systemStat.fsInitialized = true;
-        systemLog(tINFO, "Filesystem initialized");
+        systemLog(tSYSTEM, "Filesystem initialized");
     }
+
+    systemStat.sysCfgExist = SD.exists( (char *)SYS_CFG_PATH);
 }
 
 
@@ -79,4 +88,35 @@ void loadCertificate(const char *path, char *buffer)
     {
         systemLog(tERROR, "Failed to load SSL certificate");
     }
+}
+
+/**
+ * @brief   Check if directory structure exists
+ * @details If not - create new dir tree
+ * 
+ * @return  true/false
+ */
+static bool CheckDirStructure( void)
+{
+    const char *DirNames[] = 
+    {
+        SYSTEM_LOG_DIR,
+        CA_CRT_DIR,
+        CFG_DIR,
+        LOCAL_DATA_DIR,
+    };
+    int Len = sizeof(DirNames)/sizeof(*DirNames);
+
+    for (int i=0; i<Len; i++)
+    {
+        if (!SD.exists( (char *)DirNames[i]))
+        {
+            if (!SD.mkdir( (char *)DirNames[i]))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }

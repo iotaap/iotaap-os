@@ -40,7 +40,6 @@ struct sMqttMessage
 struct sMqttConfig
 {
     char mqttServer[20];
-    unsigned int mqttPort;
     char mqttUser[20];
     char mqttPassword[20];
     uint16_t port;
@@ -53,15 +52,23 @@ struct sMqttConfig
 /* MQTT status */
 struct sMqttStat mqttStat;
 /* MQTT configuration */
-struct sMqttConfig mqttConfig;
+struct sMqttConfig mqttConfig
+{
+    "mqtt1.iotaap.io",  /* mqttServer              */
+    "",                 /* mqttUser                */
+    "",                 /* mqttPassword            */
+    8883,               /* port                    */
+    NULL,               /* MQTT_CALLBACK_SIGNATURE */
+    NULL                /* user_callback           */
+};
 
 /* Data from JSON in structure */
 struct sJsonKeys JsonMqttData[] = 
 {
-    { mqttConfig.mqttServer  , JsonDataTypeString_20, "mqtt_server"},
-    { mqttConfig.mqttUser    , JsonDataTypeString_20, "mqtt_user"  },
-    { mqttConfig.mqttPassword, JsonDataTypeString_20, "mqtt_pass"  },
-    {&mqttConfig.port        , JsonDataTypeInt      , "mqtt_port"  }
+    { mqttConfig.mqttServer  , JsonDataTypeString_20, "mqtt_server", "MQTT Server"  },
+    { mqttConfig.mqttUser    , JsonDataTypeString_20, "mqtt_user"  , "MQTT User"    },
+    { mqttConfig.mqttPassword, JsonDataTypePass_20  , "mqtt_pass"  , "MQTT Password"},
+    {&mqttConfig.port        , JsonDataTypeInt      , "mqtt_port"  , "MQTT Port"    }
 };
 /* Queue for MQTT messaging */
 Queue<sMqttMessage> mqttMessageQueue(MQTT_MESSAGES_QUEUE_SIZE);
@@ -89,7 +96,7 @@ void connectToMqtt()
     xTaskCreate(
         MqttTask,
         "MqttProcess",
-        35000,
+        10000,
         NULL,
         1,
         &MqttHandler);

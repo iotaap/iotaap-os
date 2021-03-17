@@ -8,6 +8,7 @@
 #include "./fs/sys_logs_data.h"
 #include "./mqtt/mqtt_client.h"
 #include "./system/system_configuration.h"
+#include "./configurator/configurator.h"
 
 /**
  * @brief Initialize all system parameters
@@ -18,6 +19,7 @@ void systemInit()
     esp_task_wdt_init(CUSTOM_WDT_TIMEOUT, true);
     delay(1000);
 
+    ConfiguratorInit();
     periphInit();
     initializeFileSystem();
 
@@ -37,10 +39,10 @@ void systemInfo()
 {
     char sysInfoBuff[512];
     sprintf(sysInfoBuff, "IoTaaP OS - v%s", SystemGetFwVersion());
-    systemLog(tINFO, sysInfoBuff);
+    systemLog(tSYSTEM, sysInfoBuff);
     sprintf(sysInfoBuff, "Core version: %s", LIB_VERSION);
-    systemLog(tINFO, sysInfoBuff);
+    systemLog(tSYSTEM, sysInfoBuff);
     sprintf(sysInfoBuff, "Device ID: %s", SystemGetDeviceId());
-    systemLog(tINFO, sysInfoBuff);
-    systemLog(tINFO, "I come in peace!");
+    systemLog(tSYSTEM, sysInfoBuff);
+    systemLog(tSYSTEM, "I come in peace!");
 }

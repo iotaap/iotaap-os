@@ -16,6 +16,7 @@ void LedTask(void *parameter);
 void LedSwitchOn(void);
 void LedSwitchOff(void);
 void LedBlinkFast(void);
+void LedBlinkConfigurator(void);
 void LedBlinkSlow(void);
 void LedBlinkPeriodic(void);
 void LedBlinkUser(unsigned int HighPeriodMs, unsigned int LowPeriodMs);

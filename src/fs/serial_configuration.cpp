@@ -1,9 +1,13 @@
 #include "serial_configuration.h"
 
+#include "./system/definitions.h"
+#include "./system/system_configuration.h"
 #include "./libs_3rd_party/micro-sdcard/mySD.h"
 #include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
 #include "./fs/json_memory.h"
 #include "./fs/sys_logs_data.h"
+#include "./configurator/configurator.h"
+#include "./system/system_json.h"
 
 
 /* Pointer to a filename, system or user */
@@ -12,6 +16,12 @@ const char *SelectedFile = NULL;
 bool IsWizardActive = false;
 /* Flag to command write new data to JSON */
 bool WriteDataToNewJson = false;
+
+/* Flag to command write data to certificate file */
+static bool ExportCertificate = false;
+/* Flag to command write data to JSON from syscfg */
+static bool ExportJson = false;
+static bool ExportJsonResetAfter = false;
 
 /* Json objects */
 StaticJsonDocument<2048> JsonDocOld;
@@ -36,6 +46,65 @@ void HandleJsonCfgFile( void)
 {
     if (SelectedFile == NULL || IsWizardActive)
     {
+        if (ExportCertificate)
+        {
+            ExportCertificate = false;
+            SD.remove( (char *)CA_CRT_PATH);
+            
+            File CertFile = SD.open( CA_CRT_PATH, FILE_WRITE);
+
+            if (!CertFile)
+            {
+                Serial.println("(data is not saved)");
+                return;
+            }
+            CertFile.write( SystemGetCAcertificate());
+            CertFile.flush();
+            CertFile.close();
+        }
+
+        if (ExportJson)
+        {
+            JsonDocNew.clear();
+            for (int i=0; configuratorGetConf(i); i++)
+            {
+                struct configParameters *conf = configuratorGetConf(i);
+                struct sJsonKeys *JsDt = conf->Data;
+
+                for (int j=0; j<conf->Size; j++, JsDt++)
+                {
+                    switch (JsDt->ElementDataType)
+                    {
+                        case JsonDataTypeInt:
+                        {
+                            JsonDocNew[JsDt->ElementKey] = *(int *)JsDt->ElementPointer;
+                        }
+                        break;
+
+                        case JsonDataTypeString_20:
+                        case JsonDataTypeString_30:
+                        case JsonDataTypeString_32:
+                        case JsonDataTypePass_20:
+                        case JsonDataTypePass_30:
+                        case JsonDataTypePass_32:
+                        {
+                            JsonDocNew[JsDt->ElementKey] = (char *)JsDt->ElementPointer;
+                        }
+                        break;
+                        
+                        case JsonDataTypeBool:
+                        {
+                            JsonDocNew[JsDt->ElementKey] = *(bool *)JsDt->ElementPointer;
+                        }
+                        break;
+                    }
+                }
+            }
+            ExportJson = false;
+            WriteDataToNewJson = true;
+            SelectedFile = SYS_CFG_PATH;
+        }
+
         /* Write data to new JSON */
         if (WriteDataToNewJson)
         {
@@ -60,11 +129,17 @@ void HandleJsonCfgFile( void)
                     return;
                 }
                 serializeJsonPretty( JsonDocNew, ConfigFile);
+                ConfigFile.flush();
                 ConfigFile.close();
                 
                 Serial.println("(data is saved)");
+                if (ExportJsonResetAfter)
+                {
+                    ConfiguratorDeactivate();
+                    vTaskDelay(1000/portTICK_PERIOD_MS);
+                    ESP.restart();
+                }
             }
-
         }
         return;
     }
@@ -215,4 +290,24 @@ void SerialJsonCfgSetValue( char *Data)
     }
     
     ++KeyNum;
+}
+
+
+/**
+ * @brief   Switch flags to save cfg data to JSON
+ */
+bool FromCfgSaveData( bool ResetAfter)
+{
+    if (IsWizardActive)
+    {
+        return false;
+    }
+
+    ExportCertificate = true;
+    ExportJson = true;
+    ExportJsonResetAfter = ResetAfter;
+
+    SerialJsonCfgSelectFile( SYS_CFG_PATH);
+
+    return true;
 }
