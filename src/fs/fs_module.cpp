@@ -12,6 +12,7 @@
 #include "./fs/local_data.h"
 #include "./fs/serial_configuration.h"
 #include "./system/system_tasks.h"
+#include "./system/utils.h"
 
 static bool CheckDirStructure( void);
 
@@ -24,8 +25,13 @@ void initializeFileSystem()
     systemLog(tSYSTEM, "Initializing filesystem");
     if (!SD.begin(SD_CS_PIN) || !CheckDirStructure())
     {
+        char logBuff[255];
+        char Time[TIME_STRING_LENGTH];
         systemStat.fsInitialized = false;
-        systemLog(tERROR, "Filesystem initialization failed");
+        /*Huge system issue, SD card not present or broken, display issue on debug port*/
+        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Filesystem initialization failed");
+        Serial.println(logBuff);
+        vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
         ESP.restart();
     }
     else
