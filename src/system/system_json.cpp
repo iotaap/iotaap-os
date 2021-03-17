@@ -1,5 +1,6 @@
 #include "system_json.h"
 #include "./configurator/configurator.h"
+#include "./system/system_tasks.h"
 
 struct sSystemJsonAllData
 {
@@ -21,6 +22,11 @@ void InitDataFromSystemJson( DynamicJsonDocument ConfigJson,
 {
     /* Register JsonSystemData to configurator web page */
     configuratorRegister( JsonSystemData, JsonStructSize);
+
+    if (!systemStat.sysCfgExist)
+    {
+        return;
+    }
     
     /* Save to locally to have data, once will be requested */
     SystemJsonAllData[SystemJsonAllDataLength].JsonData   = JsonSystemData;

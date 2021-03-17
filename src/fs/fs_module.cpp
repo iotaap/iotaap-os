@@ -39,6 +39,8 @@ void initializeFileSystem()
         systemStat.fsInitialized = true;
         systemLog(tSYSTEM, "Filesystem initialized");
     }
+
+    systemStat.sysCfgExist = SD.exists( (char *)SYS_CFG_PATH);
 }
 
 

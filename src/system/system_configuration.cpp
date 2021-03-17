@@ -17,7 +17,19 @@ struct sSystemConfig
     char CAcert[8192];
 };
 
-sSystemConfig systemConfig;
+sSystemConfig systemConfig =
+{
+    "",                 /* deviceID         */
+    "",                 /* deviceToken      */
+    "",                 /* groupID          */
+    "",                 /* groupToken       */
+    4,                  /* timezone         */
+    "pool.ntp.org",     /* ntp1             */
+    "time.nist.gov",    /* ntp2             */
+    "",                 /* fwVersion        */
+    false,              /* automaticUpdates */
+    ""                  /* CAcert           */
+};
 
 /* Data from JSON in structure */
 struct sJsonKeys JsonSysData[] = 
