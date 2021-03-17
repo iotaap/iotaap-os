@@ -102,6 +102,7 @@ void HandleJsonCfgFile( void)
             }
             ExportJson = false;
             WriteDataToNewJson = true;
+            SelectedFile = SYS_CFG_PATH;
         }
 
         /* Write data to new JSON */

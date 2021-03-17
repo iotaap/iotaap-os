@@ -31,7 +31,12 @@ struct sWifiConfig
 /* WIFI status */
 sWifiStat wifiStat;
 /* WIFI configuration */
-sWifiConfig wifiConfig = {0};
+sWifiConfig wifiConfig =
+{
+    "",     /* wifiSSID */
+    "",     /* wifiPASS */
+    true    /* rof      */
+};
 /* Secure connection - EXTERN - shared between MQTT and OTA update */
 WiFiClientSecure wifiClientSecure;
 

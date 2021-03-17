@@ -40,7 +40,6 @@ struct sMqttMessage
 struct sMqttConfig
 {
     char mqttServer[20];
-    unsigned int mqttPort;
     char mqttUser[20];
     char mqttPassword[20];
     uint16_t port;
@@ -53,7 +52,15 @@ struct sMqttConfig
 /* MQTT status */
 struct sMqttStat mqttStat;
 /* MQTT configuration */
-struct sMqttConfig mqttConfig;
+struct sMqttConfig mqttConfig
+{
+    "mqtt1.iotaap.io",  /* mqttServer              */
+    "",                 /* mqttUser                */
+    "",                 /* mqttPassword            */
+    8883,               /* port                    */
+    NULL,               /* MQTT_CALLBACK_SIGNATURE */
+    NULL                /* user_callback           */
+};
 
 /* Data from JSON in structure */
 struct sJsonKeys JsonMqttData[] = 
