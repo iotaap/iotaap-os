@@ -8,6 +8,7 @@
 #include "./fs/sys_logs_data.h"
 #include "./mqtt/mqtt_client.h"
 #include "./system/system_configuration.h"
+#include "./configurator/configurator.h"
 
 /**
  * @brief Initialize all system parameters
@@ -18,6 +19,7 @@ void systemInit()
     esp_task_wdt_init(CUSTOM_WDT_TIMEOUT, true);
     delay(1000);
 
+    ConfiguratorInit();
     periphInit();
     initializeFileSystem();
 

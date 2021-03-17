@@ -16,6 +16,9 @@ enum eJsonDataType
     JsonDataTypeString_20,
     JsonDataTypeString_30,
     JsonDataTypeString_32,
+    JsonDataTypePass_20,
+    JsonDataTypePass_30,
+    JsonDataTypePass_32,
 };
 
 struct sJsonKeys
@@ -23,6 +26,7 @@ struct sJsonKeys
     void *ElementPointer;
     enum eJsonDataType ElementDataType;
     const char *ElementKey;
+    const char *ElementDesc;
 };
 
 void InitDataFromSystemJson( DynamicJsonDocument ConfigJson,

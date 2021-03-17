@@ -15,6 +15,7 @@ struct sSystemStat
     bool fsInitialized;        // True if filesystem (SD card) is successfully initialized
     bool updateInProgress;     // True if update is in progress
     bool updateCheckRequested; // True if check for update has been manually requested
+    bool sysCfgExist;
 };
 
 extern sSystemStat systemStat;

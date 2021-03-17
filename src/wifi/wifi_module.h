@@ -10,6 +10,7 @@ extern WiFiClientSecure wifiClientSecure;
 
 void wifiConnect( void);
 void InitWificonfigDataFromJsonDocument( DynamicJsonDocument ConfigJson);
+bool WifiCredentialsExist( void);
 
 bool WifiIsConnected( void);
 

@@ -21,6 +21,8 @@
 #define BATSENS_PIN 36 // Battery voltage sensor pin
 #define SD_CS_PIN 5    // SD Card CS pin
 #define LED1 2         // Onboard LED1 pin
+#define CONFIGURATOR_BUTTON     25
+#define CONFIGURATOR_ENTER_MS   1000
 
 /* FS */
 #define SYSTEM_LOG_DIR                "var/log/"    // System logs directory

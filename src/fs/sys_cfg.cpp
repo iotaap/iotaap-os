@@ -14,6 +14,10 @@
 #include "./mqtt/mqtt_client.h"
 #include "./wifi/wifi_module.h"
 #include "./system/system_configuration.h"
+#include "./fs/serial_configuration.h"
+
+
+static void CreateDefauleSysCfgFile( char *Path);
 
 
 /**
@@ -28,6 +32,7 @@ int InitSystemParameters( void)
     File SysCfgFile = SD.open(SYS_CFG_PATH, FILE_READ);
     if (!SysCfgFile)
     {
+        CreateDefauleSysCfgFile( (char *)SYS_CFG_PATH);
         systemLog(tERROR, "Failed to load system configuration");
         return 1;
     }
@@ -49,8 +54,8 @@ int InitSystemParameters( void)
     SysCfgFile.close();
 
     /* Load system configuration */
-    InitSystemConfigDataFromJsonDocument( sysConfigDoc);
     InitWificonfigDataFromJsonDocument( sysConfigDoc);
+    InitSystemConfigDataFromJsonDocument( sysConfigDoc);
     InitMqttconfigDataFromJsonDocument( sysConfigDoc);
 
     /* TEST CODE */
@@ -73,4 +78,39 @@ int InitSystemParameters( void)
     #endif
 
     return 0;
+}
+
+
+/**
+ * @brief Create default system JSON
+ * @details Default JSON document:
+ *      {
+ *          "ssid": "",
+ *          "ssid_pass": "",
+ *          "rof": true,
+ *          "device_id": "",
+ *          "device_token": "",
+ *          "group_id": "",
+ *          "group_token": "",
+ *          "auto_update": false,
+ *          "ntp_1": "pool.ntp.org",
+ *          "ntp_2": "time.nist.gov",
+ *          "timezone": 4,
+ *          "mqtt_server": "mqtt1.iotaap.io",
+ *          "mqtt_user": "",
+ *          "mqtt_pass": "",
+ *          "mqtt_port": 8883
+ *      }
+ */
+static void CreateDefauleSysCfgFile( char *Path)
+{
+    DynamicJsonDocument sysConfigDoc(2);
+    sysConfigDoc.clear();
+
+    /* Send empty configuration for init only */
+    InitWificonfigDataFromJsonDocument( sysConfigDoc);
+    InitSystemConfigDataFromJsonDocument( sysConfigDoc);
+    InitMqttconfigDataFromJsonDocument( sysConfigDoc);
+
+    FromCfgSaveData( true);
 }

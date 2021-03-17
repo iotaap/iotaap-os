@@ -1,4 +1,6 @@
 #include "system_json.h"
+#include "./configurator/configurator.h"
+#include "./system/system_tasks.h"
 
 struct sSystemJsonAllData
 {
@@ -18,6 +20,14 @@ unsigned int SystemJsonAllDataLength = 0;
 void InitDataFromSystemJson( DynamicJsonDocument ConfigJson,
                         struct sJsonKeys *JsonSystemData, int JsonStructSize)
 {
+    /* Register JsonSystemData to configurator web page */
+    configuratorRegister( JsonSystemData, JsonStructSize);
+
+    if (!systemStat.sysCfgExist)
+    {
+        return;
+    }
+    
     /* Save to locally to have data, once will be requested */
     SystemJsonAllData[SystemJsonAllDataLength].JsonData   = JsonSystemData;
     SystemJsonAllData[SystemJsonAllDataLength].StructSize = JsonStructSize;
@@ -42,9 +52,13 @@ void InitDataFromSystemJson( DynamicJsonDocument ConfigJson,
                                 ConfigJson[JsonSystemData[i].ElementKey];
             } break;
 
-            case JsonDataTypeString_20: KeyValueLength=20; break;
-            case JsonDataTypeString_30: KeyValueLength=30; break;
-            case JsonDataTypeString_32: KeyValueLength=32; break;
+            case JsonDataTypeString_20:
+            case JsonDataTypePass_20:   KeyValueLength=20; break;
+            case JsonDataTypeString_30:
+            case JsonDataTypePass_30:   KeyValueLength=30; break;
+            case JsonDataTypeString_32:
+            case JsonDataTypePass_32:   KeyValueLength=32; break;
+
         }
 
         /* If string - copy string */

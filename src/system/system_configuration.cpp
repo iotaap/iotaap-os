@@ -17,19 +17,31 @@ struct sSystemConfig
     char CAcert[8192];
 };
 
-sSystemConfig systemConfig;
+sSystemConfig systemConfig =
+{
+    "",                 /* deviceID         */
+    "",                 /* deviceToken      */
+    "",                 /* groupID          */
+    "",                 /* groupToken       */
+    4,                  /* timezone         */
+    "pool.ntp.org",     /* ntp1             */
+    "time.nist.gov",    /* ntp2             */
+    "",                 /* fwVersion        */
+    false,              /* automaticUpdates */
+    ""                  /* CAcert           */
+};
 
 /* Data from JSON in structure */
 struct sJsonKeys JsonSysData[] = 
 {
-    { systemConfig.deviceID        , JsonDataTypeString_30, "device_id"   },
-    { systemConfig.groupID         , JsonDataTypeString_30, "group_id"    },
-    { systemConfig.deviceToken     , JsonDataTypeString_30, "device_token"},
-    { systemConfig.groupToken      , JsonDataTypeString_30, "group_token" },
-    {&systemConfig.automaticUpdates, JsonDataTypeBool     , "auto_update" },
-    { systemConfig.ntp1            , JsonDataTypeString_20, "ntp_1"       },
-    { systemConfig.ntp2            , JsonDataTypeString_20, "ntp_2"       },
-    {&systemConfig.timezone        , JsonDataTypeInt      , "timezone"    }
+    { systemConfig.deviceID        , JsonDataTypeString_30, "device_id"   , "Device ID"   },
+    { systemConfig.deviceToken     , JsonDataTypePass_30  , "device_token", "Device Token"},
+    { systemConfig.groupID         , JsonDataTypeString_30, "group_id"    , "Group ID"    },
+    { systemConfig.groupToken      , JsonDataTypePass_30  , "group_token" , "Group Token" },
+    {&systemConfig.automaticUpdates, JsonDataTypeBool     , "auto_update" , "Auto Update" },
+    { systemConfig.ntp1            , JsonDataTypeString_20, "ntp_1"       , "NTP 1"       },
+    { systemConfig.ntp2            , JsonDataTypeString_20, "ntp_2"       , "NTP 2"       },
+    {&systemConfig.timezone        , JsonDataTypeInt      , "timezone"    , "Time zone"   }
 };
 
 

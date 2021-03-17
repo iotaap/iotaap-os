@@ -12,6 +12,7 @@
 #include "./fs/sys_logs_data.h"
 #include "./ota/ota_module.h"
 #include "./libs_3rd_party/micro-sdcard/mySD.h"
+#include "./configurator/configurator.h"
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
 
@@ -35,7 +36,14 @@ IoTaaP_OS::IoTaaP_OS(const char *fwVersion)
  */
 void IoTaaP_OS::startWifi()
 {
-    wifiConnect();
+    if (!WifiCredentialsExist() || IsConfiguratorActive())
+    {
+        startConfigurator();
+    }
+    else
+    {
+        wifiConnect();
+    }
 }
 
 /**
@@ -45,7 +53,10 @@ void IoTaaP_OS::startWifi()
 void IoTaaP_OS::startMqtt(MQTT_CALLBACK_SIGNATURE)
 {
     MqttSetCallback( callback);
-    connectToMqtt();
+    if (WifiCredentialsExist() && !IsConfiguratorActive())
+    {
+        connectToMqtt();
+    }
 }
 
 
