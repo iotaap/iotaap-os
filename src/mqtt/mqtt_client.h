@@ -11,6 +11,7 @@ extern PubSubClient _mqttClient;
 void connectToMqtt( void);
 void InitMqttconfigDataFromJsonDocument( DynamicJsonDocument ConfigJson);
 void mqttPublish( const char *topic, const char *payload, boolean retain);
+void triggerMqttPublish_Extern();
 
 bool MqttIsConnected( void);
 void MqttSetCallback( MQTT_CALLBACK_SIGNATURE);

@@ -4,7 +4,7 @@
 #include "./system/definitions.h"
 #include "./system/system_configuration.h"
 #include "./fs/sys_cfg.h"
-#include "./mqtt/mqtt_systemLogs.h"
+#include "./mqtt/mqtt_RemoteControl.h"
 #include "./mqtt/mqtt_subscription.h"
 #include "./mqtt/mqtt_dataStatus.h"
 #include "./fs/sys_logs_data.h"
@@ -188,7 +188,7 @@ void MqttRunUserCallback( char *topic, uint8_t *message, unsigned int length)
  */
 static void MqttTask(void *parameter)
 {
-    mqttSubscribeToSystemRequestTopic(); 
+    mqttSubscribeToRemoteControlTopics(); 
 
     mqttStat.mqttConnected = false; 
     while (1)
@@ -285,4 +285,11 @@ static void publishMqttMessages( void)
             systemLog(tERROR, "There was a problem with message publishing!");
         }
     }
+}
+
+/**
+ * Triggers (forces) MQTT publishing from external call
+ */
+void triggerMqttPublish_Extern(){
+    publishMqttMessages();
 }
