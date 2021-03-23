@@ -4,7 +4,7 @@
 #include "./system/definitions.h"
 #include "./system/system_configuration.h"
 #include "./fs/sys_cfg.h"
-#include "./mqtt/mqtt_RemoteControl.h"
+#include "./mqtt/mqtt_remoteControl.h"
 #include "./mqtt/mqtt_subscription.h"
 #include "./mqtt/mqtt_dataStatus.h"
 #include "./fs/sys_logs_data.h"

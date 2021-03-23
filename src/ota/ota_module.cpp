@@ -11,7 +11,7 @@
 #include "./fs/sys_cfg.h"
 #include "./system/system_tasks.h"
 #include "./system/system_configuration.h"
-#include "./mqtt/mqtt_RemoteControl.h"
+#include "./mqtt/mqtt_remoteControl.h"
 
 HTTPClient updatesHttpClient;
 
