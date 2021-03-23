@@ -24,7 +24,13 @@ void mqttSubscribeToRemoteControlTopics( void)
     sprintf( SystemReqTopic, "/%s/devices/%s/logs-req", MqttGetUser(), SystemGetDeviceId());
     mqttSubscribe(SystemReqTopic);
 
-    sprintf( RemoteUpdateReqTopic, "/%s/devices/%s/update-trigger", MqttGetUser(), SystemGetDeviceId());
+    /* Check if device is part of a Group or standalone Device */
+    if(strlen(SystemGetGroupId()) == 0){
+        sprintf( RemoteUpdateReqTopic, "/%s/devices/%s/update-trigger", MqttGetUser(), SystemGetDeviceId());
+    } 
+    else{
+        sprintf( RemoteUpdateReqTopic, "/%s/groups/%s/update-trigger", MqttGetUser(), SystemGetGroupId());
+    }
     mqttSubscribe(RemoteUpdateReqTopic);
 
     /* Generate endpoint for remote responses */
