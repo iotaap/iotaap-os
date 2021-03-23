@@ -11,8 +11,15 @@
 #include "./fs/sys_cfg.h"
 #include "./system/system_tasks.h"
 #include "./system/system_configuration.h"
+#include "./mqtt/mqtt_remoteControl.h"
 
 HTTPClient updatesHttpClient;
+
+DynamicJsonDocument updateResponse(64);
+char updateResponseChar[64];
+
+void sendUpdateResponse(int code);
+bool updateCheckRequestedPrev;
 
 /**
  * @brief Checks if updates are available, if all conditions are met then runs checking for update accordingly
@@ -20,6 +27,7 @@ HTTPClient updatesHttpClient;
  */
 void handleUpdates()
 {
+    updateCheckRequestedPrev = systemStat.updateCheckRequested;
     if (SystemGetAutoUpdateFlag() || systemStat.updateCheckRequested)
     {
         /* Measures elapsed time between update checks */
@@ -32,7 +40,6 @@ void handleUpdates()
             (((updateTimingNow - updateTimingPrev) >= OTA_CHECK_TIME) ||
              systemStat.updateCheckRequested))
         {
-            systemStat.updateCheckRequested = false;
             updateTimingPrev = updateTimingNow;
             checkUpdate();
         }
@@ -46,6 +53,13 @@ void handleUpdates()
 void checkUpdate()
 {
     systemLog(tSYSTEM, "Checking for updates");
+
+    /* Notify cloud that update request is received */
+    if(systemStat.updateCheckRequested){
+        sendUpdateResponse(200);
+    }
+    vTaskDelay(2000 / portTICK_PERIOD_MS); // Wait at least 2s to be sure that response is published to the cloud
+
     DynamicJsonDocument versionJson(128);
     
     wifiClientSecure.stop();
@@ -71,25 +85,43 @@ void checkUpdate()
         if (version != SystemGetFwVersion())
         {
             systemLog(tSYSTEM, "New update available!");
+            /* Notify cloud that update process started */
+            if(systemStat.updateCheckRequested){
+                sendUpdateResponse(201);
+            }
+            systemStat.updateCheckRequested = false;
             otaUpdate();
         }
         else
         {
             updatesHttpClient.end();
             systemLog(tSYSTEM, "No new updates");
+            /* Notify cloud that versions are the same */
+            if(systemStat.updateCheckRequested){
+                sendUpdateResponse(202);
+            }
         }
+        systemStat.updateCheckRequested = false;
     }
     else if (httpCode == 404)
     { // Not found return code
         updatesHttpClient.end();
         systemLog(tSYSTEM, "No firmware available");
+        /* Notify cloud that there is an error with update */
+        if(systemStat.updateCheckRequested){
+            sendUpdateResponse(203);
+        }
     }
     else
     {   //return code not identified
         updatesHttpClient.end();
         systemLog(tERROR, "Cannot check for updates");
+        /* Notify cloud that there is an error with update */
+        if(systemStat.updateCheckRequested){
+            sendUpdateResponse(203);
+        }
     }
-
+    systemStat.updateCheckRequested = false;
     wifiClientSecure.stop();
 
 }
@@ -131,16 +163,26 @@ void otaUpdate()
         char errBuffStr[128];
         sprintf(errBuffStr, "Update failed with error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
         systemLog(tERROR, errBuffStr);
+        /* Notify cloud that there is an error with update */
+        if(updateCheckRequestedPrev){
+            updateCheckRequestedPrev = false;
+            sendUpdateResponse(203);
+        }
         systemStat.updateInProgress = false;
         break;
 
     case HTTP_UPDATE_NO_UPDATES:
-        systemLog(tSYSTEM, "No new updates available");
+        systemLog(tINFO, "No new updates available");
+        /* Notify cloud that there is an error with update */
+        if(updateCheckRequestedPrev){
+            updateCheckRequestedPrev = false;
+            sendUpdateResponse(203);
+        }
         systemStat.updateInProgress = false;
         break;
 
     case HTTP_UPDATE_OK:
-        systemLog(tERROR, "Update successfull!");
+        systemLog(tSYSTEM, "Update successfull!");
         // We do not have to restart update task since system will be restarted on successful update
         break;
     default:
@@ -154,4 +196,13 @@ void otaUpdate()
     enableCore0WDT();
     // WDT for core 1 is disabled by default
     //
+}
+
+/**
+ * Send update response based on code
+ */
+void sendUpdateResponse(int code){
+    updateResponse["code"] = code;
+    serializeJson(updateResponse, updateResponseChar);
+    MqttRespondToUpdateRequest(updateResponseChar);
 }
