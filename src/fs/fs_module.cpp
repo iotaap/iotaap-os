@@ -53,6 +53,7 @@ void FSmanagerTask(void *parameter)
 {
     while (1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         if (systemStat.fsInitialized)
         {
             handleSystemLogs();

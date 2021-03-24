@@ -4,6 +4,7 @@
 #include "stdint.h"
 #include "./fs/sys_logs_data.h"
 #include "commands_engine.h"
+#include "system/definitions.h"
 
 /**
  * @brief Task for detecting and parsing serial inputDebugString
@@ -13,6 +14,7 @@ void SerialTask(void *parameter)
     char Input[MaxCommandLen] = {0};
     while(1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         /* If there is data */
         while (Serial.available())
         {

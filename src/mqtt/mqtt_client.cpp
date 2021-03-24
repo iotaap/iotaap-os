@@ -193,6 +193,7 @@ static void MqttTask(void *parameter)
     mqttStat.mqttConnected = false; 
     while (1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         if (WifiIsConnected())
         {
             //Initalises security certificate
@@ -211,6 +212,7 @@ static void MqttTask(void *parameter)
     {
         while (WifiIsConnected())
         {
+            PRINT_EXTRA_STACK_IN_TASK();
             mqttStat.mqttConnected = _mqttClient.connected();
             if (!mqttStat.mqttConnected)
             {
