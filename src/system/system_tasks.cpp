@@ -99,12 +99,14 @@ void SyncNTPtask(void *parameter)
 {
     unsigned long int backupTime;
     systemStat.systemTimeSynced = false;
+    bool previouslySynced = false;
     while (1)
     {
         if (!systemStat.systemTimeSynced && WifiIsConnected())
         {
             configTime(SystemGetTimezone() * 3600, 0, SystemGetNtp1(), SystemGetNtp2()); // Configure system time
             systemStat.systemTimeSynced = true;
+            previouslySynced = true;
             getLocalTime(&systemStat.systemTime);
             systemStat.bootTime = getSystemTimeMs();
             systemLog(tSYSTEM, "Synced system time with NTP");
@@ -114,7 +116,7 @@ void SyncNTPtask(void *parameter)
             systemStat.systemTimeSynced = false;
         }
 
-        if (!getLocalTime(&systemStat.systemTime))
+        if (!getLocalTime(&systemStat.systemTime) && !previouslySynced)
         {
             systemLog(tERROR, "NTP sync failed, timestamp switched from timestamp to time from boot");
             backupTime = millis();
