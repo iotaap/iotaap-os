@@ -130,7 +130,11 @@ bool WifiIsConnected( void)
 static void WiFiTask( void *parameter)
 {
     int timeoutCounter = 0;
+    char hostname[32];
     LedBlinkSlow();
+    /* Create unique hostname (will be same as SSID) */
+    createSSID(hostname);
+    WiFi.setHostname(hostname);
     WiFi.mode(WIFI_STA);
     WiFi.begin(wifiConfig.wifiSSID, wifiConfig.wifiPASS);
     vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -138,6 +142,7 @@ static void WiFiTask( void *parameter)
 
     while (1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         if (!wifiStat.wifiConnected)
         {
             LedBlinkSlow();

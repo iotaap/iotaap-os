@@ -11,6 +11,7 @@
 #include "./system/system_configuration.h"
 #include "./fs/serial_configuration.h"
 #include "./hmi/led_task.h"
+#include "./system/utils.h"
 
 #define MAX_REGISTERED_CONFS    5
 AsyncWebServer server(80);
@@ -19,7 +20,6 @@ struct configParameters conf[MAX_REGISTERED_CONFS] = {0};
 /* This variable will survive restart */
 int ConfiguratorActive __attribute__ ((section (".noinit")));
 
-static void createSSID( char *ssid);
 static void createPSK( char *pass);
 static void configure( AsyncWebServerRequest *request);
 static void submit( AsyncWebServerRequest *request);
@@ -167,16 +167,6 @@ bool IsConfiguratorActive( void)
 struct configParameters *configuratorGetConf( unsigned int id)
 {
     return conf[id].Size ? &conf[id] : NULL;
-}
-
-
-/**
- * @brief Create ssid from MAC number
- */
-static void createSSID( char *ssid)
-{
-    uint64_t chipid = ESP.getEfuseMac() & 0xFFFFFFFFFFFF;
-    snprintf(ssid, 32, "IoTaaP-%012llX", chipid);
 }
 
 /**

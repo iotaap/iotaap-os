@@ -78,3 +78,12 @@ void periphInit()
     Serial.begin(115200);
     LedPinInit(LED1);
 }
+
+/**
+ * @brief Create ssid from MAC number
+ */
+void createSSID( char *ssid)
+{
+    uint64_t chipid = ESP.getEfuseMac() & 0xFFFFFFFFFFFF;
+    snprintf(ssid, 32, "IoTaaP-%012llX", chipid);
+}

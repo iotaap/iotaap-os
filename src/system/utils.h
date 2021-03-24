@@ -12,5 +12,6 @@ float getVoltage(unsigned long reading);
 char * getSystemTimeString( char *Timestamp);
 uint64_t getSystemTimeMs();
 void periphInit();
+void createSSID( char *ssid);
 
 #endif

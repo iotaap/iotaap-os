@@ -51,4 +51,20 @@
 
 #define TIME_STRING_LENGTH  64
 
+/* Maximum stack memory used in task */
+#if (1)
+    #define PRINT_EXTRA_STACK_IN_TASK()                             \
+    {                                                               \
+        static int minfree = 0xFFFFFF;                              \
+        int everminfree = uxTaskGetStackHighWaterMark(NULL);        \
+        if (everminfree < minfree)                                  \
+        {                                                           \
+            minfree = everminfree;                                  \
+            Serial.printf("%s = %d\n", __func__, everminfree);      \
+        }                                                           \
+    } while(0);
+#else
+#define PRINT_EXTRA_STACK_IN_TASK()
+#endif
+
 #endif
