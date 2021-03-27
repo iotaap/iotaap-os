@@ -18,6 +18,7 @@ void SerialTask(void *parameter)
         /* If there is data */
         while (Serial.available())
         {
+            PRINT_EXTRA_STACK_IN_TASK();
             const char Letter = Serial.read();
 
             if (Letter == '\r')

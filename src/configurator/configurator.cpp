@@ -110,7 +110,8 @@ void HandleConfiguratorActivity( void *par)
 
     while(1)
     {
-        /* Nregative logic */
+        PRINT_EXTRA_STACK_IN_TASK();
+        /* Negative logic */
         int PinVal = !digitalRead(CONFIGURATOR_BUTTON);
         if (PinVal)
         {

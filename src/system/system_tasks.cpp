@@ -44,7 +44,7 @@ void createSystemTasks()
     xTaskCreate(
         FSmanagerTask,
         "FSmanagerProcess",
-        25000,
+        8000,
         NULL,
         1,
         &FSmanagerHandler);
@@ -68,7 +68,7 @@ void createSystemTasks()
     xTaskCreate(
         SerialTask,
         "SerialProcess",
-        15000,
+        8000,
         NULL,
         1,
         &SerialHandler);
@@ -102,6 +102,7 @@ void SyncNTPtask(void *parameter)
     bool previouslySynced = false;
     while (1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         if (!systemStat.systemTimeSynced && WifiIsConnected())
         {
             configTime(SystemGetTimezone() * 3600, 0, SystemGetNtp1(), SystemGetNtp2()); // Configure system time

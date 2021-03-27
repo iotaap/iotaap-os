@@ -96,7 +96,7 @@ void connectToMqtt()
     xTaskCreate(
         MqttTask,
         "MqttProcess",
-        10000,
+        12000,
         NULL,
         1,
         &MqttHandler);
@@ -210,6 +210,7 @@ static void MqttTask(void *parameter)
     mqttStat.mqttConnected = false;
     while (1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         while (WifiIsConnected())
         {
             PRINT_EXTRA_STACK_IN_TASK();

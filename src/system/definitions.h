@@ -52,7 +52,7 @@
 #define TIME_STRING_LENGTH  64
 
 /* Maximum stack memory used in task */
-#if (1)
+#if (0)
     #define PRINT_EXTRA_STACK_IN_TASK()                             \
     {                                                               \
         static int minfree = 0xFFFFFF;                              \

@@ -66,7 +66,7 @@ void wifiConnect( void)
     xTaskCreate(
         WiFiTask,
         "WiFiProcess",
-        15000,
+        12000,
         NULL,
         1,
         &WiFiHandler);
