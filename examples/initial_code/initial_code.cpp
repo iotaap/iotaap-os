@@ -23,6 +23,8 @@ void setup()
   char ownerString[128]; // Char array used to store custom parameter
   char deviceId[30];     // Char array used to store system parameter
 
+  iotaapOs.start(); // Start IoTaaP OS
+
   iotaapOs.startWifi(); // Connect to WiFi
   iotaapOs.startMqtt(callback); // Connect to MQTT broker
 
