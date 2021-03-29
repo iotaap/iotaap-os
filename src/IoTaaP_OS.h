@@ -23,6 +23,7 @@ class IoTaaP_OS
 {
 public:
     IoTaaP_OS(const char *fwVersion);
+    void start();
     void startWifi();
     void startMqtt(MQTT_CALLBACK_SIGNATURE);
     int deviceCloudPublish(const char *payload, const char *uTopic);
