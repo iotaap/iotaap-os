@@ -86,7 +86,7 @@ void ProcessCommand( const char *Command, enum eCommandSource Source)
     else if (Source==CommandSourceSerial &&
             (strstr( Command, SetParSys))) // || strstr( Command, SetParUsr))) TODO - Implement back once User data feature is implemented
     {
-        char StatusParWiz[] = "Parameter wizard (leave empty for unchanged):";
+        char StatusParWiz[] = "IoTaaP Configurator (leave empty for unchanged):";
         CommandSendStatus( StatusParWiz);
 
         /* Open file and JSON */
@@ -202,10 +202,11 @@ void ProcessCommand( const char *Command, enum eCommandSource Source)
  * @brief Print debug info
  * 
  * @param DebugString [in] String to print to serial port
+ * @param isSystem Is this SYSTEM level log (always printed)
  */
-void PrintDebugInfo( const char* DebugString)
+void PrintDebugInfo( const char* DebugString, bool isSystem)
 {
-    if (IsDebugPrintAllowed)
+    if (IsDebugPrintAllowed || isSystem)
     {
         Serial.println( DebugString);
     }

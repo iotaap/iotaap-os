@@ -24,6 +24,7 @@ static bool CheckDirStructure( void);
 void initializeFileSystem()
 {
     /* Initialize SD cart */
+    Serial.println();
     systemLog(tSYSTEM, "Initializing SD filesystem");
     if (!SD.begin(SD_CS_PIN) || !CheckDirStructure())
     {
@@ -31,14 +32,14 @@ void initializeFileSystem()
         char Time[TIME_STRING_LENGTH];
         systemStat.fsInitialized = false;
         /*SD card not present or broken, display warning on debug port*/
-        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "WARNING", "SD Filesystem initialization failed, data backup and logs disabled");
+        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "WARNING", "SD filesystem initialization failed, data backup and logs disabled");
         Serial.println(logBuff);
         vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
     }
     else
     {
         systemStat.fsInitialized = true;
-        systemLog(tSYSTEM, "SD Filesystem initialized");
+        systemLog(tSYSTEM, "SD filesystem initialized");
     }
 
     /* Initialize intern FS */
@@ -48,7 +49,7 @@ void initializeFileSystem()
         char logBuff[255];
         char Time[TIME_STRING_LENGTH];
         systemStat.fatInitialized = false;
-        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Internal Filesystem initialization failed");
+        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Internal filesystem initialization failed");
         Serial.println(logBuff);
         vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
         ESP.restart();
@@ -56,7 +57,7 @@ void initializeFileSystem()
     else
     {
         systemStat.fatInitialized = true;
-        systemLog(tSYSTEM, "Internal Filesystem initialized");
+        systemLog(tSYSTEM, "Internal filesystem initialized");
     }
 
     systemStat.sysCfgExist = FFat.exists( SYS_CFG_PATH);

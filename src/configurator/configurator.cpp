@@ -54,7 +54,9 @@ void startConfigurator( void)
 
     LedBlinkConfigurator();
 
-    Serial.begin(115200);
+    Serial.println();
+    Serial.println("********************************** IoTaaP Web Configurator **********************************");
+    Serial.println();
 
     IPAddress IP = IPAddress(192, 168, 1, 8);
     IPAddress gateway = IPAddress(192, 168, 1, 1);
@@ -62,11 +64,11 @@ void startConfigurator( void)
 
     /* Create unique SSID ans PASS */
     createSSID( ssid);         // 
-    Serial.print("ssid: ");
+    Serial.print("SSID: ");
     Serial.println(ssid);
 
     createPSK( password);
-    Serial.print("pass: ");
+    Serial.print("Password: ");
     Serial.println(password);
 
     /* Start AP */
@@ -75,7 +77,11 @@ void startConfigurator( void)
         WiFi.softAPConfig(IP, gateway, NMask);
     }
 
-    Serial.println("AP Started");
+    Serial.println("Access Point Started");
+
+    Serial.println();
+    Serial.println("****************************************************************************************************");
+    Serial.println();
 
     server.on("/", HTTP_GET, configure);
     server.on("/submit-config", HTTP_POST, submit);

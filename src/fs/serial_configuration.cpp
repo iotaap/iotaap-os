@@ -113,7 +113,7 @@ void HandleJsonCfgFile( void)
             IsWizardActive = false;
             
             Serial.println();
-            Serial.print("Leaving parameter wizard ");
+            Serial.print("Leaving IoTaaP Configurator ");
 
             if (SelectedFile)
             {

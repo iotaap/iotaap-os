@@ -240,7 +240,7 @@ void systemLog(logType type, const char *message)
     }
 
     sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), typeS, message);
-    PrintDebugInfo(logBuff);
+    PrintDebugInfo(logBuff, type == tSYSTEM);
     
     if(type != tINFO && systemStat.fsInitialized){
         createFSlog(logBuff);

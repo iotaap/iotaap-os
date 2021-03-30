@@ -13,7 +13,7 @@ enum eCommandSource
 };
 
 void ProcessCommand( const char *Command, enum eCommandSource Source);
-void PrintDebugInfo( const char* DebugString);
+void PrintDebugInfo( const char* DebugString, bool isSystem);
 
 void CheckAndPrintLogFileData( FileSd *OpenedLogFile);
 bool IsCommandActive( void);
