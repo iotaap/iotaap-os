@@ -146,47 +146,48 @@ void IoTaaP_OS::writeToSystemLogs(const char *data)
     return uWriteToSystemLogs(data);
 }
 
-/**
- * @brief Get parameter from user config file
- * 
- * @param element   JSON tag string
- * @param output    Pointer to result
- * 
- * @return true - tag exist
- *         false - tag does not exist
- */
-bool IoTaaP_OS::getUserParameter(const char *element, char *output)
-{
-    return uGetUserParameter(element, output);
-}
+/* User parameter functions are not implemented since writing user parameters to internal FAT is not implemented */
+// /**
+//  * @brief Get parameter from user config file
+//  * 
+//  * @param element   JSON tag string
+//  * @param output    Pointer to result
+//  * 
+//  * @return true - tag exist
+//  *         false - tag does not exist
+//  */
+// bool IoTaaP_OS::getUserParameter(const char *element, char *output)
+// {
+//     return uGetUserParameter(element, output);
+// }
 
-/**
- * @brief Get parameter from user config file
- * 
- * @param element   JSON tag string
- * @param output    Pointer to result
- * 
- * @return true - tag exist
- *         false - tag does not exist
- */
-bool IoTaaP_OS::getUserParameter(const char *element, int *output)
-{
-    return uGetUserParameter(element, output);
-}
+// /**
+//  * @brief Get parameter from user config file
+//  * 
+//  * @param element   JSON tag string
+//  * @param output    Pointer to result
+//  * 
+//  * @return true - tag exist
+//  *         false - tag does not exist
+//  */
+// bool IoTaaP_OS::getUserParameter(const char *element, int *output)
+// {
+//     return uGetUserParameter(element, output);
+// }
 
-/**
- * @brief Get parameter from user config file
- * 
- * @param element   JSON tag string
- * @param output    Pointer to result
- * 
- * @return true - tag exist
- *         false - tag does not exist
- */
-bool IoTaaP_OS::getUserParameter(const char *element, bool *output)
-{
-    return uGetUserParameter(element, output);
-}
+// /**
+//  * @brief Get parameter from user config file
+//  * 
+//  * @param element   JSON tag string
+//  * @param output    Pointer to result
+//  * 
+//  * @return true - tag exist
+//  *         false - tag does not exist
+//  */
+// bool IoTaaP_OS::getUserParameter(const char *element, bool *output)
+// {
+//     return uGetUserParameter(element, output);
+// }
 
 /**
  * @brief Get parameter from system config file

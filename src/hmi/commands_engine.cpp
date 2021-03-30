@@ -84,7 +84,7 @@ void ProcessCommand( const char *Command, enum eCommandSource Source)
         }
     }
     else if (Source==CommandSourceSerial &&
-            (strstr( Command, SetParSys) || strstr( Command, SetParUsr)))
+            (strstr( Command, SetParSys))) // || strstr( Command, SetParUsr))) TODO - Implement back once User data feature is implemented
     {
         char StatusParWiz[] = "Parameter wizard (leave empty for unchanged):";
         CommandSendStatus( StatusParWiz);
@@ -94,10 +94,10 @@ void ProcessCommand( const char *Command, enum eCommandSource Source)
         {
             SerialJsonCfgSelectFile( SYS_CFG_PATH);
         }
-        else //if (strstr( Command, SetParUsr))
-        {
-            SerialJsonCfgSelectFile( USER_CFG_PATH);
-        }
+        // else //if (strstr( Command, SetParUsr))
+        // {
+        //     SerialJsonCfgSelectFile( USER_CFG_PATH);
+        // }
         
         if (SerialJsonCfgPrintKey())
         {
