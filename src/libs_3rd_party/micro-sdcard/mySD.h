@@ -29,15 +29,15 @@
 #define FILE_READ F_READ
 #define FILE_WRITE (F_READ | F_WRITE | F_CREAT)
 
-class File : public Stream {
+class FileSd : public Stream {
  private:
   char _name[13]; // our name
   SdFile *_file;  // underlying file pointer
 
 public:
-  File(SdFile f, const char *name);     // wraps an underlying SdFile
-  File(void);      // 'empty' constructor
-  ~File(void);     // destructor
+  FileSd(SdFile f, const char *name);     // wraps an underlying SdFile
+  FileSd(void);      // 'empty' constructor
+  ~FileSd(void);     // destructor
 #if ARDUINO >= 100
   virtual size_t write(uint8_t);
   virtual size_t write(const uint8_t *buf, size_t size);
@@ -58,7 +58,7 @@ public:
   char * name();
 
   boolean isDirectory(void);
-  File openNextFile(uint8_t mode = F_RDONLY);
+  FileSd openNextFile(uint8_t mode = F_RDONLY);
   void rewindDirectory(void);
   
   using Print::write;
@@ -83,9 +83,9 @@ public:
   void end(); 
   
   // Open the specified file/directory with the supplied mode (e.g. read or
-  // write, etc). Returns a File object for interacting with the file.
+  // write, etc). Returns a FileSd object for interacting with the file.
   // Note that currently only one file can be open at a time.
-  File open(const char *filename, uint8_t mode = FILE_READ);
+  FileSd open(const char *filename, uint8_t mode = FILE_READ);
 
   // Methods to determine if the requested file path exists.
   boolean exists(char *filepath);
@@ -110,7 +110,7 @@ private:
   // It shouldn't be set directly--it is set via the parameters to `open`.
   int fileOpenMode;
   
-  friend class File;
+  friend class FileSd;
   friend boolean callback_openPath(SdFile&, char *, boolean, void *); 
 };
 

@@ -33,9 +33,10 @@ public:
     int deviceCloudPublishParam(const char *name, float value);
     int deviceCloudPublishParam(const char *name, const char *value);
     void writeToSystemLogs(const char *data);
-    bool getUserParameter(const char *element, char *output);
-    bool getUserParameter(const char *element, int *output);
-    bool getUserParameter(const char *element, bool *output);
+    /* User parameter functions are not implemented since writing user parameters to internal FAT is not implemented */
+    // bool getUserParameter(const char *element, char *output);
+    // bool getUserParameter(const char *element, int *output);
+    // bool getUserParameter(const char *element, bool *output);
     bool getSystemParameter(const char *element, char *output);
     bool getSystemParameter(const char *element, int *output);
     bool getSystemParameter(const char *element, bool *output);

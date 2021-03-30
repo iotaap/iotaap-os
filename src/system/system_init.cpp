@@ -24,7 +24,7 @@ void systemInit()
     initializeFileSystem();
 
     InitSystemParameters();
-    InitUserParameters();
+    // InitUserParameters(); TODO - Currently not implemented, since writing user parameters to internal FAT is not implemented
     InitSystemLogs();
 
     loadCertificate(CA_CRT_PATH, SystemGetCAcertificate());

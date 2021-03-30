@@ -13,6 +13,7 @@ struct sSystemStat
     int64_t systemTimeMs;      // Current system time Unix in ms
     bool systemTimeSynced;     // True if system time is synced with NTP
     bool fsInitialized;        // True if filesystem (SD card) is successfully initialized
+    bool fatInitialized;       // True if FAT is successfully initialized
     bool updateInProgress;     // True if update is in progress
     bool updateCheckRequested; // True if check for update has been manually requested
     bool sysCfgExist;

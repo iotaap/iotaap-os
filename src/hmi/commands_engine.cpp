@@ -7,7 +7,7 @@
 #include "./hmi/commands_serial.h"
 #include "./fs/serial_configuration.h"
 
-bool IsDebugPrintAllowed = false;
+bool IsDebugPrintAllowed = true;
 
 const unsigned int MaxCommandLen = 30;
 const unsigned int MaxLinesNumToSend = 100;
@@ -64,7 +64,7 @@ static void CommandSendStatus( char *Status);
 /* This file pointer is used only and only for seek() function when "stop"
     command is called. When searching in file, engine sets this pointer to
     file so "stop" command can find seek file and finish find() function */
-File *SearchFilePointer = NULL;
+FileSd *SearchFilePointer = NULL;
 
 /**
  * @brief   Process command (from serial or mqtt)
@@ -84,7 +84,7 @@ void ProcessCommand( const char *Command, enum eCommandSource Source)
         }
     }
     else if (Source==CommandSourceSerial &&
-            (strstr( Command, SetParSys) || strstr( Command, SetParUsr)))
+            (strstr( Command, SetParSys))) // || strstr( Command, SetParUsr))) TODO - Implement back once User data feature is implemented
     {
         char StatusParWiz[] = "Parameter wizard (leave empty for unchanged):";
         CommandSendStatus( StatusParWiz);
@@ -94,10 +94,10 @@ void ProcessCommand( const char *Command, enum eCommandSource Source)
         {
             SerialJsonCfgSelectFile( SYS_CFG_PATH);
         }
-        else //if (strstr( Command, SetParUsr))
-        {
-            SerialJsonCfgSelectFile( USER_CFG_PATH);
-        }
+        // else //if (strstr( Command, SetParUsr))
+        // {
+        //     SerialJsonCfgSelectFile( USER_CFG_PATH);
+        // }
         
         if (SerialJsonCfgPrintKey())
         {
@@ -216,7 +216,7 @@ void PrintDebugInfo( const char* DebugString)
  * 
  * @param OpenedLogFile [in] Pointer to file
  */
-void CheckAndPrintLogFileData( File *OpenedLogFile)
+void CheckAndPrintLogFileData( FileSd *OpenedLogFile)
 {
     /* File does not exist */
     if (*OpenedLogFile == 0)

@@ -20,7 +20,6 @@ void callback(char *topic, byte *message, unsigned int length)
 
 void setup()
 {
-  char ownerString[128]; // Char array used to store custom parameter
   char deviceId[30];     // Char array used to store system parameter
 
   iotaapOs.start(); // Start IoTaaP OS
@@ -29,10 +28,6 @@ void setup()
   iotaapOs.startMqtt(callback); // Connect to MQTT broker
 
   iotaapOs.writeToSystemLogs("Device started"); // Write data to system log using 'USER' tag
-
-  iotaapOs.getUserParameter("owner", ownerString); // Get 'owner' parameter from 'custom.cfg'
-  Serial.println("owner parameter:");
-  Serial.println(ownerString);
 
   iotaapOs.getSystemParameter("device_id", deviceId); // Get 'device_id' parameter from 'default.cfg'
   Serial.println("device_id parameter:");

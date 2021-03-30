@@ -13,9 +13,10 @@
 #include "./fs/sys_logs_data.h"
 #include "./mqtt/mqtt_client.h"
 #include "./mqtt/mqtt_dataDevice.h"
+#include "./system/system_tasks.h"
 
 Queue<String> localDataQueue(LOCAL_DATA_QUEUE_SIZE);
-File LocalDataFile;
+FileSd LocalDataFile;
 
 /**
  * @brief Saves payload locally if there is no Cloud connection - adds data to
@@ -25,8 +26,10 @@ File LocalDataFile;
  */
 void saveDataLocally(const char *payload)
 {
-    localDataQueue.push(String(payload));
-    // If Queue is full data will be dropped
+    if(systemStat.fsInitialized){
+        localDataQueue.push(String(payload));
+        // If Queue is full data will be dropped
+    }
 }
 
 /**
