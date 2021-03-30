@@ -36,7 +36,7 @@ void handleUpdates()
 
         systemStat.updateInProgress = false;
 
-        if ((systemStat.fsInitialized && WifiIsConnected() && !systemStat.updateInProgress) &&
+        if ((WifiIsConnected() && !systemStat.updateInProgress) &&
             (((updateTimingNow - updateTimingPrev) >= OTA_CHECK_TIME) ||
              systemStat.updateCheckRequested))
         {

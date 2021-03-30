@@ -17,6 +17,7 @@
 #include "./system/utils.h"
 #include "./hmi/commands_engine.h"
 #include "./system/queue.h"
+#include "./system/system_tasks.h"
 
 Queue<String> logsQueue(LOGS_QUEUE_SIZE);
 FileSd SystemFile;
@@ -40,6 +41,10 @@ int SearchSysLogFileId = -1;
  */
 int InitSystemLogs( void)
 {
+    /* Logs are disabled if SD card is not initialized */
+    if(!systemStat.fsInitialized){
+        return 0; 
+    }
     /* First run - determine in which file to fill data
         and which file is first for search */
     if (FirstSysLogFileId == -1)
@@ -237,7 +242,7 @@ void systemLog(logType type, const char *message)
     sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), typeS, message);
     PrintDebugInfo(logBuff);
     
-    if(type != tINFO){
+    if(type != tINFO && systemStat.fsInitialized){
         createFSlog(logBuff);
     }
 }

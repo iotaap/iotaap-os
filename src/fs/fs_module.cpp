@@ -18,7 +18,7 @@
 static bool CheckDirStructure( void);
 
 /**
- * @brief Initializes onboard SD card. It will restart ESP if failed
+ * @brief Initializes onboard SD card and Internal FAT. It will restart ESP if FAT initialization failed
  * 
  */
 void initializeFileSystem()
@@ -30,11 +30,10 @@ void initializeFileSystem()
         char logBuff[255];
         char Time[TIME_STRING_LENGTH];
         systemStat.fsInitialized = false;
-        /*Huge system issue, SD card not present or broken, display issue on debug port*/
-        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "SD Filesystem initialization failed");
+        /*SD card not present or broken, display warning on debug port*/
+        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "WARNING", "SD Filesystem initialization failed, data backup and logs disabled");
         Serial.println(logBuff);
         vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
-        ESP.restart();
     }
     else
     {
@@ -49,7 +48,7 @@ void initializeFileSystem()
         char logBuff[255];
         char Time[TIME_STRING_LENGTH];
         systemStat.fatInitialized = false;
-        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Intern Filesystem initialization failed");
+        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Internal Filesystem initialization failed");
         Serial.println(logBuff);
         vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
         ESP.restart();
