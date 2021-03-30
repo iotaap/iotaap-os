@@ -7,7 +7,7 @@
 #include "./hmi/commands_serial.h"
 #include "./fs/serial_configuration.h"
 
-bool IsDebugPrintAllowed = true;
+bool IsDebugPrintAllowed = false;
 
 const unsigned int MaxCommandLen = 30;
 const unsigned int MaxLinesNumToSend = 100;

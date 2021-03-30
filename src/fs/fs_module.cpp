@@ -42,7 +42,7 @@ void initializeFileSystem()
     }
 
     /* Initialize intern FS */
-    systemLog(tSYSTEM, "Initializing Intern filesystem");
+    systemLog(tSYSTEM, "Initializing Internal filesystem");
     if (!FFat.begin(true))
     {
         char logBuff[255];
@@ -56,7 +56,7 @@ void initializeFileSystem()
     else
     {
         systemStat.fatInitialized = true;
-        systemLog(tSYSTEM, "Intern Filesystem initialized");
+        systemLog(tSYSTEM, "Internal Filesystem initialized");
     }
 
     systemStat.sysCfgExist = FFat.exists( SYS_CFG_PATH);
