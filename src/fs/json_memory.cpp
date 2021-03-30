@@ -4,7 +4,7 @@
  * @brief Calculate memory needed for JSON deserializer
  * 
  */
-int CalculateDynamicMemorySizeForJson( File JsonOpenedfile)
+int CalculateDynamicMemorySizeForJson( fs::File JsonOpenedfile)
 {
     /* Max number of characters between '\"', ':' and/or ',' */
     const int MaxJsonValueLength = 100;

@@ -8,7 +8,7 @@
 
 #include "./system/definitions.h"
 #include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
-#include "./libs_3rd_party/micro-sdcard/mySD.h"
+#include "FFat.h"
 #include "./fs/json_memory.h"
 #include "./fs/sys_logs_data.h"
 #include "./mqtt/mqtt_client.h"
@@ -29,7 +29,7 @@ static void CreateDefauleSysCfgFile( char *Path);
 int InitSystemParameters( void)
 {
     /* Open file */
-    File SysCfgFile = SD.open(SYS_CFG_PATH, FILE_READ);
+    fs::File SysCfgFile = FFat.open(SYS_CFG_PATH, FILE_READ);
     if (!SysCfgFile)
     {
         CreateDefauleSysCfgFile( (char *)SYS_CFG_PATH);

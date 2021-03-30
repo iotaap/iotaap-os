@@ -2,7 +2,7 @@
 
 #include "./system/definitions.h"
 #include "./system/system_configuration.h"
-#include "./libs_3rd_party/micro-sdcard/mySD.h"
+#include "FFat.h"
 #include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
 #include "./fs/json_memory.h"
 #include "./fs/sys_logs_data.h"
@@ -49,16 +49,17 @@ void HandleJsonCfgFile( void)
         if (ExportCertificate)
         {
             ExportCertificate = false;
-            SD.remove( (char *)CA_CRT_PATH);
+            FFat.remove( (char *)CA_CRT_PATH);
             
-            File CertFile = SD.open( CA_CRT_PATH, FILE_WRITE);
+            fs::File CertFile = FFat.open( CA_CRT_PATH, FILE_WRITE);
 
             if (!CertFile)
             {
                 Serial.println("(data is not saved)");
                 return;
             }
-            CertFile.write( SystemGetCAcertificate());
+            CertFile.write( (uint8_t *)SystemGetCAcertificate(),
+                                strlen(SystemGetCAcertificate()));
             CertFile.flush();
             CertFile.close();
         }
@@ -118,9 +119,9 @@ void HandleJsonCfgFile( void)
             {
                 char FileToRemove[100];
                 strcpy( FileToRemove, SelectedFile);
-                SD.remove( FileToRemove);
+                FFat.remove( FileToRemove);
 
-                File ConfigFile = SD.open( SelectedFile, FILE_WRITE);
+                fs::File ConfigFile = FFat.open( SelectedFile, FILE_WRITE);
                 SelectedFile = NULL;
 
                 if (!ConfigFile)
@@ -145,7 +146,7 @@ void HandleJsonCfgFile( void)
     }
 
     /* Prepare new JSON */
-    File ConfigFile = SD.open( SelectedFile, FILE_READ);
+    fs::File ConfigFile = FFat.open( SelectedFile, FILE_READ);
     if (!ConfigFile)
     {
         SelectedFile = NULL;

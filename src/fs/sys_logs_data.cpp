@@ -19,7 +19,7 @@
 #include "./system/queue.h"
 
 Queue<String> logsQueue(LOGS_QUEUE_SIZE);
-File SystemFile;
+FileSd SystemFile;
 
 /* ID of first (oldest) file */
 int FirstSysLogFileId = -1;
@@ -53,7 +53,7 @@ int InitSystemLogs( void)
         }
         else
         {
-            File Directory = SD.open(SYSTEM_LOG_DIR);
+            FileSd Directory = SD.open(SYSTEM_LOG_DIR);
 
             while (1)
             {
@@ -251,7 +251,7 @@ void sendSystemLogsToSerial()
 {
     if (IsClearingLogsCommandActive())
     {
-        File Directory = SD.open(SYSTEM_LOG_DIR);
+        FileSd Directory = SD.open(SYSTEM_LOG_DIR);
 
         /* Delete all files */
         do

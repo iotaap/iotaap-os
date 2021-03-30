@@ -32,10 +32,10 @@
 #define MAX_SYSTEM_LOGS_SIZE          2048          // Max is 2048 MB (2 GB)
 #define MAX_SYSTEM_LOGS_FILE_NUM      (MAX_SYSTEM_LOGS_SIZE/MAX_SYSTEM_LOG_FILE_SIZE)
 /* CA certificate path */
-#define CA_CRT_DIR          "etc/ssl/certs/"
+#define CA_CRT_DIR          "/"
 #define CA_CRT_PATH         CA_CRT_DIR"ca.crt"
 /* System configuration file path */
-#define CFG_DIR             "etc/device/"
+#define CFG_DIR             "/"
 #define SYS_CFG_PATH        CFG_DIR"default.cfg"
 /* Custom configuration file path */
 #define USER_CFG_PATH       CFG_DIR"custom.cfg"

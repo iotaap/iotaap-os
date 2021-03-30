@@ -18,7 +18,7 @@
    uint8_t nfilecount=0;
 */
 
-File::File(SdFile f, const char *n) {
+FileSd::FileSd(SdFile f, const char *n) {
   // oh man you are kidding me, new() doesnt exist? Ok we do it by hand!
   _file = (SdFile *)malloc(sizeof(SdFile)); 
   if (_file) {
@@ -37,32 +37,32 @@ File::File(SdFile f, const char *n) {
   }
 }
 
-File::File(void) {
+FileSd::FileSd(void) {
   _file = 0;
   _name[0] = 0;
   //Serial.print("Created empty file object");
 }
 
-File::~File(void) {
+FileSd::~FileSd(void) {
   //  Serial.print("Deleted file object");
 }
 
 // returns a pointer to the file name
-char *File::name(void) {
+char *FileSd::name(void) {
   return _name;
 }
 
 // a directory is a special type of file
-boolean File::isDirectory(void) {
+boolean FileSd::isDirectory(void) {
   return (_file && _file->isDir());
 }
 
 
-size_t File::write(uint8_t val) {
+size_t FileSd::write(uint8_t val) {
   return write(&val, 1);
 }
 
-size_t File::write(const uint8_t *buf, size_t size) {
+size_t FileSd::write(const uint8_t *buf, size_t size) {
   size_t t;
   if (!_file) {
     setWriteError();
@@ -77,7 +77,7 @@ size_t File::write(const uint8_t *buf, size_t size) {
   return t;
 }
 
-int File::peek() {
+int FileSd::peek() {
   if (! _file) 
     return 0;
 
@@ -86,20 +86,20 @@ int File::peek() {
   return c;
 }
 
-int File::read() {
+int FileSd::read() {
   if (_file) 
     return _file->read();
   return -1;
 }
 
 // buffered read for more efficient, high speed reading
-int File::read(void *buf, uint16_t nbyte) {
+int FileSd::read(void *buf, uint16_t nbyte) {
   if (_file) 
     return _file->read(buf, nbyte);
   return 0;
 }
 
-int File::available() {
+int FileSd::available() {
   if (! _file) return 0;
 
   uint32_t n = size() - position();
@@ -107,28 +107,28 @@ int File::available() {
   return n > 0X7FFF ? 0X7FFF : n;
 }
 
-void File::flush() {
+void FileSd::flush() {
   if (_file)
     _file->sync();
 }
 
-boolean File::seek(uint32_t pos) {
+boolean FileSd::seek(uint32_t pos) {
   if (! _file) return false;
 
   return _file->seekSet(pos);
 }
 
-uint32_t File::position() {
+uint32_t FileSd::position() {
   if (! _file) return -1;
   return _file->curPosition();
 }
 
-uint32_t File::size() {
+uint32_t FileSd::size() {
   if (! _file) return 0;
   return _file->fileSize();
 }
 
-void File::close() {
+void FileSd::close() {
   if (_file) {
     _file->close();
     free(_file); 
@@ -142,7 +142,7 @@ void File::close() {
   }
 }
 
-File::operator bool() {
+FileSd::operator bool() {
   if (_file) 
     return  _file->isOpen();
   return false;

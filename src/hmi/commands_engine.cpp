@@ -7,7 +7,7 @@
 #include "./hmi/commands_serial.h"
 #include "./fs/serial_configuration.h"
 
-bool IsDebugPrintAllowed = false;
+bool IsDebugPrintAllowed = true;
 
 const unsigned int MaxCommandLen = 30;
 const unsigned int MaxLinesNumToSend = 100;
@@ -64,7 +64,7 @@ static void CommandSendStatus( char *Status);
 /* This file pointer is used only and only for seek() function when "stop"
     command is called. When searching in file, engine sets this pointer to
     file so "stop" command can find seek file and finish find() function */
-File *SearchFilePointer = NULL;
+FileSd *SearchFilePointer = NULL;
 
 /**
  * @brief   Process command (from serial or mqtt)
@@ -216,7 +216,7 @@ void PrintDebugInfo( const char* DebugString)
  * 
  * @param OpenedLogFile [in] Pointer to file
  */
-void CheckAndPrintLogFileData( File *OpenedLogFile)
+void CheckAndPrintLogFileData( FileSd *OpenedLogFile)
 {
     /* File does not exist */
     if (*OpenedLogFile == 0)

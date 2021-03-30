@@ -15,7 +15,7 @@
 #include "./mqtt/mqtt_dataDevice.h"
 
 Queue<String> localDataQueue(LOCAL_DATA_QUEUE_SIZE);
-File LocalDataFile;
+FileSd LocalDataFile;
 
 /**
  * @brief Saves payload locally if there is no Cloud connection - adds data to
