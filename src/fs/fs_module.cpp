@@ -1,9 +1,9 @@
 #include "fs_module.h"
 
-/**
- * This module initialize SD card and run file system. If initialization fails
- * ESP will be restarted. In task, system is filling file with data from queue 
- * and sends data to web(data) or serial interface(system logs).
+/** 
+ * Initializes onboard SD card and Internal FAT. It will restart ESP if FAT initialization failed.
+ * This module also handles local data and logs (if SD card is present) and configuration stored
+ * to internal FS.
  */
 
 #include "./libs_3rd_party/micro-sdcard/mySD.h"

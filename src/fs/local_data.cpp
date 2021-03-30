@@ -5,6 +5,7 @@
  * determines if connected to web.
  * If not connected to web then saves from queue to file system.
  * If connected to web then sends data on.
+ * This module will not work without SD card 
  */
 
 #include "./system/definitions.h"

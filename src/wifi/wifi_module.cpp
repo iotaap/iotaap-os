@@ -79,17 +79,6 @@ void InitWificonfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 {
     int StructSize = sizeof(JsonWifiData)/sizeof(*JsonWifiData);
     InitDataFromSystemJson( ConfigJson, JsonWifiData, StructSize);
-
-#if (0)
-    Serial.println();
-    Serial.print("W1:");
-    Serial.println(wifiConfig.wifiSSID);
-    Serial.print("W2:");
-    Serial.println(wifiConfig.wifiPASS);
-    Serial.print("W3:");
-    Serial.println(wifiConfig.rof);
-    Serial.println();
-#endif
 }
 
 /**

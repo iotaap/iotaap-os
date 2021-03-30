@@ -110,19 +110,6 @@ void InitMqttconfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 {
     int StructSize = sizeof(JsonMqttData)/sizeof(*JsonMqttData);
     InitDataFromSystemJson( ConfigJson, JsonMqttData, StructSize);
-
-#if (0)
-    Serial.println();
-    Serial.print("M1:");
-    Serial.println(mqttConfig.mqttServer);
-    Serial.print("M2:");
-    Serial.println(mqttConfig.mqttUser);
-    Serial.print("M3:");
-    Serial.println(mqttConfig.mqttPassword);
-    Serial.print("M4:");
-    Serial.println(mqttConfig.port);
-    Serial.println();
-#endif
 }
 
 

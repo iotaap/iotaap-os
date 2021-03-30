@@ -58,25 +58,6 @@ int InitSystemParameters( void)
     InitSystemConfigDataFromJsonDocument( sysConfigDoc);
     InitMqttconfigDataFromJsonDocument( sysConfigDoc);
 
-    /* TEST CODE */
-    #if 0
-        char ValStr[50];
-        int ValInt;
-        bool ValBool;
-        if (uGetSystemParameter( "mqtt_server", ValStr))    Serial.println(ValStr);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "pivo", ValStr))           Serial.println(ValStr);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "mqtt_port", &ValInt))     Serial.println(ValInt);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "piva", &ValInt))          Serial.println(ValInt);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "rof", &ValBool))          Serial.println(ValBool);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "pive", &ValBool))         Serial.println(ValBool);
-        else                                                Serial.println("Nema");
-    #endif
-
     return 0;
 }
 

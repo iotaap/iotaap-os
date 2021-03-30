@@ -50,28 +50,6 @@ int InitUserParameters( void)
     /* Close file and exit */
     UserCfgFile.close();
 
-    /* TEST CODE */
-    #if 0
-        Serial.print("Size:");
-        Serial.println(MemSizeForJson);
-
-        char ValStr[50];
-        int ValInt;
-        bool ValBool;
-        if (uGetUserParameter( "mqtt_server", ValStr))    Serial.println(ValStr);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "pivo", ValStr))           Serial.println(ValStr);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "mqtt_port", &ValInt))     Serial.println(ValInt);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "piva", &ValInt))          Serial.println(ValInt);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "rof", &ValBool))          Serial.println(ValBool);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "pive", &ValBool))         Serial.println(ValBool);
-        else                                              Serial.println("Nema");
-    #endif
-
     return 0;
 }
 

@@ -57,27 +57,6 @@ void InitSystemConfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 {
     int StructSize = sizeof(JsonSysData)/sizeof(*JsonSysData);
     InitDataFromSystemJson( ConfigJson, JsonSysData, StructSize);
-
-#if (0)
-    Serial.println();
-    Serial.print("S1:");
-    Serial.println(systemConfig.deviceID);
-    Serial.print("S2:");
-    Serial.println(systemConfig.groupID);
-    Serial.print("S3:");
-    Serial.println(systemConfig.deviceToken);
-    Serial.print("S4:");
-    Serial.println(systemConfig.groupToken);
-    Serial.print("S5:");
-    Serial.println(systemConfig.automaticUpdates);
-    Serial.print("S6:");
-    Serial.println(systemConfig.ntp1);
-    Serial.print("S7:");
-    Serial.println(systemConfig.ntp2);
-    Serial.print("S8:");
-    Serial.println(systemConfig.timezone);
-    Serial.println();
-#endif
 }
 
 
