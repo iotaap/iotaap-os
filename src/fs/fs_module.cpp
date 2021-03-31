@@ -1,12 +1,13 @@
 #include "fs_module.h"
 
-/**
- * This module initialize SD card and run file system. If initialization fails
- * ESP will be restarted. In task, system is filling file with data from queue 
- * and sends data to web(data) or serial interface(system logs).
+/** 
+ * Initializes onboard SD card and Internal FAT. It will restart ESP if FAT initialization failed.
+ * This module also handles local data and logs (if SD card is present) and configuration stored
+ * to internal FS.
  */
 
 #include "./libs_3rd_party/micro-sdcard/mySD.h"
+#include "FFat.h"
 #include "./system/definitions.h"
 #include "./fs/sys_logs_data.h"
 #include "./fs/local_data.h"
@@ -17,30 +18,49 @@
 static bool CheckDirStructure( void);
 
 /**
- * @brief Initializes onboard SD card. It will restart ESP if failed
+ * @brief Initializes onboard SD card and Internal FAT. It will restart ESP if FAT initialization failed
  * 
  */
 void initializeFileSystem()
 {
-    systemLog(tSYSTEM, "Initializing filesystem");
+    /* Initialize SD cart */
+    Serial.println();
+    systemLog(tSYSTEM, "Initializing SD filesystem");
     if (!SD.begin(SD_CS_PIN) || !CheckDirStructure())
     {
         char logBuff[255];
         char Time[TIME_STRING_LENGTH];
         systemStat.fsInitialized = false;
-        /*Huge system issue, SD card not present or broken, display issue on debug port*/
-        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Filesystem initialization failed");
+        /*SD card not present or broken, display warning on debug port*/
+        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "WARNING", "SD filesystem initialization failed, data backup and logs disabled");
+        Serial.println(logBuff);
+        vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
+    }
+    else
+    {
+        systemStat.fsInitialized = true;
+        systemLog(tSYSTEM, "SD filesystem initialized");
+    }
+
+    /* Initialize intern FS */
+    systemLog(tSYSTEM, "Initializing Internal filesystem");
+    if (!FFat.begin(true))
+    {
+        char logBuff[255];
+        char Time[TIME_STRING_LENGTH];
+        systemStat.fatInitialized = false;
+        sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Internal filesystem initialization failed");
         Serial.println(logBuff);
         vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
         ESP.restart();
     }
     else
     {
-        systemStat.fsInitialized = true;
-        systemLog(tSYSTEM, "Filesystem initialized");
+        systemStat.fatInitialized = true;
+        systemLog(tSYSTEM, "Internal filesystem initialized");
     }
 
-    systemStat.sysCfgExist = SD.exists( (char *)SYS_CFG_PATH);
+    systemStat.sysCfgExist = FFat.exists( SYS_CFG_PATH);
 }
 
 
@@ -53,11 +73,15 @@ void FSmanagerTask(void *parameter)
 {
     while (1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         if (systemStat.fsInitialized)
         {
             handleSystemLogs();
             handleAndPublishLocalData();
             sendSystemLogsToSerial();
+        }
+        if (systemStat.fatInitialized)
+        {
             HandleJsonCfgFile();
         }
         vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
@@ -73,13 +97,13 @@ void FSmanagerTask(void *parameter)
  */
 void loadCertificate(const char *path, char *buffer)
 {
-    File CertFile = SD.open(path, FILE_READ);
+    fs::File CertFile = FFat.open(path, FILE_READ);
     if (CertFile)
     {
-        unsigned int fileSize = CertFile.size();
+        size_t fileSize = CertFile.size();
         while (CertFile.available())
         {
-            CertFile.read(buffer, fileSize);
+            CertFile.readBytes(buffer, fileSize);
         }
         *(buffer + fileSize) = '\0'; // Terminate file
         CertFile.close();
@@ -101,8 +125,6 @@ static bool CheckDirStructure( void)
     const char *DirNames[] = 
     {
         SYSTEM_LOG_DIR,
-        CA_CRT_DIR,
-        CFG_DIR,
         LOCAL_DATA_DIR,
     };
     int Len = sizeof(DirNames)/sizeof(*DirNames);

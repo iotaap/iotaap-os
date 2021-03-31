@@ -11,6 +11,7 @@
 #include "./system/system_configuration.h"
 #include "./fs/serial_configuration.h"
 #include "./hmi/led_task.h"
+#include "./system/utils.h"
 
 #define MAX_REGISTERED_CONFS    5
 AsyncWebServer server(80);
@@ -19,7 +20,6 @@ struct configParameters conf[MAX_REGISTERED_CONFS] = {0};
 /* This variable will survive restart */
 int ConfiguratorActive __attribute__ ((section (".noinit")));
 
-static void createSSID( char *ssid);
 static void createPSK( char *pass);
 static void configure( AsyncWebServerRequest *request);
 static void submit( AsyncWebServerRequest *request);
@@ -54,7 +54,9 @@ void startConfigurator( void)
 
     LedBlinkConfigurator();
 
-    Serial.begin(115200);
+    Serial.println();
+    Serial.println("********************************** IoTaaP Web Configurator **********************************");
+    Serial.println();
 
     IPAddress IP = IPAddress(192, 168, 1, 8);
     IPAddress gateway = IPAddress(192, 168, 1, 1);
@@ -62,11 +64,11 @@ void startConfigurator( void)
 
     /* Create unique SSID ans PASS */
     createSSID( ssid);         // 
-    Serial.print("ssid: ");
+    Serial.print("SSID: ");
     Serial.println(ssid);
 
     createPSK( password);
-    Serial.print("pass: ");
+    Serial.print("Password: ");
     Serial.println(password);
 
     /* Start AP */
@@ -75,7 +77,11 @@ void startConfigurator( void)
         WiFi.softAPConfig(IP, gateway, NMask);
     }
 
-    Serial.println("AP Started");
+    Serial.println("Access Point Started");
+
+    Serial.println();
+    Serial.println("****************************************************************************************************");
+    Serial.println();
 
     server.on("/", HTTP_GET, configure);
     server.on("/submit-config", HTTP_POST, submit);
@@ -110,7 +116,8 @@ void HandleConfiguratorActivity( void *par)
 
     while(1)
     {
-        /* Nregative logic */
+        PRINT_EXTRA_STACK_IN_TASK();
+        /* Negative logic */
         int PinVal = !digitalRead(CONFIGURATOR_BUTTON);
         if (PinVal)
         {
@@ -167,16 +174,6 @@ bool IsConfiguratorActive( void)
 struct configParameters *configuratorGetConf( unsigned int id)
 {
     return conf[id].Size ? &conf[id] : NULL;
-}
-
-
-/**
- * @brief Create ssid from MAC number
- */
-static void createSSID( char *ssid)
-{
-    uint64_t chipid = ESP.getEfuseMac() & 0xFFFFFFFFFFFF;
-    snprintf(ssid, 32, "IoTaaP-%012llX", chipid);
 }
 
 /**

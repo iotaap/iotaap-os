@@ -17,18 +17,19 @@
 void systemInit()
 {
     esp_task_wdt_init(CUSTOM_WDT_TIMEOUT, true);
-    delay(1000);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    ConfiguratorInit();
     periphInit();
+    ConfiguratorInit();
     initializeFileSystem();
 
     InitSystemParameters();
-    InitUserParameters();
+    // InitUserParameters(); TODO - Currently not implemented, since writing user parameters to internal FAT is not implemented
     InitSystemLogs();
 
     loadCertificate(CA_CRT_PATH, SystemGetCAcertificate());
     systemInfo();
+    vTaskDelay(500 / portTICK_PERIOD_MS);
 }
 
 /**
@@ -38,11 +39,19 @@ void systemInit()
 void systemInfo()
 {
     char sysInfoBuff[512];
-    sprintf(sysInfoBuff, "IoTaaP OS - v%s", SystemGetFwVersion());
+    Serial.println();
+    Serial.println("**************************************** IoTaaP OS ****************************************");
+    Serial.println();
+    sprintf(sysInfoBuff, "OS version - v%s", LIB_VERSION);
     systemLog(tSYSTEM, sysInfoBuff);
-    sprintf(sysInfoBuff, "Core version: %s", LIB_VERSION);
+    sprintf(sysInfoBuff, "Firmware version: %s", SystemGetFwVersion());
     systemLog(tSYSTEM, sysInfoBuff);
-    sprintf(sysInfoBuff, "Device ID: %s", SystemGetDeviceId());
+    sprintf(sysInfoBuff, "Device ID: %s", strlen(SystemGetGroupId()) ? SystemGetGroupId() : "-");
+    systemLog(tSYSTEM, sysInfoBuff);
+    sprintf(sysInfoBuff, "Group ID: %s", strlen(SystemGetGroupId()) ? SystemGetGroupId() : "-");
     systemLog(tSYSTEM, sysInfoBuff);
     systemLog(tSYSTEM, "I come in peace!");
+    Serial.println();
+    Serial.println("***********************************************************************************************");
+    Serial.println();
 }

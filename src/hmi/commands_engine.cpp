@@ -64,7 +64,7 @@ static void CommandSendStatus( char *Status);
 /* This file pointer is used only and only for seek() function when "stop"
     command is called. When searching in file, engine sets this pointer to
     file so "stop" command can find seek file and finish find() function */
-File *SearchFilePointer = NULL;
+FileSd *SearchFilePointer = NULL;
 
 /**
  * @brief   Process command (from serial or mqtt)
@@ -84,9 +84,9 @@ void ProcessCommand( const char *Command, enum eCommandSource Source)
         }
     }
     else if (Source==CommandSourceSerial &&
-            (strstr( Command, SetParSys) || strstr( Command, SetParUsr)))
+            (strstr( Command, SetParSys))) // || strstr( Command, SetParUsr))) TODO - Implement back once User data feature is implemented
     {
-        char StatusParWiz[] = "Parameter wizard (leave empty for unchanged):";
+        char StatusParWiz[] = "IoTaaP Configurator (leave empty for unchanged):";
         CommandSendStatus( StatusParWiz);
 
         /* Open file and JSON */
@@ -94,10 +94,10 @@ void ProcessCommand( const char *Command, enum eCommandSource Source)
         {
             SerialJsonCfgSelectFile( SYS_CFG_PATH);
         }
-        else //if (strstr( Command, SetParUsr))
-        {
-            SerialJsonCfgSelectFile( USER_CFG_PATH);
-        }
+        // else //if (strstr( Command, SetParUsr))
+        // {
+        //     SerialJsonCfgSelectFile( USER_CFG_PATH);
+        // }
         
         if (SerialJsonCfgPrintKey())
         {
@@ -202,10 +202,11 @@ void ProcessCommand( const char *Command, enum eCommandSource Source)
  * @brief Print debug info
  * 
  * @param DebugString [in] String to print to serial port
+ * @param isSystem Is this SYSTEM level log (always printed)
  */
-void PrintDebugInfo( const char* DebugString)
+void PrintDebugInfo( const char* DebugString, bool isSystem)
 {
-    if (IsDebugPrintAllowed)
+    if (IsDebugPrintAllowed || isSystem)
     {
         Serial.println( DebugString);
     }
@@ -216,7 +217,7 @@ void PrintDebugInfo( const char* DebugString)
  * 
  * @param OpenedLogFile [in] Pointer to file
  */
-void CheckAndPrintLogFileData( File *OpenedLogFile)
+void CheckAndPrintLogFileData( FileSd *OpenedLogFile)
 {
     /* File does not exist */
     if (*OpenedLogFile == 0)

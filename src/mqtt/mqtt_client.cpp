@@ -4,7 +4,7 @@
 #include "./system/definitions.h"
 #include "./system/system_configuration.h"
 #include "./fs/sys_cfg.h"
-#include "./mqtt/mqtt_systemLogs.h"
+#include "./mqtt/mqtt_remoteControl.h"
 #include "./mqtt/mqtt_subscription.h"
 #include "./mqtt/mqtt_dataStatus.h"
 #include "./fs/sys_logs_data.h"
@@ -96,7 +96,7 @@ void connectToMqtt()
     xTaskCreate(
         MqttTask,
         "MqttProcess",
-        10000,
+        12000,
         NULL,
         1,
         &MqttHandler);
@@ -110,19 +110,6 @@ void InitMqttconfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 {
     int StructSize = sizeof(JsonMqttData)/sizeof(*JsonMqttData);
     InitDataFromSystemJson( ConfigJson, JsonMqttData, StructSize);
-
-#if (0)
-    Serial.println();
-    Serial.print("M1:");
-    Serial.println(mqttConfig.mqttServer);
-    Serial.print("M2:");
-    Serial.println(mqttConfig.mqttUser);
-    Serial.print("M3:");
-    Serial.println(mqttConfig.mqttPassword);
-    Serial.print("M4:");
-    Serial.println(mqttConfig.port);
-    Serial.println();
-#endif
 }
 
 
@@ -188,11 +175,12 @@ void MqttRunUserCallback( char *topic, uint8_t *message, unsigned int length)
  */
 static void MqttTask(void *parameter)
 {
-    mqttSubscribeToSystemRequestTopic(); 
+    mqttSubscribeToRemoteControlTopics(); 
 
     mqttStat.mqttConnected = false; 
     while (1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         if (WifiIsConnected())
         {
             //Initalises security certificate
@@ -209,8 +197,10 @@ static void MqttTask(void *parameter)
     mqttStat.mqttConnected = false;
     while (1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         while (WifiIsConnected())
         {
+            PRINT_EXTRA_STACK_IN_TASK();
             mqttStat.mqttConnected = _mqttClient.connected();
             if (!mqttStat.mqttConnected)
             {
@@ -285,4 +275,11 @@ static void publishMqttMessages( void)
             systemLog(tERROR, "There was a problem with message publishing!");
         }
     }
+}
+
+/**
+ * Triggers (forces) MQTT publishing from external call
+ */
+void triggerMqttPublish_Extern(){
+    publishMqttMessages();
 }

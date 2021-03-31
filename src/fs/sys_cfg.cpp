@@ -8,7 +8,7 @@
 
 #include "./system/definitions.h"
 #include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
-#include "./libs_3rd_party/micro-sdcard/mySD.h"
+#include "FFat.h"
 #include "./fs/json_memory.h"
 #include "./fs/sys_logs_data.h"
 #include "./mqtt/mqtt_client.h"
@@ -29,7 +29,7 @@ static void CreateDefauleSysCfgFile( char *Path);
 int InitSystemParameters( void)
 {
     /* Open file */
-    File SysCfgFile = SD.open(SYS_CFG_PATH, FILE_READ);
+    fs::File SysCfgFile = FFat.open(SYS_CFG_PATH, FILE_READ);
     if (!SysCfgFile)
     {
         CreateDefauleSysCfgFile( (char *)SYS_CFG_PATH);
@@ -57,25 +57,6 @@ int InitSystemParameters( void)
     InitWificonfigDataFromJsonDocument( sysConfigDoc);
     InitSystemConfigDataFromJsonDocument( sysConfigDoc);
     InitMqttconfigDataFromJsonDocument( sysConfigDoc);
-
-    /* TEST CODE */
-    #if 0
-        char ValStr[50];
-        int ValInt;
-        bool ValBool;
-        if (uGetSystemParameter( "mqtt_server", ValStr))    Serial.println(ValStr);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "pivo", ValStr))           Serial.println(ValStr);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "mqtt_port", &ValInt))     Serial.println(ValInt);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "piva", &ValInt))          Serial.println(ValInt);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "rof", &ValBool))          Serial.println(ValBool);
-        else                                                Serial.println("Nema");
-        if (uGetSystemParameter( "pive", &ValBool))         Serial.println(ValBool);
-        else                                                Serial.println("Nema");
-    #endif
 
     return 0;
 }

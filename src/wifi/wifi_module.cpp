@@ -66,7 +66,7 @@ void wifiConnect( void)
     xTaskCreate(
         WiFiTask,
         "WiFiProcess",
-        15000,
+        12000,
         NULL,
         1,
         &WiFiHandler);
@@ -79,17 +79,6 @@ void InitWificonfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 {
     int StructSize = sizeof(JsonWifiData)/sizeof(*JsonWifiData);
     InitDataFromSystemJson( ConfigJson, JsonWifiData, StructSize);
-
-#if (0)
-    Serial.println();
-    Serial.print("W1:");
-    Serial.println(wifiConfig.wifiSSID);
-    Serial.print("W2:");
-    Serial.println(wifiConfig.wifiPASS);
-    Serial.print("W3:");
-    Serial.println(wifiConfig.rof);
-    Serial.println();
-#endif
 }
 
 /**
@@ -130,7 +119,11 @@ bool WifiIsConnected( void)
 static void WiFiTask( void *parameter)
 {
     int timeoutCounter = 0;
+    char hostname[32];
     LedBlinkSlow();
+    /* Create unique hostname (will be same as SSID) */
+    createSSID(hostname);
+    WiFi.setHostname(hostname);
     WiFi.mode(WIFI_STA);
     WiFi.begin(wifiConfig.wifiSSID, wifiConfig.wifiPASS);
     vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -138,6 +131,7 @@ static void WiFiTask( void *parameter)
 
     while (1)
     {
+        PRINT_EXTRA_STACK_IN_TASK();
         if (!wifiStat.wifiConnected)
         {
             LedBlinkSlow();

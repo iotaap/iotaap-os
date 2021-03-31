@@ -2,7 +2,7 @@
 #define __IOTAAP_OS_DEFINITIONS_H__
 
 /* GENERAL CONFIG */
-#define LIB_VERSION "3.1.0"
+#define LIB_VERSION "4.0.0"
 #define STATUS_PUBLISH_TIME 5000 // How often system status is published in ms
 #define OTA_CHECK_TIME 21600000 // Period in ms for checking for OTA updates
 #define CUSTOM_WDT_TIMEOUT 30 // Watchdog timeout in seconds
@@ -32,10 +32,10 @@
 #define MAX_SYSTEM_LOGS_SIZE          2048          // Max is 2048 MB (2 GB)
 #define MAX_SYSTEM_LOGS_FILE_NUM      (MAX_SYSTEM_LOGS_SIZE/MAX_SYSTEM_LOG_FILE_SIZE)
 /* CA certificate path */
-#define CA_CRT_DIR          "etc/ssl/certs/"
+#define CA_CRT_DIR          "/"
 #define CA_CRT_PATH         CA_CRT_DIR"ca.crt"
 /* System configuration file path */
-#define CFG_DIR             "etc/device/"
+#define CFG_DIR             "/"
 #define SYS_CFG_PATH        CFG_DIR"default.cfg"
 /* Custom configuration file path */
 #define USER_CFG_PATH       CFG_DIR"custom.cfg"
@@ -50,5 +50,21 @@
 #define OTA_DOWNLOAD_GROUP_URL "https://ota.iotaap.io/v1/ota/group/download/"   // OTA update download endpoint for group
 
 #define TIME_STRING_LENGTH  64
+
+/* Maximum stack memory used in task */
+#if (0)
+    #define PRINT_EXTRA_STACK_IN_TASK()                             \
+    {                                                               \
+        static int minfree = 0xFFFFFF;                              \
+        int everminfree = uxTaskGetStackHighWaterMark(NULL);        \
+        if (everminfree < minfree)                                  \
+        {                                                           \
+            minfree = everminfree;                                  \
+            Serial.printf("%s = %d\n", __func__, everminfree);      \
+        }                                                           \
+    } while(0);
+#else
+#define PRINT_EXTRA_STACK_IN_TASK()
+#endif
 
 #endif

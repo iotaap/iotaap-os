@@ -8,7 +8,7 @@
 
 #include "./system/definitions.h"
 #include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
-#include "./libs_3rd_party/micro-sdcard/mySD.h"
+#include "FFat.h"
 #include "./fs/json_memory.h"
 #include "./fs/sys_logs_data.h"
 
@@ -23,7 +23,7 @@ DynamicJsonDocument userConfigDoc(0);
 int InitUserParameters( void)
 {
     /* Open file */
-    File UserCfgFile = SD.open(USER_CFG_PATH, FILE_READ);
+    fs::File UserCfgFile = FFat.open(USER_CFG_PATH, FILE_READ);
     if (!UserCfgFile)
     {
         systemLog(tERROR, "Failed to load user configuration");
@@ -49,28 +49,6 @@ int InitUserParameters( void)
 
     /* Close file and exit */
     UserCfgFile.close();
-
-    /* TEST CODE */
-    #if 0
-        Serial.print("Size:");
-        Serial.println(MemSizeForJson);
-
-        char ValStr[50];
-        int ValInt;
-        bool ValBool;
-        if (uGetUserParameter( "mqtt_server", ValStr))    Serial.println(ValStr);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "pivo", ValStr))           Serial.println(ValStr);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "mqtt_port", &ValInt))     Serial.println(ValInt);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "piva", &ValInt))          Serial.println(ValInt);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "rof", &ValBool))          Serial.println(ValBool);
-        else                                              Serial.println("Nema");
-        if (uGetUserParameter( "pive", &ValBool))         Serial.println(ValBool);
-        else                                              Serial.println("Nema");
-    #endif
 
     return 0;
 }
