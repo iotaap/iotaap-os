@@ -1,3 +1,33 @@
+## [4.0.0] - 2021-03-31
+
+**Breaking changes**
+
+IoTaaP OS v4.0.0 introduces filesystem changes, bug fixes, various cosmetic changes and performance and usability improvements. Please read the 
+[Official IoTaaP OS documentation](https://docs.iotaap.io/docs-iotaap-os/) to catch up easily.
+  
+### Added
+
+- Implemented remote update trigger for devices
+- Implemented remote update trigger for devices in group
+- Added development feature for monitoring free stack in internal tasks (disabled by default)
+- Added `start()` function, **which now has to be called at the beginning in order to start IoTaaP OS**
+
+### Changed
+
+- System will not start unitl `start()` function is called
+- Updated initial code (example)
+- Implemented internal FAT filesystem, SD is not mandatory to start the system. If SD is not present, logging and data backup will be disabled
+- Removed `getUserParameter` function. Custom parameters are not supported due to switching to internal FAT FS for configuration (better implementation of custom parameters will be implemented in the future releases)
+- CA certificate is now stored on internal filesystem, not on the SD card
+- SD card is not mandatory and file structure will be automatically created during the first boot (manual SD flashing is not required anymore)
+- Improved system logging and serial output
+
+### Fixed
+
+- IoTaaP hostname (during Web Configurator AP) is now generated from device MAC, and it is the same as the SSID
+- Fixed resetting synced time if WiFi connection is lost (now it will work with previously synced time)
+- Internal tasks performance optimizations
+
 ## [3.1.0] - 2021-03-17
   
 ### Added
