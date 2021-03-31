@@ -1,3 +1,9 @@
+## [4.0.1] - 2021-04-01
+   
+### Fixed
+
+- Fixed wrong ID printing to serial during boot
+
 ## [4.0.0] - 2021-03-31
 
 **Breaking changes**
