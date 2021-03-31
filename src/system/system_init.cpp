@@ -46,7 +46,7 @@ void systemInfo()
     systemLog(tSYSTEM, sysInfoBuff);
     sprintf(sysInfoBuff, "Firmware version: %s", SystemGetFwVersion());
     systemLog(tSYSTEM, sysInfoBuff);
-    sprintf(sysInfoBuff, "Device ID: %s", strlen(SystemGetGroupId()) ? SystemGetGroupId() : "-");
+    sprintf(sysInfoBuff, "Device ID: %s", strlen(SystemGetDeviceId()) ? SystemGetDeviceId() : "-");
     systemLog(tSYSTEM, sysInfoBuff);
     sprintf(sysInfoBuff, "Group ID: %s", strlen(SystemGetGroupId()) ? SystemGetGroupId() : "-");
     systemLog(tSYSTEM, sysInfoBuff);
