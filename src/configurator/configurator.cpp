@@ -190,7 +190,7 @@ static void createPSK( char *pass)
     mbedtls_md5_starts(&_ctx);
     mbedtls_md5_update(&_ctx, (uint8_t *)ssid, strlen(ssid));
     mbedtls_md5_finish(&_ctx, outpass);
-    snprintf(pass, 32, "%08X", (int)outpass);
+    snprintf(pass, 32, "%02X%02X%02X%02X", outpass[0], outpass[1], outpass[2], outpass[3]);
 }
 
 
