@@ -9,9 +9,7 @@
 #include "./fs/sys_cfg.h"
 #include "./system/system_configuration.h"
 
-
-void BatchRemoveLastData( void);
-int BatchFullnessPercent( void);
+static void BatchRemoveLastData( void);
 
 /**
  * Structure for MQTT message
@@ -30,6 +28,7 @@ uint8_t *bwrite = batch;
 uint8_t *batchEnd = batch + BATCH_SIZE;
 int ElementsCount = 0;
 
+
 /**
  * @brief Creates and publishes parameter document to cloud or local
  * 
@@ -40,8 +39,6 @@ int ElementsCount = 0;
  */
 int uDeviceCloudPublishParamBatch(const char *name, float value)
 {
-// Serial.println();
-// Serial.println("Add2: ");
     /* Length od name */
     int nameLen = strlen(name);
     /* Bytes until end of an array (here we dont check if memory is busy or not */
@@ -74,26 +71,6 @@ int uDeviceCloudPublishParamBatch(const char *name, float value)
     data++;
     char *parName = (char *)data;
 
-// Serial.println();
-// Serial.print("    Perc:");
-// Serial.println( BatchFullnessPercent());
-// Serial.print("UntilEnd: ");
-// Serial.println( SpaceUntilEnd);
-// Serial.print("    Name: ");
-// Serial.println( name);
-// Serial.print("Distance: ");
-// Serial.println( bwrite - batch);
-// Serial.print(" DataLen: ");
-// Serial.println( sizeof( struct sMqttData));
-// Serial.print("  Strlen: ");
-// Serial.println( nameLen);
-// Serial.print("    Full: ");
-// Serial.println( ElementSize);
-// Serial.print("   Start: ");
-// Serial.println( (uintptr_t)bwrite);
-// Serial.print("    Name: ");
-// Serial.println( (uintptr_t)parName);
-
     bwrite = (uint8_t *)strcpy( parName, name) + nameLen+1;
     while ((uintptr_t)bwrite & 7)
     {
@@ -106,11 +83,10 @@ int uDeviceCloudPublishParamBatch(const char *name, float value)
     }
 
     ElementsCount++;
-// Serial.print(" 2EndCnt: ");
-// Serial.println( ElementsCount);
 
     return 0;
 }
+
 
 /**
  * @brief Creates and publishes parameter document to cloud or local
@@ -122,8 +98,6 @@ int uDeviceCloudPublishParamBatch(const char *name, float value)
  */
 int uDeviceCloudPublishParamBatch(const char *name, const char *value)
 {
-// Serial.println();
-// Serial.println("Add1: ");
     /* Length od name */
     int nameLen = strlen(name);
     /* Length od name */
@@ -158,31 +132,6 @@ int uDeviceCloudPublishParamBatch(const char *name, const char *value)
     char *parName = (char *)data;
     char *valName = strcpy( parName, name) + nameLen + 1;
 
-
-// Serial.println();
-// Serial.print("    Perc:");
-// Serial.println( BatchFullnessPercent());
-// Serial.print("UntilEnd: ");
-// Serial.println( SpaceUntilEnd);
-// Serial.print("Distance: ");
-// Serial.println( bwrite - batch);
-// Serial.print("    Name: ");
-// Serial.println( name);
-// Serial.print(" DataLen: ");
-// Serial.println( sizeof( struct sMqttData));
-// Serial.print("  Strlen: ");
-// Serial.println( nameLen);
-// Serial.print("  Vallen: ");
-// Serial.println( valLen);
-// Serial.print("    Full: ");
-// Serial.println( ElementSize);
-// Serial.print("   Start: ");
-// Serial.println( (uintptr_t)bwrite);
-// Serial.print("    Name: ");
-// Serial.println( (uintptr_t)parName);
-// Serial.print("     Val: ");
-// Serial.println( (uintptr_t)valName);
-
     bwrite = (uint8_t *)strcpy( valName, value) + valLen+1;
     while ((uintptr_t)bwrite & 7)
     {
@@ -195,16 +144,17 @@ int uDeviceCloudPublishParamBatch(const char *name, const char *value)
     }
 
     ElementsCount++;
-// Serial.print(" 1EndCnt: ");
-// Serial.println( ElementsCount);
 
     return 0;
 }
 
 
+/**
+ * @brief   Fetch (and remove) latest data in batch memory. Store data into
+ *              buffer as JSON
+ */
 size_t BatchGetLastData( char *buffer)
 {
-// Serial.println("GET");
     StaticJsonDocument <256> batcPublishDoc;
     struct sMqttData *data = (struct sMqttData *)bread;
     uint32_t flags = data->flags;
@@ -214,7 +164,6 @@ size_t BatchGetLastData( char *buffer)
     batcPublishDoc["time"] = getSystemTimeString( Time, (data->unix_ms)/1000);
     batcPublishDoc["unix_ms"] = data->unix_ms;
 
-    // Serial.println(data->value);
     if (!(flags & 0x02))
     {
         batcPublishDoc["value"] = data->value;
@@ -231,26 +180,54 @@ size_t BatchGetLastData( char *buffer)
     }
 
     BatchRemoveLastData();
-// Serial.print(" GETcnt: ");
-// Serial.println( ElementsCount);
     return serializeJson(batcPublishDoc, buffer, 256);
 }
 
 
-void BatchRemoveLastData( void)
+/**
+ * @brief   Get number of stored data in batch memory
+ */
+int BatchNumOfElements( void)
 {
-// Serial.println("REMOVE");
+    return ElementsCount;
+}
+
+
+/**
+ * @brief   Calculate percent of fullness in batch memory
+ */
+int BatchFullnessPercent( void)
+{
     if (!ElementsCount)
     {
-// Serial.println("EL is 0 - go out of removing!");
+        return 0;
+    }
+    
+    int allocated;
+    if (bwrite > bread)
+    {
+        allocated = bwrite-bread;
+    }
+    else
+    {
+        allocated = BATCH_SIZE-(bread-bwrite);
+    }
+
+    return (allocated*100)/BATCH_SIZE;
+}
+
+
+/**
+ * @brief   Remove oldest data in batch memory
+ */
+static void BatchRemoveLastData( void)
+{
+    if (!ElementsCount)
+    {
         return;
     }
     struct sMqttData *data = (struct sMqttData *)bread;
     uint32_t flags = data->flags;
-
-// Serial.println();
-// Serial.print("   Start: ");
-// Serial.println( (uintptr_t)bread);
 
     data->unix_ms = 0;
     data->flags   = 0;
@@ -278,35 +255,4 @@ void BatchRemoveLastData( void)
     }
 
     ElementsCount--;
-// Serial.print(" RMCnt: ");
-// Serial.println( ElementsCount);
-
-// Serial.print("    Next: ");
-// Serial.println( (uintptr_t)bread);
-}
-
-
-int BatchNumOfElements( void)
-{
-    return ElementsCount;
-}
-
-int BatchFullnessPercent( void)
-{
-    if (!ElementsCount)
-    {
-        return 0;
-    }
-    
-    int allocated;
-    if (bwrite > bread)
-    {
-        allocated = bwrite-bread;
-    }
-    else
-    {
-        allocated = BATCH_SIZE-(bread-bwrite);
-    }
-
-    return (allocated*100)/BATCH_SIZE;
 }
