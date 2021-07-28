@@ -58,6 +58,17 @@ char *getSystemTimeString( char *Timestamp)
 }
 
 /**
+ * @brief Gets current system time in YYYY-MM-DD HH:MM:SS format
+ * 
+ */
+char *getSystemTimeString( char *Timestamp, time_t unix_s)
+{
+    struct tm ts = *localtime(&unix_s);
+    strftime(Timestamp, TIME_STRING_LENGTH, "%Y-%m-%d %H:%M:%S", &ts);
+    return Timestamp;
+}
+
+/**
  * @brief Get the System Time in ms
  * 
  * @return uint64_t system time in ms

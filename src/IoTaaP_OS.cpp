@@ -2,6 +2,7 @@
 #include "./wifi/wifi_module.h"
 #include "./mqtt/mqtt_client.h"
 #include "./mqtt/mqtt_dataDevice.h"
+#include "./mqtt/mqtt_dataDeviceBatch.h"
 #include "./mqtt/mqtt_dataUser.h"
 #include "./system/system_init.h"
 #include "./system/system_tasks.h"
@@ -134,6 +135,30 @@ int IoTaaP_OS::deviceCloudPublishParam(const char *name, float value)
 int IoTaaP_OS::deviceCloudPublishParam(const char *name, const char *value)
 {
     return uDeviceCloudPublishParam(name, value);
+}
+
+/**
+ * @brief Publishes measured parameter to the cloud in predefined format (Numeric input)
+ * 
+ * @param name Parameter name
+ * @param value Numeric parameter value
+ * @return int Returns 0 if successfully published
+ */
+int IoTaaP_OS::deviceCloudPublishParamBatch(const char *name, float value)
+{
+    return uDeviceCloudPublishParamBatch(name, value);
+}
+
+/**
+ * @brief Publishes measured parameter to the cloud in predefined format (Non-Numeric input)
+ * 
+ * @param name Parameter name
+ * @param value Non-numeric parameter value
+ * @return int Returns 0 if successfully published
+ */
+int IoTaaP_OS::deviceCloudPublishParamBatch(const char *name, const char *value)
+{
+    return uDeviceCloudPublishParamBatch(name, value);
 }
 
 /**
