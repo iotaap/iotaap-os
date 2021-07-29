@@ -10,6 +10,7 @@ float getBatteryPercentage();
 unsigned long getAdcValue(int pin);
 float getVoltage(unsigned long reading);
 char * getSystemTimeString( char *Timestamp);
+char *getSystemTimeString( char *Timestamp, time_t unix_s);
 uint64_t getSystemTimeMs();
 void periphInit();
 void createSSID( char *ssid);

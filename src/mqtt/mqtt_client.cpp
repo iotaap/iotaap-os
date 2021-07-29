@@ -7,6 +7,7 @@
 #include "./mqtt/mqtt_remoteControl.h"
 #include "./mqtt/mqtt_subscription.h"
 #include "./mqtt/mqtt_dataStatus.h"
+#include "./mqtt/mqtt_dataDeviceBatch.h"
 #include "./fs/sys_logs_data.h"
 #include "./hmi/led_task.h"
 #include "./ota/ota_module.h"
@@ -257,7 +258,24 @@ static void MqttTask(void *parameter)
  */
 static void publishMqttMessages( void)
 {
-    if (mqttMessageQueue.count() > 0)
+    static unsigned long LastBatchPubTime = 0;
+    unsigned long TimeNow = millis();
+    /* No data to send */
+    if (!mqttMessageQueue.count() && (!BatchNumOfElements() ||
+                                    TimeNow-LastBatchPubTime < BATCH_TIME_DIFF_MS))
+    {
+        return;
+    }
+
+    /* Choose what to send */
+    bool batchFiller = false;
+    if (mqttMessageQueue.count() < 10 &&
+        mqttMessageQueue.count()*2 < BatchFullnessPercent())
+    {
+        batchFiller = true;
+    }
+
+    if (!batchFiller)
     {
         char logData[256];
         sprintf( logData, "Publishing message to topic: %s", mqttMessageQueue.peek().topic.c_str());
@@ -275,7 +293,50 @@ static void publishMqttMessages( void)
             systemLog(tERROR, "There was a problem with message publishing!");
         }
     }
+    else
+    {
+        char topicChar[64];
+        sprintf( topicChar, "/%s/devices/%s/%s", MqttGetUser(), SystemGetDeviceId(), "params");
+
+        int const maxPayloadLen = 1024;
+        char payload[maxPayloadLen];
+        char *end = payload;
+        end += sprintf( payload, "{\"device_id\":\"%s\",\"data\":[", SystemGetDeviceId());
+
+// Serial.println(BatchNumOfElements());
+// Serial.println(TimeNow);
+        end += BatchGetLastData( end);
+        while (BatchNumOfElements() && end-payload < maxPayloadLen*8/10)
+        {
+            *end = ',';
+            end++;
+            end += BatchGetLastData( end);
+// Serial.print(".");
+        }
+        *end = ']';
+        end++;
+        *end = '}';
+        end++;
+        *end = '\0';
+// Serial.println("BATCH");
+// Serial.println(payload);
+        if (_mqttClient.publish(topicChar, payload, false))
+        {
+            systemLog(tINFO, "Batch Message successfully published!");
+        }
+        else
+        {
+// Serial.println("fail");
+            systemLog(tERROR, "There was a problem with batch message publishing!");
+        }
+
+        if (!BatchNumOfElements())
+        {
+            LastBatchPubTime = TimeNow;
+        }
+    }
 }
+
 
 /**
  * Triggers (forces) MQTT publishing from external call

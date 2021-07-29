@@ -16,6 +16,10 @@
 #define SUBS_TOPIC_QUEUE_SIZE 10
 #define UNSUBS_TOPIC_QUEUE_SIZE 10
 #define MQTT_MESSAGES_QUEUE_SIZE 50
+/* Batch data */
+#define BATCH_TIME_DIFF_MS  200
+#define BATCH_SIZE  2048
+
 
 /* PINS */
 #define BATSENS_PIN 36 // Battery voltage sensor pin
