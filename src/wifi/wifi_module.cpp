@@ -70,7 +70,7 @@ void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     char msg[64];
-    sprintf( msg, "WiFi connected! IP address: %s", WiFi.localIP().toString());
+    sprintf( msg, "WiFi connected! IP address: %s", WiFi.localIP().toString().c_str());
     systemLog(tSYSTEM, msg);
 }
 
