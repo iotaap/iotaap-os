@@ -319,7 +319,7 @@ static void submit(AsyncWebServerRequest *request)
     }
     
     /* Save cert to structure */
-    strcpy( SystemGetCAcertificate(), request->arg( "cert").c_str());
+    strcpy( SystemNewCAcertificate(request->arg( "cert").length()), request->arg( "cert").c_str());
     /* Save data to JSON and reset */
     FromCfgSaveData( true);
 

@@ -14,7 +14,7 @@ struct sSystemConfig
     char ntp2[20];   // Second NTP server
     const char *fwVersion;
     bool automaticUpdates; // True if automatic updates are turned on
-    char CAcert[8192];
+    char *CAcert;
 };
 
 sSystemConfig systemConfig =
@@ -28,7 +28,7 @@ sSystemConfig systemConfig =
     "time.nist.gov",    /* ntp2             */
     "",                 /* fwVersion        */
     false,              /* automaticUpdates */
-    ""                  /* CAcert           */
+    NULL,               /* CAcert           */
 };
 
 /* Data from JSON in structure */
@@ -150,4 +150,18 @@ bool SystemGetAutoUpdateFlag( void)
 char *SystemGetCAcertificate( void)
 {
     return systemConfig.CAcert;
+}
+
+/**
+ * @brief Get memory for CA certificate
+ */
+char *SystemNewCAcertificate( int certLen)
+{
+    if (systemConfig.CAcert)
+    {
+        delete[] systemConfig.CAcert;
+    }
+
+    systemConfig.CAcert = new char[certLen];
+    return SystemGetCAcertificate();
 }

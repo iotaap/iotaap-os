@@ -18,5 +18,6 @@ const char *SystemGetNtp2( void);
 int SystemGetTimezone( void);
 bool SystemGetAutoUpdateFlag( void);
 char *SystemGetCAcertificate( void);
+char *SystemNewCAcertificate( int certLen);
 
 #endif
