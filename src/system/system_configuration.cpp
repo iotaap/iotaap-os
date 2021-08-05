@@ -14,34 +14,37 @@ struct sSystemConfig
     char ntp2[20];   // Second NTP server
     const char *fwVersion;
     bool automaticUpdates; // True if automatic updates are turned on
+    char updatesServer[30];
     char *CAcert;
 };
 
 sSystemConfig systemConfig =
 {
-    "",                 /* deviceID         */
-    "",                 /* deviceToken      */
-    "",                 /* groupID          */
-    "",                 /* groupToken       */
-    4,                  /* timezone         */
-    "pool.ntp.org",     /* ntp1             */
-    "time.nist.gov",    /* ntp2             */
-    "",                 /* fwVersion        */
-    false,              /* automaticUpdates */
-    NULL,               /* CAcert           */
+    "",                      /* deviceID         */
+    "",                      /* deviceToken      */
+    "",                      /* groupID          */
+    "",                      /* groupToken       */
+    4,                       /* timezone         */
+    "pool.ntp.org",          /* ntp1             */
+    "time.nist.gov",         /* ntp2             */
+    "",                      /* fwVersion        */
+    false,                   /* automaticUpdates */
+    "https://ota.iotaap.io", /* updatesServer    */
+    NULL,                    /* CAcert           */
 };
 
 /* Data from JSON in structure */
 struct sJsonKeys JsonSysData[] = 
 {
-    { systemConfig.deviceID        , JsonDataTypeString_30, "device_id"   , "Device ID"   },
-    { systemConfig.deviceToken     , JsonDataTypePass_30  , "device_token", "Device Token"},
-    { systemConfig.groupID         , JsonDataTypeString_30, "group_id"    , "Group ID"    },
-    { systemConfig.groupToken      , JsonDataTypePass_30  , "group_token" , "Group Token" },
-    {&systemConfig.automaticUpdates, JsonDataTypeBool     , "auto_update" , "Auto Update" },
-    { systemConfig.ntp1            , JsonDataTypeString_20, "ntp_1"       , "NTP 1"       },
-    { systemConfig.ntp2            , JsonDataTypeString_20, "ntp_2"       , "NTP 2"       },
-    {&systemConfig.timezone        , JsonDataTypeInt      , "timezone"    , "Time zone"   }
+    { systemConfig.deviceID        , JsonDataTypeString_30, "device_id"   , "Device ID"         },
+    { systemConfig.deviceToken     , JsonDataTypePass_30  , "device_token", "Device Token"      },
+    { systemConfig.groupID         , JsonDataTypeString_30, "group_id"    , "Group ID"          },
+    { systemConfig.groupToken      , JsonDataTypePass_30  , "group_token" , "Group Token"       },
+    {&systemConfig.automaticUpdates, JsonDataTypeBool     , "auto_update" , "Auto Update"       },
+    { systemConfig.updatesServer   , JsonDataTypeString_30, "ota_domain"  , "Auto Update Domain"},
+    { systemConfig.ntp1            , JsonDataTypeString_20, "ntp_1"       , "NTP 1"             },
+    { systemConfig.ntp2            , JsonDataTypeString_20, "ntp_2"       , "NTP 2"             },
+    {&systemConfig.timezone        , JsonDataTypeInt      , "timezone"    , "Time zone"         }
 };
 
 
