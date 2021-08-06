@@ -48,10 +48,10 @@
 #define LOCAL_DATA_PATH     LOCAL_DATA_DIR"data.log"
 
 /* OTA */
-#define OTA_CHECK_DEVICE_URL "https://ota.iotaap.io/v1/ota/device/latest/"      // OTA update check endpoint for device
-#define OTA_CHECK_GROUP_URL "https://ota.iotaap.io/v1/ota/group/latest/"        // OTA update check endpoint for group
-#define OTA_DOWNLOAD_DEVICE_URL "https://ota.iotaap.io/v1/ota/device/download/" // OTA update download endpoint for device
-#define OTA_DOWNLOAD_GROUP_URL "https://ota.iotaap.io/v1/ota/group/download/"   // OTA update download endpoint for group
+#define OTA_CHECK_DEVICE_URI "/v1/ota/device/latest/"      // OTA update check endpoint for device
+#define OTA_CHECK_GROUP_URI "/v1/ota/group/latest/"        // OTA update check endpoint for group
+#define OTA_DOWNLOAD_DEVICE_URI "/v1/ota/device/download/" // OTA update download endpoint for device
+#define OTA_DOWNLOAD_GROUP_URI "/v1/ota/group/download/"   // OTA update download endpoint for group
 
 #define TIME_STRING_LENGTH  64
 

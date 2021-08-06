@@ -52,6 +52,11 @@ void handleUpdates()
  */
 void checkUpdate()
 {
+    /* Do not check for update if no OTA server */
+    if (!strlen(SystemGetOtaServer()))
+    {
+        return;
+    }
     systemLog(tSYSTEM, "Checking for updates");
 
     /* Notify cloud that update request is received */
@@ -66,11 +71,11 @@ void checkUpdate()
     
     if (strlen(SystemGetGroupId()) == 0)
     { // Checking either this device is part of a group or a standalone device
-        updatesHttpClient.begin(wifiClientSecure, OTA_CHECK_DEVICE_URL + String(SystemGetDeviceId()));
+        updatesHttpClient.begin(wifiClientSecure, String(SystemGetOtaServer()) + OTA_CHECK_DEVICE_URI + String(SystemGetDeviceId()));
     }
     else
     {
-        updatesHttpClient.begin(wifiClientSecure, OTA_CHECK_GROUP_URL + String(SystemGetGroupId()));
+        updatesHttpClient.begin(wifiClientSecure, String(SystemGetOtaServer()) + OTA_CHECK_GROUP_URI + String(SystemGetGroupId()));
     }
 
     int httpCode = updatesHttpClient.GET(); // return code for HTTP Get request
@@ -148,12 +153,14 @@ void otaUpdate()
     // Update respective to device group or standalone
     if (strlen(SystemGetGroupId()) == 0)
     {
-        ret = httpUpdate.update(wifiClientSecure, OTA_DOWNLOAD_DEVICE_URL +
+        ret = httpUpdate.update(wifiClientSecure,
+                    String(SystemGetOtaServer()) + OTA_DOWNLOAD_DEVICE_URI +
                     String(SystemGetDeviceId()) + String(SystemGetDeviceToken()));
     }
     else
     {
-        ret = httpUpdate.update(wifiClientSecure, OTA_DOWNLOAD_GROUP_URL +
+        ret = httpUpdate.update(wifiClientSecure,
+                    String(SystemGetOtaServer()) + OTA_DOWNLOAD_GROUP_URI +
                     String(SystemGetGroupId()) + String(SystemGetGroupToken()));
     }
 

@@ -132,6 +132,14 @@ const char *SystemGetNtp2( void)
 }
 
 /**
+ * @brief Get OTA server
+ */
+const char *SystemGetOtaServer( void)
+{
+    return systemConfig.updatesServer;
+}
+
+/**
  * @brief Get system timezone
  */
 int SystemGetTimezone( void)
