@@ -44,6 +44,7 @@ struct sMqttConfig
     char mqttUser[20];
     char mqttPassword[20];
     uint16_t port;
+    bool secureConnection;
     MQTT_CALLBACK_SIGNATURE;
     std::function<void(char*, uint8_t*, unsigned int)> user_callback;
 };
@@ -59,6 +60,7 @@ struct sMqttConfig mqttConfig
     "",                 /* mqttUser                */
     "",                 /* mqttPassword            */
     8883,               /* port                    */
+    false,              /* secureConnection        */
     NULL,               /* MQTT_CALLBACK_SIGNATURE */
     NULL                /* user_callback           */
 };
@@ -66,10 +68,11 @@ struct sMqttConfig mqttConfig
 /* Data from JSON in structure */
 struct sJsonKeys JsonMqttData[] = 
 {
-    { mqttConfig.mqttServer  , JsonDataTypeString_20, "mqtt_server", "MQTT Server"  },
-    { mqttConfig.mqttUser    , JsonDataTypeString_20, "mqtt_user"  , "MQTT User"    },
-    { mqttConfig.mqttPassword, JsonDataTypePass_20  , "mqtt_pass"  , "MQTT Password"},
-    {&mqttConfig.port        , JsonDataTypeInt      , "mqtt_port"  , "MQTT Port"    }
+    { mqttConfig.mqttServer      , JsonDataTypeString_20, "mqtt_server", "MQTT Server"       },
+    { mqttConfig.mqttUser        , JsonDataTypeString_20, "mqtt_user"  , "MQTT User"         },
+    { mqttConfig.mqttPassword    , JsonDataTypePass_20  , "mqtt_pass"  , "MQTT Password"     },
+    {&mqttConfig.port            , JsonDataTypeInt      , "mqtt_port"  , "MQTT Port"         },
+    {&mqttConfig.secureConnection, JsonDataTypeBool     , "secure_conn", "Secure Connection" }
 };
 /* Queue for MQTT messaging */
 Queue<sMqttMessage> mqttMessageQueue(MQTT_MESSAGES_QUEUE_SIZE);
