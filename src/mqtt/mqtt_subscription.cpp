@@ -23,7 +23,7 @@ void unsubscribeFromTopics()
         sprintf( unsubsStr, "Unsubscribing from: %s", unsubsTopicsQueue.peek().c_str());
         systemLog(tINFO, unsubsStr);
         
-        if (_mqttClient.unsubscribe(unsubsTopicsQueue.pop().c_str()))
+        if (_mqttClient->unsubscribe(unsubsTopicsQueue.pop().c_str()))
         {
             systemLog(tINFO, "Successfully unsubscribed!");
         }
@@ -46,7 +46,7 @@ void subscribeToTopics()
         sprintf( subsStr, "Subscribing from: %s", subsTopicsPendingQueue.peek().c_str());
         systemLog(tINFO, subsStr);
 
-        if (_mqttClient.subscribe(subsTopicsPendingQueue.peek().c_str()))
+        if (_mqttClient->subscribe(subsTopicsPendingQueue.peek().c_str()))
         {
             subsTopicsSubscribedQueue.push(subsTopicsPendingQueue.pop()); // Add topics to Subscribed Queue, so we know to which topics we are subscribed
             systemLog(tINFO, "Successfully subscribed!");

@@ -76,8 +76,10 @@ struct sJsonKeys JsonMqttData[] =
 };
 /* Queue for MQTT messaging */
 Queue<sMqttMessage> mqttMessageQueue(MQTT_MESSAGES_QUEUE_SIZE);
+/* Secure connection - EXTERN - shared between MQTT and OTA update */
+WiFiClient *wifiClient;
 /* MQTT uses secure network (shared with OTA) */
-PubSubClient _mqttClient(wifiClientSecure);
+PubSubClient *_mqttClient;
 
 
 
@@ -179,6 +181,9 @@ void MqttRunUserCallback( char *topic, uint8_t *message, unsigned int length)
  */
 static void MqttTask(void *parameter)
 {
+    wifiClient = (mqttConfig.secureConnection) ? new WiFiClientSecure() : new WiFiClient();
+    _mqttClient = new PubSubClient(*wifiClient);
+
     mqttSubscribeToRemoteControlTopics(); 
 
     mqttStat.mqttConnected = false; 
@@ -188,16 +193,19 @@ static void MqttTask(void *parameter)
         if (WifiIsConnected())
         {
             //Initalises security certificate
-            wifiClientSecure.setTimeout(12); // timeout argument is defined in seconds for setTimeout
-            wifiClientSecure.setCACert(SystemGetCAcertificate());
-            _mqttClient.setBufferSize(1024);
-            _mqttClient.setServer(mqttConfig.mqttServer, mqttConfig.port);
-            _mqttClient.setCallback(mqttConfig.callback);
+            wifiClient->setTimeout(12); // timeout argument is defined in seconds for setTimeout
+            if (mqttConfig.secureConnection)
+            {
+                ((WiFiClientSecure*)wifiClient)->setCACert(SystemGetCAcertificate());
+            }
+            _mqttClient->setBufferSize(1024);
+            _mqttClient->setServer(mqttConfig.mqttServer, mqttConfig.port);
+            _mqttClient->setCallback(mqttConfig.callback);
             break;
         }
         vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
     }
-    _mqttClient.disconnect();
+    _mqttClient->disconnect();
     mqttStat.mqttConnected = false;
     while (1)
     {
@@ -205,19 +213,19 @@ static void MqttTask(void *parameter)
         while (WifiIsConnected())
         {
             PRINT_EXTRA_STACK_IN_TASK();
-            mqttStat.mqttConnected = _mqttClient.connected();
+            mqttStat.mqttConnected = _mqttClient->connected();
             if (!mqttStat.mqttConnected)
             {
                 systemLog(tWARNING, "Not connected to MQTT broker");
                 vTaskDelay(1000 / portTICK_PERIOD_MS); // Re-attempts to connect every second
-                _mqttClient.connect(SystemGetDeviceId(), mqttConfig.mqttUser, mqttConfig.mqttPassword);
+                _mqttClient->connect(SystemGetDeviceId(), mqttConfig.mqttUser, mqttConfig.mqttPassword);
                 LedBlinkFast(); // Sets LED operating into fast mode - indicates not connected
                 systemLog(tINFO, "Restoring subscribed topics");
                 restoreSubscribedTopics();
             }
             else
             {
-                _mqttClient.loop();
+                _mqttClient->loop();
                 publishSystemStatus();
                 subscribeToTopics();
                 unsubscribeFromTopics();
@@ -249,7 +257,7 @@ static void MqttTask(void *parameter)
             }
             vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
         }
-        _mqttClient.disconnect();
+        _mqttClient->disconnect();
         mqttStat.mqttConnected = false;     // If wifi is not connected then mqtt is not connected also
         vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
     }
@@ -284,7 +292,7 @@ static void publishMqttMessages( void)
         sprintf( logData, "Publishing message to topic: %s", mqttMessageQueue.peek().topic.c_str());
         systemLog(tINFO, logData);
 
-        if (_mqttClient.publish(mqttMessageQueue.peek().topic.c_str(),
+        if (_mqttClient->publish(mqttMessageQueue.peek().topic.c_str(),
                                 mqttMessageQueue.peek().payload.c_str(),
                                 mqttMessageQueue.peek().retain))
         {
@@ -323,7 +331,7 @@ static void publishMqttMessages( void)
         *end = '\0';
 // Serial.println("BATCH");
 // Serial.println(payload);
-        if (_mqttClient.publish(topicChar, payload, false))
+        if (_mqttClient->publish(topicChar, payload, false))
         {
             systemLog(tINFO, "Batch Message successfully published!");
         }

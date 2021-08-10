@@ -67,15 +67,15 @@ void checkUpdate()
 
     DynamicJsonDocument versionJson(128);
     
-    wifiClientSecure.stop();
+    wifiClient->stop();
     
     if (strlen(SystemGetGroupId()) == 0)
     { // Checking either this device is part of a group or a standalone device
-        updatesHttpClient.begin(wifiClientSecure, String(SystemGetOtaServer()) + OTA_CHECK_DEVICE_URI + String(SystemGetDeviceId()));
+        updatesHttpClient.begin(*wifiClient, String(SystemGetOtaServer()) + OTA_CHECK_DEVICE_URI + String(SystemGetDeviceId()));
     }
     else
     {
-        updatesHttpClient.begin(wifiClientSecure, String(SystemGetOtaServer()) + OTA_CHECK_GROUP_URI + String(SystemGetGroupId()));
+        updatesHttpClient.begin(*wifiClient, String(SystemGetOtaServer()) + OTA_CHECK_GROUP_URI + String(SystemGetGroupId()));
     }
 
     int httpCode = updatesHttpClient.GET(); // return code for HTTP Get request
@@ -127,7 +127,7 @@ void checkUpdate()
         }
     }
     systemStat.updateCheckRequested = false;
-    wifiClientSecure.stop();
+    wifiClient->stop();
 
 }
 
@@ -153,13 +153,13 @@ void otaUpdate()
     // Update respective to device group or standalone
     if (strlen(SystemGetGroupId()) == 0)
     {
-        ret = httpUpdate.update(wifiClientSecure,
+        ret = httpUpdate.update(*wifiClient,
                     String(SystemGetOtaServer()) + OTA_DOWNLOAD_DEVICE_URI +
                     String(SystemGetDeviceId()) + String(SystemGetDeviceToken()));
     }
     else
     {
-        ret = httpUpdate.update(wifiClientSecure,
+        ret = httpUpdate.update(*wifiClient,
                     String(SystemGetOtaServer()) + OTA_DOWNLOAD_GROUP_URI +
                     String(SystemGetGroupId()) + String(SystemGetGroupToken()));
     }
