@@ -74,8 +74,6 @@ int InitSystemParameters( void)
  *          "group_id": "",
  *          "group_token": "",
  *          "auto_update": false,
- *          "ntp_1": "pool.ntp.org",
- *          "ntp_2": "time.nist.gov",
  *          "timezone": 4,
  *          "mqtt_server": "mqtt1.iotaap.io",
  *          "mqtt_user": "",

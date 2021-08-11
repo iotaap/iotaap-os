@@ -11,12 +11,14 @@
 #include "./fs/sys_cfg.h"
 #include "./system/system_configuration.h"
 #include "./configurator/configurator.h"
+#include "./mqtt/mqtt_subscription.h"
+#include <time.h>
+#include <sys/time.h>
 
 sSystemStat systemStat;
 
 // Task handlers
-static TaskHandle_t SystemStatusHandler = NULL;
-static TaskHandle_t SyncNTPhandler = NULL;
+static TaskHandle_t SyncTimehandler = NULL;
 static TaskHandle_t FSmanagerHandler = NULL;
 static TaskHandle_t LedTaskHandler = NULL;
 static TaskHandle_t SerialHandler = NULL;
@@ -50,20 +52,12 @@ void createSystemTasks()
         &FSmanagerHandler);
 
     xTaskCreate(
-        SystemStatusTask,
-        "SystemStatusProcess",
-        1000,
+        SyncTimeTask,
+        "SyncTimeprocess",
+        1024,
         NULL,
         1,
-        &SystemStatusHandler);
-
-    xTaskCreate(
-        SyncNTPtask,
-        "SyncNTPprocess",
-        8000,
-        NULL,
-        1,
-        &SyncNTPhandler);
+        &SyncTimehandler);
 
     xTaskCreate(
         SerialTask,
@@ -74,81 +68,45 @@ void createSystemTasks()
         &SerialHandler);
 }
 
-/**
- * @brief Basic system task for altering system status values
- * 
- * @param parameter 
- */
-void SystemStatusTask(void *parameter)
-{
-    while (1)
-    {
-        systemStat.uptime = (getSystemTimeMs() - systemStat.bootTime) / 1000;
-        systemStat.batteryPerc = getBatteryPercentage();
 
-        vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
+/**
+ * @brief Update local system time
+ */
+void UpdateTime( uint64_t epoch_ms)
+{
+    systemStat.epochTimeUpdatedMs = millis();
+    systemStat.epochTimeMs = epoch_ms;
+
+    if (!systemStat.systemTimeSynced)
+    {
+        systemStat.systemTimeSynced = true;
+        systemStat.bootTimeEpochMs = epoch_ms;
+        systemLog(tSYSTEM, "Synced system time with server");
     }
+    else
+    {
+        systemLog(tINFO, "Synced system time with server");
+    }
+
+    mqttUnsubscribe( MQTT_TIME_TOPIC);
 }
 
 /**
- * @brief Takes care of sync with NTP server
- * 
- * @param parameter 
+ * @brief Subscribe to time topic once in a while to fetch data. After fetching data
+ *          unsubscribe in UpdateTime() function
  */
-void SyncNTPtask(void *parameter)
+void SyncTimeTask(void *parameter)
 {
-    unsigned long int backupTime;
     systemStat.systemTimeSynced = false;
-    bool previouslySynced = false;
+
     while (1)
     {
         PRINT_EXTRA_STACK_IN_TASK();
-        if (!systemStat.systemTimeSynced && WifiIsConnected())
-        {
-            configTime(SystemGetTimezone() * 3600, 0, SystemGetNtp1(), SystemGetNtp2()); // Configure system time
-            systemStat.systemTimeSynced = true;
-            previouslySynced = true;
-            getLocalTime(&systemStat.systemTime);
-            systemStat.bootTime = getSystemTimeMs();
-            systemLog(tSYSTEM, "Synced system time with NTP");
-        }
-        if (!WifiIsConnected() && systemStat.systemTimeSynced)
-        {
-            systemStat.systemTimeSynced = false;
-        }
-
-        if (!getLocalTime(&systemStat.systemTime) && !previouslySynced)
-        {
-            systemLog(tERROR, "NTP sync failed, timestamp switched from timestamp to time from boot");
-            backupTime = millis();
-            systemStat.systemTime.tm_hour = backupTime / 3600000;
-            systemStat.systemTime.tm_min = backupTime / 60000;
-            systemStat.systemTime.tm_sec = backupTime / 1000;
-
-            systemStat.systemTime.tm_isdst = 0;
-            systemStat.systemTime.tm_mday = 0;
-            systemStat.systemTime.tm_mon = 0;
-            systemStat.systemTime.tm_wday = 0;
-            systemStat.systemTime.tm_yday = 0;
-            systemStat.systemTime.tm_year = 0;
-            systemStat.systemTimeMs = (int64_t)millis();
-        }
-        else
-        {
-            systemStat.systemTimeMs = getSystemTimeMs();
-        }
-        vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
+        mqttSubscribe( MQTT_TIME_TOPIC);
+        vTaskDelay( MQTT_TIME_UPDATE_PERIOD_S*1000 / portTICK_PERIOD_MS);
     }
 }
 
-
-/**
- * @brief Reset system uptime to 0
- */
-void SystemStatUptimeReset( void)
-{
-    systemStat.uptime = 0;
-}
 
 /**
  * @brief Set check for updates flag

@@ -64,7 +64,7 @@ int uDeviceCloudPublishParamBatch(const char *name, float value)
 
     /* Start writing data */
     struct sMqttData *data = (struct sMqttData *)bwrite;
-    data->unix_ms = systemStat.systemTimeMs;
+    data->unix_ms = getUnixTimeMs();
     data->flags = (false << 0) | (0 << 1);
     data->value = value;
 
@@ -125,7 +125,7 @@ int uDeviceCloudPublishParamBatch(const char *name, const char *value)
 
     /* Start writing data */
     struct sMqttData *data = (struct sMqttData *)bwrite;
-    data->unix_ms = systemStat.systemTimeMs;
+    data->unix_ms = getUnixTimeMs();
     data->flags = (false << 0) | (1 << 1);
 
     data++;

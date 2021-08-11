@@ -54,6 +54,8 @@
 #define OTA_DOWNLOAD_GROUP_URI "/v1/ota/group/download/"   // OTA update download endpoint for group
 
 #define TIME_STRING_LENGTH  64
+#define MQTT_TIME_TOPIC             "/iotaapsys/services/heartbeat"
+#define MQTT_TIME_UPDATE_PERIOD_S   300
 
 /* Maximum stack memory used in task */
 #if (0)

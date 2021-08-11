@@ -29,7 +29,7 @@ int uDeviceCloudPublishParam(const char *name, float value)
     paramPublishDoc["name"] = name;
     paramPublishDoc["value"] = value;
     paramPublishDoc["time"] = getSystemTimeString( Time);
-    paramPublishDoc["unix_ms"] = systemStat.systemTimeMs;
+    paramPublishDoc["unix_ms"] = getUnixTimeMs();
 
     serializeJson(paramPublishDoc, paramPublishPayload);
 
@@ -61,7 +61,7 @@ int uDeviceCloudPublishParam(const char *name, const char *value)
     paramPublishDoc["name"] = name;
     paramPublishDoc["value"] = value;
     paramPublishDoc["time"] = getSystemTimeString( Time);
-    paramPublishDoc["unix_ms"] = systemStat.systemTimeMs;
+    paramPublishDoc["unix_ms"] = getUnixTimeMs();
 
     serializeJson(paramPublishDoc, paramPublishPayload);
 

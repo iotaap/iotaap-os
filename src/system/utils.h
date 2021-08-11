@@ -11,7 +11,8 @@ unsigned long getAdcValue(int pin);
 float getVoltage(unsigned long reading);
 char * getSystemTimeString( char *Timestamp);
 char *getSystemTimeString( char *Timestamp, time_t unix_s);
-uint64_t getSystemTimeMs();
+uint64_t getSystemUptimeS( void);
+uint64_t getUnixTimeMs();
 void periphInit();
 void createSSID( char *ssid);
 
