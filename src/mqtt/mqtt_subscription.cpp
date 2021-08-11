@@ -91,6 +91,31 @@ void mqttSubscribe(const char *topic)
  */
 void mqttUnsubscribe(const char *topic)
 {
-    unsubsTopicsQueue.push(String(topic));
+    String topicStr = String(topic);
+    /* Check if already exist in subscribe queue - if so, drop it */
+    for (int i=0; i<subsTopicsPendingQueue.count(); i++)
+    {
+        if (topicStr == subsTopicsPendingQueue.peek())
+        {
+            subsTopicsPendingQueue.pop();
+        }
+        else
+        {
+            subsTopicsPendingQueue.push( subsTopicsPendingQueue.pop());
+        }
+    }
+    /* Check if already exist in subscribe queue - if so, drop it */
+    for (int i=0; i<subsTopicsSubscribedQueue.count(); i++)
+    {
+        if (topicStr == subsTopicsSubscribedQueue.peek())
+        {
+            subsTopicsSubscribedQueue.pop();
+        }
+        else
+        {
+            subsTopicsSubscribedQueue.push( subsTopicsSubscribedQueue.pop());
+        }
+    }
+    unsubsTopicsQueue.push(topicStr);
     // If Queue is full data will be dropped
 }
