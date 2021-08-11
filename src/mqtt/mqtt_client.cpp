@@ -199,7 +199,17 @@ static void MqttTask(void *parameter)
                 ((WiFiClientSecure*)wifiClient)->setCACert(SystemGetCAcertificate());
             }
             _mqttClient->setBufferSize(1024);
-            _mqttClient->setServer(mqttConfig.mqttServer, mqttConfig.port);
+
+            /* Check if server is IP address */
+            IPAddress srvAddr;
+            if (srvAddr.fromString(mqttConfig.mqttServer))
+            {
+                _mqttClient->setServer(srvAddr, mqttConfig.port);
+            }
+            else
+            {
+                _mqttClient->setServer(mqttConfig.mqttServer, mqttConfig.port);
+            }
             _mqttClient->setCallback(mqttConfig.callback);
             break;
         }
