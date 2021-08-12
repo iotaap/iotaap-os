@@ -6,6 +6,7 @@
 #include "./hmi/led_task.h"
 #include <HTTPClient.h>
 #include "./system/system_tasks.h"
+#include "./system/system_configuration.h"
 
 /**
  * @brief Get the Battery Percentage
@@ -53,7 +54,13 @@ float getVoltage(unsigned long reading)
  */
 char *getSystemTimeString( char *Timestamp)
 {
-    strftime(Timestamp, TIME_STRING_LENGTH, "%Y-%m-%d %H:%M:%S", &systemStat.systemTime);
+    unsigned long TimeNow = millis();
+    uint64_t epoch_ms = systemStat.epochTimeMs
+                        + (TimeNow - systemStat.epochTimeUpdatedMs)
+                        + SystemGetTimezoneOffsetMs();
+    time_t epoch_s = epoch_ms/1000;
+
+    strftime(Timestamp, TIME_STRING_LENGTH, "%Y-%m-%d %H:%M:%S", localtime(&epoch_s));
     return Timestamp;
 }
 
@@ -63,21 +70,33 @@ char *getSystemTimeString( char *Timestamp)
  */
 char *getSystemTimeString( char *Timestamp, time_t unix_s)
 {
+    unix_s += SystemGetTimezoneOffsetS();
     struct tm ts = *localtime(&unix_s);
     strftime(Timestamp, TIME_STRING_LENGTH, "%Y-%m-%d %H:%M:%S", &ts);
     return Timestamp;
 }
 
 /**
- * @brief Get the System Time in ms
+ * @brief Get the Unix Time in ms
  * 
- * @return uint64_t system time in ms
+ * @return uint64_t unix time in ms
  */
-uint64_t getSystemTimeMs()
+uint64_t getUnixTimeMs()
 {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (tv.tv_sec * 1000LL + (tv.tv_usec / 1000LL));
+    return systemStat.epochTimeMs + (millis() - systemStat.epochTimeUpdatedMs);
+}
+
+
+/**
+ * @brief Get system uptime
+ */
+uint64_t getSystemUptimeS( void)
+{
+    unsigned long TimeNow = millis();
+    uint64_t uptime_ms = systemStat.epochTimeMs
+                        + (TimeNow - systemStat.epochTimeUpdatedMs)
+                        - systemStat.bootTimeEpochMs;
+    return uptime_ms/1000;
 }
 
 /**

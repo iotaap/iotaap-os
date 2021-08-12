@@ -32,7 +32,6 @@ IoTaaP_OS::IoTaaP_OS(const char *fwVersion)
  * 
  */
 void IoTaaP_OS::start(){
-    SystemStatUptimeReset();
     systemInit();
     createSystemTasks();
 }

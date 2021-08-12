@@ -27,7 +27,7 @@ void systemInit()
     // InitUserParameters(); TODO - Currently not implemented, since writing user parameters to internal FAT is not implemented
     InitSystemLogs();
 
-    loadCertificate(CA_CRT_PATH, SystemGetCAcertificate());
+    loadCertificate(CA_CRT_PATH);
     systemInfo();
     vTaskDelay(500 / portTICK_PERIOD_MS);
 }

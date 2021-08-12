@@ -46,7 +46,7 @@ void HandleJsonCfgFile( void)
 {
     if (SelectedFile == NULL || IsWizardActive)
     {
-        if (ExportCertificate)
+        if (ExportCertificate && SystemGetCAcertificate())
         {
             ExportCertificate = false;
             FFat.remove( (char *)CA_CRT_PATH);

@@ -35,8 +35,6 @@ sWifiConfig wifiConfig =
     "",     /* wifiPASS */
     true    /* rof      */
 };
-/* Secure connection - EXTERN - shared between MQTT and OTA update */
-WiFiClientSecure wifiClientSecure;
 
 /**
  * Data from JSON in structure

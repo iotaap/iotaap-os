@@ -13,10 +13,12 @@ const char *SystemGetDeviceId( void);
 const char *SystemGetGroupId( void);
 const char *SystemGetDeviceToken( void);
 const char *SystemGetGroupToken( void);
-const char *SystemGetNtp1( void);
-const char *SystemGetNtp2( void);
+const char *SystemGetOtaServer( void);
 int SystemGetTimezone( void);
+int SystemGetTimezoneOffsetMs( void);
+int SystemGetTimezoneOffsetS( void);
 bool SystemGetAutoUpdateFlag( void);
 char *SystemGetCAcertificate( void);
+char *SystemNewCAcertificate( int certLen);
 
 #endif

@@ -6,6 +6,7 @@
 #include "./fs/sys_cfg.h"
 #include "./system/system_tasks.h"
 #include "./system/system_configuration.h"
+#include "./system/utils.h"
 
 
 DynamicJsonDocument doc(256);
@@ -22,8 +23,8 @@ void publishSystemStatus()
 
     if ((statusTimingNow - statusTimingPrev) >= STATUS_PUBLISH_TIME)
     {
-        doc["battery"] = systemStat.batteryPerc;
-        doc["uptime"] = systemStat.uptime;
+        doc["battery"] = getBatteryPercentage();
+        doc["uptime"] = getSystemUptimeS();
         doc["core_version"] = LIB_VERSION;
         doc["fw_version"] = SystemGetFwVersion();
 

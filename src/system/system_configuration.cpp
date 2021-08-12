@@ -1,6 +1,7 @@
 #include "system_configuration.h"
 
 #include "./system/system_json.h"
+#include "./system/system_tasks.h"
 
 
 struct sSystemConfig
@@ -10,38 +11,39 @@ struct sSystemConfig
     char groupID[30];
     char groupToken[30];
     int timezone; // Only signed number offsetting from GMT Timezone
-    char ntp1[20];   // First NTP server
-    char ntp2[20];   // Second NTP server
+    int timezoneOffsetMs;
+    int timezoneOffsetS;
     const char *fwVersion;
     bool automaticUpdates; // True if automatic updates are turned on
-    char CAcert[8192];
+    char updatesServer[30];
+    char *CAcert;
 };
 
 sSystemConfig systemConfig =
 {
-    "",                 /* deviceID         */
-    "",                 /* deviceToken      */
-    "",                 /* groupID          */
-    "",                 /* groupToken       */
-    4,                  /* timezone         */
-    "pool.ntp.org",     /* ntp1             */
-    "time.nist.gov",    /* ntp2             */
-    "",                 /* fwVersion        */
-    false,              /* automaticUpdates */
-    ""                  /* CAcert           */
+    "",                      /* deviceID         */
+    "",                      /* deviceToken      */
+    "",                      /* groupID          */
+    "",                      /* groupToken       */
+    4,                       /* timezone         */
+    0,                       /* timezoneOffsetMs */
+    0,                       /* timezoneOffsetS  */
+    "",                      /* fwVersion        */
+    false,                   /* automaticUpdates */
+    "https://ota.iotaap.io", /* updatesServer    */
+    NULL,                    /* CAcert           */
 };
 
 /* Data from JSON in structure */
 struct sJsonKeys JsonSysData[] = 
 {
-    { systemConfig.deviceID        , JsonDataTypeString_30, "device_id"   , "Device ID"   },
-    { systemConfig.deviceToken     , JsonDataTypePass_30  , "device_token", "Device Token"},
-    { systemConfig.groupID         , JsonDataTypeString_30, "group_id"    , "Group ID"    },
-    { systemConfig.groupToken      , JsonDataTypePass_30  , "group_token" , "Group Token" },
-    {&systemConfig.automaticUpdates, JsonDataTypeBool     , "auto_update" , "Auto Update" },
-    { systemConfig.ntp1            , JsonDataTypeString_20, "ntp_1"       , "NTP 1"       },
-    { systemConfig.ntp2            , JsonDataTypeString_20, "ntp_2"       , "NTP 2"       },
-    {&systemConfig.timezone        , JsonDataTypeInt      , "timezone"    , "Time zone"   }
+    { systemConfig.deviceID        , JsonDataTypeString_30, "device_id"   , "Device ID"         },
+    { systemConfig.deviceToken     , JsonDataTypePass_30  , "device_token", "Device Token"      },
+    { systemConfig.groupID         , JsonDataTypeString_30, "group_id"    , "Group ID"          },
+    { systemConfig.groupToken      , JsonDataTypePass_30  , "group_token" , "Group Token"       },
+    {&systemConfig.automaticUpdates, JsonDataTypeBool     , "auto_update" , "Auto Update"       },
+    { systemConfig.updatesServer   , JsonDataTypeString_30, "ota_domain"  , "Auto Update Domain"},
+    {&systemConfig.timezone        , JsonDataTypeInt      , "timezone"    , "Time zone"         }
 };
 
 
@@ -57,6 +59,9 @@ void InitSystemConfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 {
     int StructSize = sizeof(JsonSysData)/sizeof(*JsonSysData);
     InitDataFromSystemJson( ConfigJson, JsonSysData, StructSize);
+
+    systemConfig.timezoneOffsetMs = systemConfig.timezone*3600*1000;
+    systemConfig.timezoneOffsetS  = systemConfig.timezone*3600;
 }
 
 
@@ -113,19 +118,11 @@ const char *SystemGetGroupToken( void)
 }
 
 /**
- * @brief Get NTP server 1
+ * @brief Get OTA server
  */
-const char *SystemGetNtp1( void)
+const char *SystemGetOtaServer( void)
 {
-    return systemConfig.ntp1;
-}
-
-/**
- * @brief Get NTP server 2
- */
-const char *SystemGetNtp2( void)
-{
-    return systemConfig.ntp2;
+    return systemConfig.updatesServer;
 }
 
 /**
@@ -135,6 +132,23 @@ int SystemGetTimezone( void)
 {
     return systemConfig.timezone;
 }
+
+/**
+ * @brief Get system timezone
+ */
+int SystemGetTimezoneOffsetMs( void)
+{
+    return systemConfig.timezoneOffsetMs;
+}
+
+/**
+ * @brief Get system timezone
+ */
+int SystemGetTimezoneOffsetS( void)
+{
+    return systemConfig.timezoneOffsetS;
+}
+
 
 /**
  * @brief Get system automatic update flag
@@ -150,4 +164,18 @@ bool SystemGetAutoUpdateFlag( void)
 char *SystemGetCAcertificate( void)
 {
     return systemConfig.CAcert;
+}
+
+/**
+ * @brief Get memory for CA certificate
+ */
+char *SystemNewCAcertificate( int certLen)
+{
+    if (systemConfig.CAcert)
+    {
+        delete[] systemConfig.CAcert;
+    }
+
+    systemConfig.CAcert = new char[certLen];
+    return SystemGetCAcertificate();
 }

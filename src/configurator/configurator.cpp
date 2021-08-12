@@ -14,7 +14,6 @@
 #include "./system/utils.h"
 
 #define MAX_REGISTERED_CONFS    5
-AsyncWebServer server(80);
 struct configParameters conf[MAX_REGISTERED_CONFS] = {0};
 
 /* This variable will survive restart */
@@ -83,10 +82,11 @@ void startConfigurator( void)
     Serial.println("****************************************************************************************************");
     Serial.println();
 
-    server.on("/", HTTP_GET, configure);
-    server.on("/submit-config", HTTP_POST, submit);
-    server.onNotFound(notFound);
-    server.begin();
+    AsyncWebServer *server = new AsyncWebServer(80);
+    server->on("/", HTTP_GET, configure);
+    server->on("/submit-config", HTTP_POST, submit);
+    server->onNotFound(notFound);
+    server->begin();
 }
 
 /**
@@ -135,6 +135,7 @@ void HandleConfiguratorActivity( void *par)
         {
             ButtonPressTime = 0;
         }
+        vTaskDelay( 500 / portTICK_PERIOD_MS);
     }
 }
 
@@ -318,7 +319,7 @@ static void submit(AsyncWebServerRequest *request)
     }
     
     /* Save cert to structure */
-    strcpy( SystemGetCAcertificate(), request->arg( "cert").c_str());
+    strcpy( SystemNewCAcertificate(request->arg( "cert").length()), request->arg( "cert").c_str());
     /* Save data to JSON and reset */
     FromCfgSaveData( true);
 
