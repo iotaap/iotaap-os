@@ -13,17 +13,17 @@ enum eJsonDataType
 {
     JsonDataTypeInt,
     JsonDataTypeBool,
-    JsonDataTypeString_20,
-    JsonDataTypeString_30,
-    JsonDataTypeString_32,
-    JsonDataTypePass_20,
-    JsonDataTypePass_30,
-    JsonDataTypePass_32,
+    JsonDataTypeString,
+    JsonDataTypePass,
 };
 
 struct sJsonKeys
 {
-    void *ElementPointer;
+    union
+    {
+        void *ElementPointer;
+        void **ElDoublePointer;
+    };
     enum eJsonDataType ElementDataType;
     const char *ElementKey;
     const char *ElementDesc;

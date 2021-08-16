@@ -222,25 +222,21 @@ static void configure(AsyncWebServerRequest *request)
                 }
                 break;
 
-                case JsonDataTypeString_20:
-                case JsonDataTypeString_30:
-                case JsonDataTypeString_32:
+                case JsonDataTypeString:
                 {
                     response->print(
                             configDivInputText( JsDt->ElementDesc,
                                                 JsDt->ElementKey,
-                                                (char *)JsDt->ElementPointer));
+                                                (char *)*JsDt->ElDoublePointer));
                 }
                 break;
 
-                case JsonDataTypePass_20:
-                case JsonDataTypePass_30:
-                case JsonDataTypePass_32:
+                case JsonDataTypePass:
                 {
                     response->print(
                             configDivInputPass( JsDt->ElementDesc,
                                                 JsDt->ElementKey,
-                                                (char *)JsDt->ElementPointer));
+                                                (char *)*JsDt->ElDoublePointer));
                 }
                 break;
                 
@@ -296,14 +292,12 @@ static void submit(AsyncWebServerRequest *request)
                 }
                 break;
 
-                case JsonDataTypeString_20:
-                case JsonDataTypeString_30:
-                case JsonDataTypeString_32:
-                case JsonDataTypePass_20:
-                case JsonDataTypePass_30:
-                case JsonDataTypePass_32:
+                case JsonDataTypeString:
+                case JsonDataTypePass:
                 {
-                    strcpy( (char *)JsDt->ElementPointer,
+                    int Len = request->arg( JsDt->ElementKey).length();
+                    *JsDt->ElDoublePointer = new char[Len+1];
+                    strcpy( (char *)*JsDt->ElDoublePointer,
                             request->arg( JsDt->ElementKey).c_str());
                 }
                 break;
