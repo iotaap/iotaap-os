@@ -21,7 +21,7 @@ struct sSystemConfig
 
 sSystemConfig systemConfig =
 {
-    "kuja",                    /* deviceID         */
+    "",                      /* deviceID         */
     "",                      /* deviceToken      */
     "",                      /* groupID          */
     "",                      /* groupToken       */
