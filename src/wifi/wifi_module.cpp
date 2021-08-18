@@ -41,9 +41,9 @@ sWifiConfig wifiConfig =
  */
 struct sJsonKeys JsonWifiData[] = 
 {
-    {&wifiConfig.wifiSSID, JsonDataTypeString, "ssid"     , "SSID"              },
-    {&wifiConfig.wifiPASS, JsonDataTypePass  , "ssid_pass", "SSID Password"     },
-    {&wifiConfig.rof     , JsonDataTypeBool  , "rof"      , "Restart on Failure"},
+    {&wifiConfig.wifiSSID, JsonDataTypeString, "ssid"     , "SSID"              , NULL},
+    {&wifiConfig.wifiPASS, JsonDataTypePass  , "ssid_pass", "SSID Password"     , NULL},
+    {&wifiConfig.rof     , JsonDataTypeBool  , "rof"      , "Restart on Failure", NULL},
 };
 
 

@@ -37,13 +37,13 @@ sSystemConfig systemConfig =
 /* Data from JSON in structure */
 struct sJsonKeys JsonSysData[] = 
 {
-    {&systemConfig.deviceID        , JsonDataTypeString, "device_id"   , "Device ID"         },
-    {&systemConfig.deviceToken     , JsonDataTypePass  , "device_token", "Device Token"      },
-    {&systemConfig.groupID         , JsonDataTypeString, "group_id"    , "Group ID"          },
-    {&systemConfig.groupToken      , JsonDataTypePass  , "group_token" , "Group Token"       },
-    {&systemConfig.automaticUpdates, JsonDataTypeBool  , "auto_update" , "Auto Update"       },
-    {&systemConfig.updatesServer   , JsonDataTypeString, "ota_domain"  , "Auto Update Domain"},
-    {&systemConfig.timezone        , JsonDataTypeInt   , "timezone"    , "Time zone"         }
+    {&systemConfig.deviceID        , JsonDataTypeString, "device_id"   , "Device ID"         , NULL },
+    {&systemConfig.deviceToken     , JsonDataTypePass  , "device_token", "Device Token"      , NULL },
+    {&systemConfig.groupID         , JsonDataTypeString, "group_id"    , "Group ID"          , NULL },
+    {&systemConfig.groupToken      , JsonDataTypePass  , "group_token" , "Group Token"       , NULL },
+    {&systemConfig.automaticUpdates, JsonDataTypeBool  , "auto_update" , "Auto Update"       , "OTA"},
+    {&systemConfig.updatesServer   , JsonDataTypeString, "ota_domain"  , "Auto Update Domain", "OTA"},
+    {&systemConfig.timezone        , JsonDataTypeInt   , "timezone"    , "Time zone"         , NULL }
 };
 
 

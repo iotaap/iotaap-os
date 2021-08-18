@@ -27,6 +27,7 @@ struct sJsonKeys
     enum eJsonDataType ElementDataType;
     const char *ElementKey;
     const char *ElementDesc;
+    const char *Block_IngEd;    /* Blocking some div or blocked by dome div */
 };
 
 void InitDataFromSystemJson( DynamicJsonDocument ConfigJson,
