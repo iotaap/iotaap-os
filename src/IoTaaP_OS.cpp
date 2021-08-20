@@ -113,6 +113,28 @@ int IoTaaP_OS::basicUnsubscribe(const char *uTopic)
 }
 
 /**
+ * @brief Subscribe to a specific topic. Root topic (username) will NOT be added automatically
+ * 
+ * @param uTopic - Topic to subscribe to
+ * @return int Returns 0 if successful
+ */
+int IoTaaP_OS::customSubscribe(const char *uTopic)
+{
+    return uCustomSubscribe(uTopic);
+}
+
+/**
+ * @brief Unsubscribe from the specific topic. Username will not be added
+ * 
+ * @param uTopic Topic
+ * @return int Returns 0 if successfull
+ */
+int IoTaaP_OS::customUnsubscribe(const char *uTopic)
+{
+    return uCustomUnsubscribe(uTopic);
+}
+
+/**
  * @brief Publishes measured parameter to the cloud in predefined format (Numeric input)
  * 
  * @param name Parameter name
