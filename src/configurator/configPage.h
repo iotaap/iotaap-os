@@ -49,14 +49,20 @@ const char configPageTitleAdd[] PROGMEM = R"rawliteral(
 <title>IoTaaP OS</title>
 )rawliteral";
 
-/* Title */
+/* Scripting */
+const char configPageScriptOpen[] PROGMEM = R"rawliteral(<script>)rawliteral";
+const char configPageScriptClose[] PROGMEM = R"rawliteral(</script>)rawliteral";
 const char configPagePassToggleScript[] PROGMEM = R"rawliteral(
-<script>
 function toggle(id) {
 var x = document.getElementById(id);
 if (x.type === "password") { x.type = "text"; }
 else { x.type = "password";}}
-</script>
+function showDiv(ida, idb){
+document.getElementById(ida).style.display = "block";
+document.getElementById(idb).style.display = "block";}
+function hideDiv(ida, idb){
+document.getElementById(ida).style.display= "none";
+document.getElementById(idb).style.display= "none";}
 )rawliteral";
 
 /******************/
@@ -137,7 +143,8 @@ const char configNewLiner[] PROGMEM = R"rawliteral(
 
 const char *configDivInputText_a = configDivInput_a;
 const char *configDivInputText_b = configDivInput_b;
-const char configDivInputText_c[] PROGMEM = R"rawliteral(:</label><span><input name=")rawliteral";
+const char configDivInputText_c1[]  PROGMEM = R"rawliteral(:</label><span)rawliteral";
+const char configDivInputText_c2[] PROGMEM = R"rawliteral(><input name=")rawliteral";
 const char configDivInputText_d[] PROGMEM = R"rawliteral(" type="text" value=")rawliteral";
 const char configDivInputText_e[] PROGMEM = R"rawliteral("></span></div>)rawliteral";
 
@@ -150,13 +157,27 @@ const char configDivInputPass_f[] PROGMEM = R"rawliteral("></span><span class="p
 const char configDivInputPass_g[] PROGMEM = R"rawliteral(')"></span><a class="showHide">Show/Hide</a></div>)rawliteral";
 
 
+const char configDivInputBlocked_a[] PROGMEM = R"rawliteral(" id=")rawliteral";
+const char configDivInputBlocked_b[] PROGMEM = R"rawliteral( id=")rawliteral";
+const char configDivInputBlocked_c[] PROGMEM = R"rawliteral(1")rawliteral";
 
-#define configDivInputText( desc, tag, val)             \
+#define configDivInputBlocked_1( blocked)                           \
+                                    configDivInputBlocked_a +       \
+                                    String(blocked)
+#define configDivInputBlocked_2( blocked)                           \
+                                    configDivInputBlocked_b +       \
+                                    String(blocked) +               \
+                                    configDivInputBlocked_c
+
+#define configDivInputTextBlocked( desc, tag, blocked, val)             \
                                     configDivInputText_a +  \
                                     String(tag) +       \
+                                    (blocked ? configDivInputBlocked_1(blocked) : "") + \
                                     configDivInputText_b +  \
                                     String(desc) +      \
-                                    configDivInputText_c +  \
+                                    configDivInputText_c1 +  \
+                                    (blocked ? configDivInputBlocked_2(blocked) : "") + \
+                                    configDivInputText_c2 +  \
                                     String(tag) +       \
                                     configDivInputText_d +  \
                                     String(val) +       \
@@ -189,7 +210,26 @@ const char configDivRadioBool_f[] PROGMEM = R"rawliteral(" value="true" class="r
 const char configDivRadioBool_g[] PROGMEM = R"rawliteral(></div>)rawliteral";
 const char configDivRadioCh[] PROGMEM = R"rawliteral( checked="checked")rawliteral";
 
-#define configDivInputRadioBool( desc, tag, val)                    \
+const char configDivRadioBoolBlock_a_hide[] PROGMEM = R"rawliteral( onclick="hideDiv(')rawliteral";
+const char configDivRadioBoolBlock_a_show[] PROGMEM = R"rawliteral( onclick="showDiv(')rawliteral";
+const char configDivRadioBoolBlock_b[] PROGMEM = R"rawliteral(',')rawliteral";
+const char configDivRadioBoolBlock_c[] PROGMEM = R"rawliteral(1')")rawliteral";
+
+#define configDivRadioBoolBlock_hide( blocking)                          \
+                                    configDivRadioBoolBlock_a_hide +     \
+                                    String(blocking) +                   \
+                                    configDivRadioBoolBlock_b +          \
+                                    String(blocking) +                   \
+                                    configDivRadioBoolBlock_c
+#define configDivRadioBoolBlock_show( blocking)                          \
+                                    configDivRadioBoolBlock_a_show +     \
+                                    String(blocking) +                   \
+                                    configDivRadioBoolBlock_b +          \
+                                    String(blocking) +                   \
+                                    configDivRadioBoolBlock_c
+
+
+#define configDivInputRadioBoolBlocking( desc, tag, blocking, val)  \
                                     configDivRadioBool_a +          \
                                     String(tag) +                   \
                                     configDivRadioBool_b +          \
@@ -197,30 +237,37 @@ const char configDivRadioCh[] PROGMEM = R"rawliteral( checked="checked")rawliter
                                     configDivRadioBool_c +          \
                                     String(tag) +                   \
                                     configDivRadioBool_d +          \
+                                    (blocking ? configDivRadioBoolBlock_hide(blocking) : "") + \
                                     (val ? "" : configDivRadioCh) + \
                                     configDivRadioBool_e +          \
                                     String(tag) +                   \
                                     configDivRadioBool_f +          \
+                                    (blocking ? configDivRadioBoolBlock_show(blocking) : "") + \
                                     (val ? configDivRadioCh : "") + \
                                     configDivRadioBool_g + \
                                     configNewLiner
 
 
+
 const char *configDivTextArea_a = configDivInput_a;
 const char *configDivTextArea_b = configDivInput_b;
-const char configDivTextArea_c[] PROGMEM = R"rawliteral(:</label><span><textarea name=)rawliteral";
+const char configDivTextArea_c1[] PROGMEM = R"rawliteral(:</label><span)rawliteral";
+const char configDivTextArea_c2[] PROGMEM = R"rawliteral(><textarea name=)rawliteral";
 const char configDivTextArea_d[] PROGMEM = R"rawliteral(>)rawliteral";
 const char configDivTextArea_e[] PROGMEM = R"rawliteral(</textarea></span></div>)rawliteral";
 
-#define configDivInputTextArea( desc, tag, val)             \
-                                    configDivTextArea_a +   \
-                                    String(tag) +           \
-                                    configDivTextArea_b +   \
-                                    String(desc) +          \
-                                    configDivTextArea_c +   \
-                                    String(tag) +           \
-                                    configDivTextArea_d +   \
-                                    String(val) +           \
+#define configDivInputTextAreaBlocked( desc, tag, blocked, val)             \
+                                    configDivTextArea_a +  \
+                                    String(tag) +       \
+                                    (blocked ? configDivInputBlocked_1(blocked) : "") + \
+                                    configDivTextArea_b +  \
+                                    String(desc) +      \
+                                    configDivTextArea_c1 +  \
+                                    (blocked ? configDivInputBlocked_2(blocked) : "") + \
+                                    configDivTextArea_c2 +  \
+                                    String(tag) +       \
+                                    configDivTextArea_d +  \
+                                    String(val) +       \
                                     configDivTextArea_e + \
                                     configNewLiner
 
@@ -232,7 +279,9 @@ const char configPageSubmitButton[] PROGMEM = R"rawliteral(<input type=submit cl
 #define configPageHtmlStart     configPageHtmlOpen + \
                                 configPageHeadOpen + \
                                 configPageTitleAdd + \
+                                configPageScriptOpen + \
                                 configPagePassToggleScript + \
+                                configPageScriptClose + \
                                 configPageStyleOpen + \
                                 configPageStyleBody + \
                                 configPageStyleForm + \
@@ -250,10 +299,11 @@ const char configPageSubmitButton[] PROGMEM = R"rawliteral(<input type=submit cl
                                 configPageHtmlFormOpen + \
                                 configPageDivLogo
 
-#define configPageHtmlEnd       configPageSubmitButton + \
+#define configPageBodyEnd       configPageSubmitButton + \
                                 configPageHtmlFormClose + \
-                                configPageHtmlBodyClose + \
-                                configPageHtmlClose
+                                configPageHtmlBodyClose
+
+#define configPageHtmlEnd       configPageHtmlClose
 
 
 #define errorPageHtml           configPageHtmlOpen + \

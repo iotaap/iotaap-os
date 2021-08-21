@@ -216,40 +216,39 @@ static void configure(AsyncWebServerRequest *request)
                 case JsonDataTypeInt:
                 {
                     response->print(
-                            configDivInputText( JsDt->ElementDesc,
-                                                JsDt->ElementKey,
-                                                *(int *)JsDt->ElementPointer));
+                        configDivInputTextBlocked( JsDt->ElementDesc,
+                                                    JsDt->ElementKey,
+                                                    JsDt->Block_IngEd,
+                                                    *(int *)JsDt->ElementPointer));
                 }
                 break;
 
-                case JsonDataTypeString_20:
-                case JsonDataTypeString_30:
-                case JsonDataTypeString_32:
+                case JsonDataTypeString:
                 {
                     response->print(
-                            configDivInputText( JsDt->ElementDesc,
-                                                JsDt->ElementKey,
-                                                (char *)JsDt->ElementPointer));
+                        configDivInputTextBlocked( JsDt->ElementDesc,
+                                                    JsDt->ElementKey,
+                                                    JsDt->Block_IngEd,
+                                                    (char *)*JsDt->ElDoublePointer));
                 }
                 break;
 
-                case JsonDataTypePass_20:
-                case JsonDataTypePass_30:
-                case JsonDataTypePass_32:
+                case JsonDataTypePass:
                 {
                     response->print(
                             configDivInputPass( JsDt->ElementDesc,
                                                 JsDt->ElementKey,
-                                                (char *)JsDt->ElementPointer));
+                                                (char *)*JsDt->ElDoublePointer));
                 }
                 break;
                 
                 case JsonDataTypeBool:
                 {
                     response->print(
-                            configDivInputRadioBool( JsDt->ElementDesc,
-                                                     JsDt->ElementKey,
-                                                     *(bool *)JsDt->ElementPointer));
+                        configDivInputRadioBoolBlocking( JsDt->ElementDesc,
+                                                         JsDt->ElementKey,
+                                                         JsDt->Block_IngEd,
+                                                         *(bool *)JsDt->ElementPointer));
                 }
                 break;
             }
@@ -257,7 +256,32 @@ static void configure(AsyncWebServerRequest *request)
     }
 
     /* Print certificate */
-    response->print( configDivInputTextArea("Certificate", "cert", (char *)SystemGetCAcertificate()));
+    response->print( configDivInputTextAreaBlocked("Certificate", "cert", "SCR", (char *)SystemGetCAcertificate()));
+
+    /* End of body */
+    response->print( (String)configPageBodyEnd);
+
+    /* Call scripts to hide inputs if needed */
+    response->print( (String)configPageScriptOpen);
+    response->print( (String)configNewLiner);
+    for (int i=0; conf[i].Size; i++)
+    {
+        struct sJsonKeys *JsDt = conf[i].Data;
+        for (int j=0; j<conf[i].Size; j++, JsDt++)
+        {
+            if (JsDt->ElementDataType == JsonDataTypeBool &&
+                JsDt->Block_IngEd)
+            {
+                response->print( *(bool *)JsDt->ElementPointer ? "showDiv('" : "hideDiv('");
+                response->print( JsDt->Block_IngEd);
+                response->print( "', '");
+                response->print( JsDt->Block_IngEd);
+                response->print( "1');");
+                response->print( (String)configNewLiner);
+            }
+        }
+    }
+    response->print( (String)configPageScriptClose);
 
     /* End of html */
     response->print( (String)configPageHtmlEnd);
@@ -296,14 +320,12 @@ static void submit(AsyncWebServerRequest *request)
                 }
                 break;
 
-                case JsonDataTypeString_20:
-                case JsonDataTypeString_30:
-                case JsonDataTypeString_32:
-                case JsonDataTypePass_20:
-                case JsonDataTypePass_30:
-                case JsonDataTypePass_32:
+                case JsonDataTypeString:
+                case JsonDataTypePass:
                 {
-                    strcpy( (char *)JsDt->ElementPointer,
+                    int Len = request->arg( JsDt->ElementKey).length();
+                    *JsDt->ElDoublePointer = new char[Len+1];
+                    strcpy( (char *)*JsDt->ElDoublePointer,
                             request->arg( JsDt->ElementKey).c_str());
                 }
                 break;

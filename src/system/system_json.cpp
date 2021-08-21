@@ -35,9 +35,6 @@ void InitDataFromSystemJson( DynamicJsonDocument ConfigJson,
 
     for (int i=0; i<JsonStructSize; i++)
     {
-        /* String length - also and a flag if it is a string */
-        int KeyValueLength = 0;
-
         switch (JsonSystemData[i].ElementDataType)
         {
             case JsonDataTypeInt:
@@ -52,21 +49,20 @@ void InitDataFromSystemJson( DynamicJsonDocument ConfigJson,
                                 ConfigJson[JsonSystemData[i].ElementKey];
             } break;
 
-            case JsonDataTypeString_20:
-            case JsonDataTypePass_20:   KeyValueLength=20; break;
-            case JsonDataTypeString_30:
-            case JsonDataTypePass_30:   KeyValueLength=30; break;
-            case JsonDataTypeString_32:
-            case JsonDataTypePass_32:   KeyValueLength=32; break;
+            case JsonDataTypeString:
+            case JsonDataTypePass:
+            {
+                int Len = strlen(ConfigJson[JsonSystemData[i].ElementKey]);
 
-        }
+                if (Len)
+                {
+                    *JsonSystemData[i].ElDoublePointer = new char[Len+1];
+                    strcpy( (char *)*JsonSystemData[i].ElDoublePointer,
+                            ConfigJson[JsonSystemData[i].ElementKey]);
 
-        /* If string - copy string */
-        if (KeyValueLength)
-        {
-            strncpy( (char *)JsonSystemData[i].ElementPointer,
-                     ConfigJson[JsonSystemData[i].ElementKey],
-                     KeyValueLength);
+                }
+                break;
+            }
         }
     }
 }

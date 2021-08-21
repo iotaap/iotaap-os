@@ -19,8 +19,8 @@ struct sWifiStat
 /* Data from JSON in structure */
 struct sWifiConfig
 {
-    char wifiSSID[32];
-    char wifiPASS[32];
+    char *wifiSSID;
+    char *wifiPASS;
     /* Restart on fail to connect to WiFi */
     bool rof;
 };
@@ -41,9 +41,9 @@ sWifiConfig wifiConfig =
  */
 struct sJsonKeys JsonWifiData[] = 
 {
-    { wifiConfig.wifiSSID, JsonDataTypeString_32, "ssid"     , "SSID"              },
-    { wifiConfig.wifiPASS, JsonDataTypePass_32  , "ssid_pass", "SSID Password"     },
-    {&wifiConfig.rof     , JsonDataTypeBool     , "rof"      , "Restart on Failure"},
+    {&wifiConfig.wifiSSID, JsonDataTypeString, "ssid"     , "SSID"              , NULL},
+    {&wifiConfig.wifiPASS, JsonDataTypePass  , "ssid_pass", "SSID Password"     , NULL},
+    {&wifiConfig.rof     , JsonDataTypeBool  , "rof"      , "Restart on Failure", NULL},
 };
 
 

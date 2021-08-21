@@ -6,16 +6,16 @@
 
 struct sSystemConfig
 {
-    char deviceID[30];
-    char deviceToken[30];
-    char groupID[30];
-    char groupToken[30];
+    char *deviceID;
+    char *deviceToken;
+    char *groupID;
+    char *groupToken;
     int timezone; // Only signed number offsetting from GMT Timezone
     int timezoneOffsetMs;
     int timezoneOffsetS;
     const char *fwVersion;
     bool automaticUpdates; // True if automatic updates are turned on
-    char updatesServer[30];
+    char *updatesServer;
     char *CAcert;
 };
 
@@ -37,13 +37,13 @@ sSystemConfig systemConfig =
 /* Data from JSON in structure */
 struct sJsonKeys JsonSysData[] = 
 {
-    { systemConfig.deviceID        , JsonDataTypeString_30, "device_id"   , "Device ID"         },
-    { systemConfig.deviceToken     , JsonDataTypePass_30  , "device_token", "Device Token"      },
-    { systemConfig.groupID         , JsonDataTypeString_30, "group_id"    , "Group ID"          },
-    { systemConfig.groupToken      , JsonDataTypePass_30  , "group_token" , "Group Token"       },
-    {&systemConfig.automaticUpdates, JsonDataTypeBool     , "auto_update" , "Auto Update"       },
-    { systemConfig.updatesServer   , JsonDataTypeString_30, "ota_domain"  , "Auto Update Domain"},
-    {&systemConfig.timezone        , JsonDataTypeInt      , "timezone"    , "Time zone"         }
+    {&systemConfig.deviceID        , JsonDataTypeString, "device_id"   , "Device ID"         , NULL },
+    {&systemConfig.deviceToken     , JsonDataTypePass  , "device_token", "Device Token"      , NULL },
+    {&systemConfig.groupID         , JsonDataTypeString, "group_id"    , "Group ID"          , NULL },
+    {&systemConfig.groupToken      , JsonDataTypePass  , "group_token" , "Group Token"       , NULL },
+    {&systemConfig.automaticUpdates, JsonDataTypeBool  , "auto_update" , "Auto Update"       , "OTA"},
+    {&systemConfig.updatesServer   , JsonDataTypeString, "ota_domain"  , "Auto Update Domain", "OTA"},
+    {&systemConfig.timezone        , JsonDataTypeInt   , "timezone"    , "Time zone"         , NULL }
 };
 
 

@@ -52,3 +52,28 @@ int uBasicUnsubscribe(const char *uTopic)
 
     return 0;
 }
+
+
+/**
+ * @brief Subscribe to a specific topic. Root topic (username) will NOT be added automatically
+ * 
+ * @param uTopic - Topic to subscribe to
+ * @return int Returns 0 if successful
+ */
+int uCustomSubscribe(const char *uTopic)
+{
+    mqttSubscribe(uTopic);
+    return 0;
+}
+
+/**
+ * @brief Unsubscribe from the specific topic. Username will not be added
+ * 
+ * @param uTopic Topic
+ * @return int Returns 0 if successfull
+ */
+int uCustomUnsubscribe(const char *uTopic)
+{
+    mqttUnsubscribe(uTopic);
+    return 0;
+}
