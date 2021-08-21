@@ -21,12 +21,44 @@ struct sMqttData
     float value;
 };
 
-/* List for "parName" */
-uint8_t batch[BATCH_SIZE] = {0};
-uint8_t *bread  = batch;
-uint8_t *bwrite = batch;
-uint8_t *batchEnd = batch + BATCH_SIZE;
+int BATCH_SIZE = 2048;
+int batchTimePeriodMs = 200;
+uint8_t *batch = NULL;
+uint8_t *bread;
+uint8_t *bwrite;
+uint8_t *batchEnd;
 int ElementsCount = 0;
+
+
+/**
+ * @brief   Initialize batch data memory and sending period
+ * @par     size      size for data (~20-30 msgs in 1024bytes)
+ * @par     periodMs  sending period (this period can be shorter if lot of data in batch)
+ */
+bool InitBatchData( int size, int periodMs)
+{
+    if (batch)
+    {
+        delete[] batch;
+    }
+
+    batch = new uint8_t[size];
+    batchTimePeriodMs = periodMs;
+    bread  = batch;
+    bwrite = batch;
+    batchEnd = batch + BATCH_SIZE;
+    ElementsCount = 0;
+
+    return (batch > 0);
+}
+
+/**
+ * @brief   Get batch data sending period
+ */
+int getBatchDiffPeriod( void)
+{
+    return batchTimePeriodMs;
+}
 
 
 /**
@@ -39,6 +71,14 @@ int ElementsCount = 0;
  */
 int uDeviceCloudPublishParamBatch(const char *name, float value)
 {
+    if (!batch)
+    {
+        if (!InitBatchData())
+        {
+            return -1;
+        }
+    }
+
     /* Length od name */
     int nameLen = strlen(name);
     /* Bytes until end of an array (here we dont check if memory is busy or not */
@@ -98,6 +138,14 @@ int uDeviceCloudPublishParamBatch(const char *name, float value)
  */
 int uDeviceCloudPublishParamBatch(const char *name, const char *value)
 {
+    if (!batch)
+    {
+        if (!InitBatchData())
+        {
+            return -1;
+        }
+    }
+
     /* Length od name */
     int nameLen = strlen(name);
     /* Length od name */
@@ -155,6 +203,11 @@ int uDeviceCloudPublishParamBatch(const char *name, const char *value)
  */
 size_t BatchGetLastData( char *buffer)
 {
+    if (!batch)
+    {
+        return -1;
+    }
+
     StaticJsonDocument <256> batcPublishDoc;
     struct sMqttData *data = (struct sMqttData *)bread;
     uint32_t flags = data->flags;
@@ -222,10 +275,11 @@ int BatchFullnessPercent( void)
  */
 static void BatchRemoveLastData( void)
 {
-    if (!ElementsCount)
+    if (!ElementsCount || !batch)
     {
         return;
     }
+    
     struct sMqttData *data = (struct sMqttData *)bread;
     uint32_t flags = data->flags;
 
