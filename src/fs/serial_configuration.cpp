@@ -46,7 +46,7 @@ void HandleJsonCfgFile( void)
 {
     if (SelectedFile == NULL || IsWizardActive)
     {
-        if (ExportCertificate)
+        if (ExportCertificate && SystemGetCAcertificate())
         {
             ExportCertificate = false;
             FFat.remove( (char *)CA_CRT_PATH);
@@ -82,14 +82,10 @@ void HandleJsonCfgFile( void)
                         }
                         break;
 
-                        case JsonDataTypeString_20:
-                        case JsonDataTypeString_30:
-                        case JsonDataTypeString_32:
-                        case JsonDataTypePass_20:
-                        case JsonDataTypePass_30:
-                        case JsonDataTypePass_32:
+                        case JsonDataTypeString:
+                        case JsonDataTypePass:
                         {
-                            JsonDocNew[JsDt->ElementKey] = (char *)JsDt->ElementPointer;
+                            JsonDocNew[JsDt->ElementKey] = (char *)*JsDt->ElDoublePointer;
                         }
                         break;
                         

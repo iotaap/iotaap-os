@@ -6,6 +6,8 @@
 #include "./system/system_configuration.h"
 #include "./hmi/commands_mqtt.h"
 #include "./system/system_tasks.h"
+#include "./system/definitions.h"
+#include <stdlib.h>
 
 
 
@@ -49,8 +51,22 @@ void MqttCallback(char *topic, unsigned char *message, unsigned int length)
     if (!strcmp( SystemReqTopic, topic))
     {
         MqttCommandHandler( (char *)message, length);
-    } 
-    else if(!strcmp( RemoteUpdateReqTopic, topic)){
+    }
+    else if (!strcmp(MQTT_TIME_TOPIC, topic))
+    {
+        char *pok = strstr( (char *)message, "epoch_ms");
+        if (pok)
+        {
+            while (*pok<'0' || *pok>'9')
+            {
+                pok++;
+            }
+            uint64_t epochMS = strtoull(pok, NULL, 10);
+            UpdateTime( epochMS);
+        }
+    }
+    else if (!strcmp( RemoteUpdateReqTopic, topic))
+    {
         SystemStatUpdateRequest();
     }
     else

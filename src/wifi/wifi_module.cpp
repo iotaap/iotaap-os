@@ -7,7 +7,6 @@
 #include "./system/system_json.h"
 
 
-
 /**
  * WIFI status
  */
@@ -20,12 +19,11 @@ struct sWifiStat
 /* Data from JSON in structure */
 struct sWifiConfig
 {
-    char wifiSSID[32];
-    char wifiPASS[32];
+    char *wifiSSID;
+    char *wifiPASS;
     /* Restart on fail to connect to WiFi */
     bool rof;
 };
-
 
 
 /* WIFI status */
@@ -37,39 +35,91 @@ sWifiConfig wifiConfig =
     "",     /* wifiPASS */
     true    /* rof      */
 };
-/* Secure connection - EXTERN - shared between MQTT and OTA update */
-WiFiClientSecure wifiClientSecure;
 
 /**
  * Data from JSON in structure
  */
 struct sJsonKeys JsonWifiData[] = 
 {
-    { wifiConfig.wifiSSID, JsonDataTypeString_32, "ssid"     , "SSID"              },
-    { wifiConfig.wifiPASS, JsonDataTypePass_32  , "ssid_pass", "SSID Password"     },
-    {&wifiConfig.rof     , JsonDataTypeBool     , "rof"      , "Restart on Failure"},
+    {&wifiConfig.wifiSSID, JsonDataTypeString, "ssid"     , "SSID"              , NULL},
+    {&wifiConfig.wifiPASS, JsonDataTypePass  , "ssid_pass", "SSID Password"     , NULL},
+    {&wifiConfig.rof     , JsonDataTypeBool  , "rof"      , "Restart on Failure", NULL},
 };
 
 
-static void WiFiTask( void *parameter);
 
 /******************************************************************************/
 /***** GLOBAL FUNCTIONS *******************************************************/
 /******************************************************************************/
 
 /**
- * @brief Start WiFi process task
+ * @brief   Event function when WiFi connects
  */
-static TaskHandle_t WiFiHandler = NULL;
+void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+    wifiStat.wifiConnected = true;
+    LedBlinkPeriodic();
+
+}
+
+/**
+ * @brief   Event function when ESP got IP address
+ */
+void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+    char msg[64];
+    sprintf( msg, "WiFi connected! IP address: %s", WiFi.localIP().toString().c_str());
+    systemLog(tSYSTEM, msg);
+}
+
+/**
+ * @brief   Event function when WiFi disconnects
+ */
+void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+    wifiStat.wifiConnected = false;
+
+    LedBlinkSlow();
+    systemLog(tERROR, "WiFi connection broken");
+
+    if (wifiConfig.rof)
+    {
+        static int atemptCounter = 0;
+        atemptCounter++;
+        if (atemptCounter >= WIFI_CONNECT_TIMEOUT * 10)
+        {
+            systemLog(tERROR, "Could not connect to the WiFI AP");
+            delay( 100 / portTICK_PERIOD_MS);
+            ESP.restart();
+        }
+    }
+
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(wifiConfig.wifiSSID, wifiConfig.wifiPASS);
+}
+
+
+/**
+ * @brief   Connect to WiFi
+ */
 void wifiConnect( void)
 {
-    xTaskCreate(
-        WiFiTask,
-        "WiFiProcess",
-        12000,
-        NULL,
-        1,
-        &WiFiHandler);
+    WiFi.disconnect(true);
+
+    delay(1000);
+
+    WiFi.onEvent(WiFiStationConnected, SYSTEM_EVENT_STA_CONNECTED);
+    WiFi.onEvent(WiFiGotIP, SYSTEM_EVENT_STA_GOT_IP);
+    WiFi.onEvent(WiFiStationDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
+
+    LedBlinkSlow();
+
+    /* Create unique hostname (will be same as SSID) */
+    char hostname[32];
+    createSSID(hostname);
+    WiFi.setHostname(hostname);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(wifiConfig.wifiSSID, wifiConfig.wifiPASS);
 }
 
 /**
@@ -110,54 +160,3 @@ bool WifiIsConnected( void)
 /******************************************************************************/
 /***** STATIC FUNCTIONS *******************************************************/
 /******************************************************************************/
-
-/**
- * @brief Task will take care of maintaining WiFi connection
- * 
- * @param parameter 
- */
-static void WiFiTask( void *parameter)
-{
-    int timeoutCounter = 0;
-    char hostname[32];
-    LedBlinkSlow();
-    /* Create unique hostname (will be same as SSID) */
-    createSSID(hostname);
-    WiFi.setHostname(hostname);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(wifiConfig.wifiSSID, wifiConfig.wifiPASS);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    wifiStat.wifiConnected = WiFi.status() == WL_CONNECTED;
-
-    while (1)
-    {
-        PRINT_EXTRA_STACK_IN_TASK();
-        if (!wifiStat.wifiConnected)
-        {
-            LedBlinkSlow();
-            systemLog(tERROR, "WiFi connection broken");
-            timeoutCounter++;
-            if (timeoutCounter >= WIFI_CONNECT_TIMEOUT * 10)
-            {
-                if (wifiConfig.rof)
-                {
-                    ESP.restart();
-                }
-                else
-                {
-                    systemLog(tERROR, "Could not connect to the WiFI AP");
-                    WiFi.mode(WIFI_STA);
-                    WiFi.begin(wifiConfig.wifiSSID, wifiConfig.wifiPASS);
-                    vTaskDelay(500 / portTICK_PERIOD_MS);
-                    timeoutCounter = 0;
-                }
-            }
-        }
-        else
-        {
-            LedBlinkPeriodic();
-        }
-        wifiStat.wifiConnected = WiFi.status() == WL_CONNECTED;
-        vTaskDelay(100 / portTICK_PERIOD_MS);
-    }
-}
