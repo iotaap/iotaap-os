@@ -256,7 +256,7 @@ static void configure(AsyncWebServerRequest *request)
     }
 
     /* Print certificate */
-    response->print( configDivInputTextAreaBlocked("Certificate", "cert", "SCR", (char *)SystemGetCAcertificate()));
+    response->print( configDivInputTextAreaBlocked("Certificate", "cert", "SCR", SystemGetCAcertificate() ? (char *)SystemGetCAcertificate() : ""));
 
     /* End of body */
     response->print( (String)configPageBodyEnd);
