@@ -283,7 +283,7 @@ static void publishMqttMessages( void)
     unsigned long TimeNow = millis();
     /* No data to send */
     if (!mqttMessageQueue.count() && (!BatchNumOfElements() ||
-                                    TimeNow-LastBatchPubTime < BATCH_TIME_DIFF_MS))
+                                    TimeNow-LastBatchPubTime < getBatchDiffPeriod()))
     {
         return;
     }
