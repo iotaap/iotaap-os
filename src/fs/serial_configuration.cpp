@@ -246,7 +246,11 @@ void SerialJsonCfgSetValue( char *Data)
         JsonDocNew[KeyNum->key().c_str()] = JsonDocOld[KeyNum->key().c_str()];
     }
     else
-    {   /*New Data Detected */
+    {   
+        /* If any parameter is changed - reset after */
+        ExportJsonResetAfter = true;
+
+        /* New Data Detected */
         Serial.print( "--> New \"");
         Serial.print( KeyNum->key().c_str());
         Serial.print( "\":");
