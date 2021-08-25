@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+bool InitBatchData( int size=2048, int periodMs=200);
+int getBatchDiffPeriod( void);
 int uDeviceCloudPublishParamBatch(const char *name, float value);
 int uDeviceCloudPublishParamBatch(const char *name, const char *value);
 size_t BatchGetLastData( char *buffer);
