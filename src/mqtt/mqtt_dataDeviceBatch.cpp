@@ -309,4 +309,10 @@ static void BatchRemoveLastData( void)
     }
 
     ElementsCount--;
+    
+    if (!ElementsCount && bread==bwrite)
+    {
+        bread = batch;
+        bwrite = batch;
+    }
 }
