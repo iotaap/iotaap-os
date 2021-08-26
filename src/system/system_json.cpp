@@ -78,7 +78,7 @@ bool uGetSystemParameter( const char *Element, char *Output)
 
     if (JsonKey)
     {
-        strcpy(Output, (char *)JsonKey->ElementPointer);
+        strcpy(Output, (char *)*JsonKey->ElDoublePointer);
         return true;
     }
     return false;
