@@ -16,7 +16,7 @@
 
 
 /* JSON 1.5 kb - MAX allowed is 1024 */
-StaticJsonDocument<1300> MqttCommandJson;
+DynamicJsonDocument* MqttResponseJson;
 JsonArray MqttDataArray;
 
 
@@ -25,6 +25,7 @@ JsonArray MqttDataArray;
  */
 void MqttCommandHandler( char *Json, int Length)
 {
+    DynamicJsonDocument MqttCommandJson(Length*2);
     char Input[MaxCommandLen];
     char DeviceId[50];
 
@@ -66,15 +67,17 @@ void MqttCommandHandler( char *Json, int Length)
 void MqttCommandStartResponse( char* Command)
 {
     char Time[TIME_STRING_LENGTH];
+    MqttResponseJson = new DynamicJsonDocument(1024);
+
 
 // Serial.println("MqttCommandStartResponse");
 
-    MqttCommandJson.clear();
+    MqttResponseJson->clear();
     
-    MqttCommandJson["device"] = SystemGetDeviceId();
-    MqttCommandJson["command"] = Command;
-    MqttCommandJson["time"] = getSystemTimeString( Time);
-    MqttCommandJson["part"] = 0;
+    (*MqttResponseJson)["device"] = SystemGetDeviceId();
+    (*MqttResponseJson)["command"] = Command;
+    (*MqttResponseJson)["time"] = getSystemTimeString( Time);
+    (*MqttResponseJson)["part"] = 0;
 }
 
 /**
@@ -83,7 +86,7 @@ void MqttCommandStartResponse( char* Command)
 void MqttCommandSetResponse( char *Response)
 {
 // Serial.println("MqttCommandSetResponse");
-    MqttCommandJson["response"] = Response;
+    (*MqttResponseJson)["response"] = Response;
 }
 
 
@@ -94,24 +97,24 @@ void MqttCommandAddData( char *Data)
 {
 // Serial.println("MqttCommandAddData");
     /* Check if array exist - create if needed */
-    if (!MqttCommandJson.containsKey("data"))
+    if (!MqttResponseJson->containsKey("data"))
     {
-        MqttDataArray = MqttCommandJson.createNestedArray("data");
+        MqttDataArray = MqttResponseJson->createNestedArray("data");
     }
 
     /* Not enough space - send data and clear data from json,  */
-    if ((measureJson( MqttCommandJson) + strlen(Data) + HTTP_OVERHEAD) >
+    if ((measureJson( *MqttResponseJson) + strlen(Data) + HTTP_OVERHEAD) >
                                                         MAX_JSON_RESPONSE_SIZE)
     {
         MqttCommandSendResponse();
 
         /* Recreate new JSON without data[] */
         char Command[MaxCommandLen];
-        int Part = MqttCommandJson["part"];
-        strcpy( Command, MqttCommandJson["command"]);
+        int Part = (*MqttResponseJson)["part"];
+        strcpy( Command, (*MqttResponseJson)["command"]);
 
         MqttCommandStartResponse( Command);
-        MqttCommandJson["part"] = Part + 1;
+        (*MqttResponseJson)["part"] = Part + 1;
 
         /* Add data */
         MqttCommandAddData( Data);
@@ -130,12 +133,13 @@ void MqttCommandAddData( char *Data)
 void MqttCommandSendResponse( void)
 {
     char OutputData[MAX_JSON_RESPONSE_SIZE];
-    serializeJson( MqttCommandJson, OutputData);
+    serializeJson( *MqttResponseJson, OutputData);
 
 // Serial.print("JSON: ");
 // Serial.println(OutputData);
 
     MqttRespondToRq( OutputData);
+    delete MqttResponseJson;
 }
 
 
