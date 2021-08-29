@@ -17,7 +17,6 @@
 #include "./system/system_tasks.h"
 
 Queue<String> localDataQueue(LOCAL_DATA_QUEUE_SIZE);
-FileSd LocalDataFile;
 
 /**
  * @brief Saves payload locally if there is no Cloud connection - adds data to
@@ -61,7 +60,7 @@ void handleAndPublishLocalData()
     else
     {
         /* Open file */
-        LocalDataFile = SD.open(LOCAL_DATA_PATH, FILE_WRITE);
+        FileSd LocalDataFile = SD.open(LOCAL_DATA_PATH, FILE_WRITE);
 
         /* Send from queue to file 
          *  - System is in a state without connection (save to file) OR

@@ -208,7 +208,7 @@ size_t BatchGetLastData( char *buffer)
         return -1;
     }
 
-    StaticJsonDocument <256> batcPublishDoc;
+    DynamicJsonDocument batcPublishDoc(256);
     struct sMqttData *data = (struct sMqttData *)bread;
     uint32_t flags = data->flags;
     char Time[TIME_STRING_LENGTH];

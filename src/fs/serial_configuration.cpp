@@ -24,8 +24,8 @@ static bool ExportJson = false;
 static bool ExportJsonResetAfter = false;
 
 /* Json objects */
-StaticJsonDocument<2048> JsonDocOld;
-StaticJsonDocument<2048> JsonDocNew;
+DynamicJsonDocument *JsonDocOld = NULL;
+DynamicJsonDocument *JsonDocNew = NULL;
 JsonObject JsonRoot;
 JsonObject::iterator KeyNum;
 
@@ -66,7 +66,11 @@ void HandleJsonCfgFile( void)
 
         if (ExportJson)
         {
-            JsonDocNew.clear();
+            if (!JsonDocNew)
+            {
+                JsonDocNew = new DynamicJsonDocument(2048);
+            }
+            JsonDocNew->clear();
             for (int i=0; configuratorGetConf(i); i++)
             {
                 struct configParameters *conf = configuratorGetConf(i);
@@ -78,20 +82,20 @@ void HandleJsonCfgFile( void)
                     {
                         case JsonDataTypeInt:
                         {
-                            JsonDocNew[JsDt->ElementKey] = *(int *)JsDt->ElementPointer;
+                            (*JsonDocNew)[JsDt->ElementKey] = *(int *)JsDt->ElementPointer;
                         }
                         break;
 
                         case JsonDataTypeString:
                         case JsonDataTypePass:
                         {
-                            JsonDocNew[JsDt->ElementKey] = (char *)*JsDt->ElDoublePointer;
+                            (*JsonDocNew)[JsDt->ElementKey] = (char *)*JsDt->ElDoublePointer;
                         }
                         break;
                         
                         case JsonDataTypeBool:
                         {
-                            JsonDocNew[JsDt->ElementKey] = *(bool *)JsDt->ElementPointer;
+                            (*JsonDocNew)[JsDt->ElementKey] = *(bool *)JsDt->ElementPointer;
                         }
                         break;
                     }
@@ -125,9 +129,15 @@ void HandleJsonCfgFile( void)
                     Serial.println("(data is not saved)");
                     return;
                 }
-                serializeJsonPretty( JsonDocNew, ConfigFile);
+                serializeJsonPretty( *JsonDocNew, ConfigFile);
+
                 ConfigFile.flush();
                 ConfigFile.close();
+
+                delete JsonDocNew;
+                delete JsonDocOld;
+                JsonDocNew = NULL;
+                JsonDocOld = NULL;
                 
                 Serial.println("(data is saved)");
                 if (ExportJsonResetAfter)
@@ -149,13 +159,19 @@ void HandleJsonCfgFile( void)
         return;
     }
 
+    ConfigFile.seek(0);
+    int JsonSize = CalculateDynamicMemorySizeForJson( ConfigFile);
+    JsonDocNew = new DynamicJsonDocument(JsonSize);
+    JsonDocOld = new DynamicJsonDocument(JsonSize*3/2);
+
     /* Clear JSONs */
-    JsonDocNew.clear();
-    JsonDocOld.clear();
+    JsonDocNew->clear();
+    JsonDocOld->clear();
 
     /* Deserialize and connect everything */
-    deserializeJson(JsonDocOld, ConfigFile);
-    JsonRoot = JsonDocOld.as<JsonObject>();
+    ConfigFile.seek(0);
+    deserializeJson(*JsonDocOld, ConfigFile);
+    JsonRoot = JsonDocOld->as<JsonObject>();
     KeyNum = JsonRoot.begin();
 
     /* Close file and exit */
@@ -243,7 +259,7 @@ void SerialJsonCfgSetValue( char *Data)
     {
         /* Do nothing */
         Serial.println( "--> Not changed!");
-        JsonDocNew[KeyNum->key().c_str()] = JsonDocOld[KeyNum->key().c_str()];
+        (*JsonDocNew)[KeyNum->key().c_str()] = (*JsonDocOld)[KeyNum->key().c_str()];
     }
     else
     {   
@@ -257,13 +273,13 @@ void SerialJsonCfgSetValue( char *Data)
 
         if (KeyNum->value().is<char*>())
         {
-            JsonDocNew[KeyNum->key().c_str()] = Data;
+            (*JsonDocNew)[KeyNum->key().c_str()] = Data;
             Serial.println( Data);
         }
         else if (KeyNum->value().is<int>())
         {
             int VarNum = atoi( Data);
-            JsonDocNew[KeyNum->key().c_str()] = VarNum;
+            (*JsonDocNew)[KeyNum->key().c_str()] = VarNum;
             Serial.println( VarNum);
         }
         else if (KeyNum->value().is<bool>())
@@ -272,20 +288,20 @@ void SerialJsonCfgSetValue( char *Data)
             if (strstr( Data, "true"))
             {
                 VarBool = true;
-                JsonDocNew[KeyNum->key().c_str()] = VarBool;
+                (*JsonDocNew)[KeyNum->key().c_str()] = VarBool;
                 Serial.println("true");
             }
             else if (strstr( Data, "false"))
             {
                 VarBool = false;
-                JsonDocNew[KeyNum->key().c_str()] = VarBool;
+                (*JsonDocNew)[KeyNum->key().c_str()] = VarBool;
                 Serial.println("false");
             }
             else
             {
                 /* Do nothing */
                 Serial.println( "--> Not changed!");
-                JsonDocNew[KeyNum->key().c_str()] = JsonDocOld[KeyNum->key().c_str()];
+                (*JsonDocNew)[KeyNum->key().c_str()] = (*JsonDocOld)[KeyNum->key().c_str()];
             }
         }
     }

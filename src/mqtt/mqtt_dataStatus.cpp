@@ -9,7 +9,6 @@
 #include "./system/utils.h"
 
 
-DynamicJsonDocument doc(256);
 /**
  * @brief Publishing system status, everything must be done
  * in one task to avoid using mutex and semaphore
@@ -23,6 +22,8 @@ void publishSystemStatus()
 
     if ((statusTimingNow - statusTimingPrev) >= STATUS_PUBLISH_TIME)
     {
+        DynamicJsonDocument doc(256);
+        
         doc["battery"] = getBatteryPercentage();
         doc["uptime"] = getSystemUptimeS();
         doc["core_version"] = LIB_VERSION;

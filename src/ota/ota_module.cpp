@@ -13,10 +13,6 @@
 #include "./system/system_configuration.h"
 #include "./mqtt/mqtt_remoteControl.h"
 
-HTTPClient updatesHttpClient;
-
-DynamicJsonDocument updateResponse(64);
-char updateResponseChar[64];
 
 void sendUpdateResponse(int code);
 bool updateCheckRequestedPrev;
@@ -65,8 +61,8 @@ void checkUpdate()
     }
     vTaskDelay(2000 / portTICK_PERIOD_MS); // Wait at least 2s to be sure that response is published to the cloud
 
-    DynamicJsonDocument versionJson(128);
-    
+    HTTPClient updatesHttpClient;
+
     wifiClient->stop();
     
     if (strlen(SystemGetGroupId()) == 0)
@@ -82,6 +78,7 @@ void checkUpdate()
 
     if (httpCode == 200)
     { // Sucess return code
+        DynamicJsonDocument versionJson(128);
         String payload = updatesHttpClient.getString();
         deserializeJson(versionJson, payload);
 
@@ -208,7 +205,11 @@ void otaUpdate()
 /**
  * Send update response based on code
  */
-void sendUpdateResponse(int code){
+void sendUpdateResponse(int code)
+{
+    DynamicJsonDocument updateResponse(64);
+    char updateResponseChar[64];
+ 
     updateResponse["code"] = code;
     serializeJson(updateResponse, updateResponseChar);
     MqttRespondToUpdateRequest(updateResponseChar);
