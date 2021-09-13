@@ -42,7 +42,7 @@ void systemInfo()
     Serial.println();
     Serial.println("**************************************** IoTaaP OS ****************************************");
     Serial.println();
-    sprintf(sysInfoBuff, "OS version - v%s", LIB_VERSION);
+    sprintf(sysInfoBuff, "OS version: %s", LIB_VERSION);
     systemLog(tSYSTEM, sysInfoBuff);
     sprintf(sysInfoBuff, "Firmware version: %s", SystemGetFwVersion());
     systemLog(tSYSTEM, sysInfoBuff);
