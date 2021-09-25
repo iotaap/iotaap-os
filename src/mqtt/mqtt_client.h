@@ -5,7 +5,7 @@
 
 #include <WiFiClientSecure.h>
 #include "./libs_3rd_party/pubsubclient-2.8/src/PubSubClient.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 
 extern WiFiClient *wifiClient;
 extern PubSubClient *_mqttClient;

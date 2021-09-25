@@ -1,7 +1,7 @@
 #include "mqtt_dataStatus.h"
 
 #include "./system/definitions.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "./mqtt/mqtt_client.h"
 #include "./fs/sys_cfg.h"
 #include "./system/system_tasks.h"

@@ -3,7 +3,7 @@
 #include "./system/definitions.h"
 #include "./system/utils.h"
 #include "./hmi/commands_serial.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "./fs/fs_module.h"
 #include "./hmi/led_task.h"
 #include "./fs/sys_logs_data.h"
