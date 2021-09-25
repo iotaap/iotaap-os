@@ -17,6 +17,9 @@
 #define UNSUBS_TOPIC_QUEUE_SIZE 10
 #define MQTT_MESSAGES_QUEUE_SIZE 50
 
+/* PARAMETER JSON MAX SIZE */
+#define PAR_JSON_MAX_LEN    256
+
 /* PINS */
 #define BATSENS_PIN 36 // Battery voltage sensor pin
 #define SD_CS_PIN 5    // SD Card CS pin
@@ -40,8 +43,10 @@
 /* Custom configuration file path */
 #define USER_CFG_PATH       CFG_DIR"custom.cfg"
 /* System temporary publishing data log path */
-#define LOCAL_DATA_DIR      "home/iotaap/"
-#define LOCAL_DATA_PATH     LOCAL_DATA_DIR"data.log"
+#define BACKUP_DATA_DIR      "var/backup/"
+#define BACKUP_DATA_TEMPLATE "%04d.log"
+#define BACKUP_DATA_PATH     BACKUP_DATA_DIR"%04d.log"
+#define BACKUP_FILE_SIZE    (4096*4)
 
 /* OTA */
 #define OTA_CHECK_DEVICE_URI "/v1/ota/device/latest/"      // OTA update check endpoint for device

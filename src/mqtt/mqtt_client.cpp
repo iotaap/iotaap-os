@@ -1,6 +1,5 @@
 #include "mqtt_client.h"
 
-#include "./system/queue.h"
 #include "./system/definitions.h"
 #include "./system/system_configuration.h"
 #include "./fs/sys_cfg.h"
@@ -14,6 +13,9 @@
 #include "./wifi/wifi_module.h"
 #include "./system/system_configuration.h"
 #include "./system/system_json.h"
+#include "./system/system_tasks.h"
+#include "./system/utils.h"
+#include "./configurator/configurator.h"
 
 
 
@@ -25,15 +27,6 @@ struct sMqttStat
     bool mqttConnected;
 };
 
-/**
- * Structure for MQTT message
- */
-struct sMqttMessage
-{
-    String topic;
-    String payload;
-    bool retain;
-};
 
 /**
  * Structure for MQTT configuration
@@ -74,17 +67,24 @@ struct sJsonKeys JsonMqttData[] =
     {&mqttConfig.port            , JsonDataTypeInt   , "mqtt_port"  , "MQTT Port"        , NULL},
     {&mqttConfig.secureConnection, JsonDataTypeBool  , "secure_conn", "Secure Connection", "SCR"}
 };
+
 /* Queue for MQTT messaging */
-Queue<sMqttMessage> mqttMessageQueue(MQTT_MESSAGES_QUEUE_SIZE);
+LinkedList<sMqttContainer*> *mqttDataMsgs;
+/* Topic list */
+LinkedList<char*> *mqttTopics;
+
 /* Secure connection - EXTERN - shared between MQTT and OTA update */
 WiFiClient *wifiClient;
 /* MQTT uses secure network (shared with OTA) */
 PubSubClient *_mqttClient;
 
 
+bool InitMqttDone = true;
 
 /* Task */
 static void MqttTask( void *parameter);
+/* Add msg to list */
+static void mqttPub( const char *topic, struct sMqttData *mqttData);
 /* Physically send message */
 static void publishMqttMessages( void);
 
@@ -99,6 +99,14 @@ static void publishMqttMessages( void);
 static TaskHandle_t MqttHandler = NULL;
 void connectToMqtt()
 {
+    if (IsConfiguratorActive())
+    {
+        return;
+    }
+
+    mqttTopics = new LinkedList<char*>();
+    mqttDataMsgs  = new LinkedList<sMqttContainer*>();
+
     xTaskCreate(
         MqttTask,
         "MqttProcess",
@@ -118,7 +126,6 @@ void InitMqttconfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
     InitDataFromSystemJson( ConfigJson, JsonMqttData, StructSize);
 }
 
-
 /**
  * @brief Adds new message to queue, it will be picked up by the MqttProcess task and published to topic
  * 
@@ -126,10 +133,61 @@ void InitMqttconfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
  * @param payload MQTT topic payload
  * @param retain Retain last message
  */
+void mqttPublish(const char *topic, const char *name, const char *value, boolean retain)
+{
+    if (IsConfiguratorActive())
+    {
+        return;
+    }
+
+    sMqttData *mqttData = new sMqttData;
+
+    mqttData->name = new char[strlen(name)+1];
+    strcpy( mqttData->name, name);
+
+    mqttData->text = new char[strlen(value)+1];
+    strcpy( mqttData->text, value);
+
+    mqttData->flags = (retain << 0) | (1 << 1) | (0 << 2);
+    mqttData->unix_ms = getUnixTimeMs();
+
+    mqttPub( topic, mqttData);
+}
+void mqttPublish(const char *topic, const char *name, float value, boolean retain)
+{
+    if (IsConfiguratorActive())
+    {
+        return;
+    }
+
+    sMqttData *mqttData = new sMqttData;
+
+    mqttData->name = new char[strlen(name)+1];
+    strcpy( mqttData->name, name);
+
+    mqttData->value = value;
+    mqttData->flags = (retain << 0) | (0 << 1) | (0 << 2);
+    mqttData->unix_ms = getUnixTimeMs();
+    
+    mqttPub( topic, mqttData);
+}
 void mqttPublish(const char *topic, const char *payload, boolean retain)
 {
-    // If Queue is full, data will be dropped
-    mqttMessageQueue.push({topic, payload, retain});
+    if (IsConfiguratorActive())
+    {
+        return;
+    }
+
+    sMqttData *mqttData = new sMqttData;
+    mqttData->name = 0;
+
+    mqttData->payload = new char[strlen(payload)+1];
+    strcpy( mqttData->payload, payload);
+
+    mqttData->flags = (retain << 0) | (0 << 1) | (1 << 2);
+    mqttData->unix_ms = getUnixTimeMs();
+    
+    mqttPub( topic, mqttData);
 }
 
 /******************************************************************************/
@@ -275,45 +333,151 @@ static void MqttTask(void *parameter)
 
 
 /**
+ * @brief Add msg to publish list
+ */
+static void mqttPub(const char *topic, struct sMqttData *mqttData)
+{
+    /* Check if topic already exist */
+    int TopicList = 0;
+    for (; TopicList<mqttTopics->size(); TopicList++)
+    {
+        if (!strcmp(topic, mqttTopics->get(TopicList)))
+        {
+            break;
+        }
+    }
+
+    /* Create message */
+    sMqttContainer *newMessage = new sMqttContainer;
+
+    /* Add new topic to list */
+    if (TopicList == mqttTopics->size())
+    {
+        char *newTopicInList = new char[strlen(topic)+1];
+        strcpy( newTopicInList, topic);
+        mqttTopics->add( newTopicInList);
+
+        newMessage->topic = newTopicInList;
+    }
+    /* Topic already exist in list */
+    else
+    {
+        newMessage->topic = mqttTopics->get(TopicList);
+    }
+
+    newMessage->data = mqttData;
+
+    /* Add full msg (topic+data) to list */
+    mqttDataMsgs->add( newMessage);
+
+}
+
+
+/**
  * @brief Publishes MQTT messages from the queue
  */
 static void publishMqttMessages( void)
 {
     static unsigned long LastBatchPubTime = 0;
     unsigned long TimeNow = millis();
+
+    /* Calculate number of data in non-batch list */
+    int NumberOfMsgs = mqttDataMsgs->size();
+
     /* No data to send */
-    if (!mqttMessageQueue.count() && (!BatchNumOfElements() ||
-                                    TimeNow-LastBatchPubTime < getBatchDiffPeriod()))
+    if (!NumberOfMsgs &&
+        (!BatchNumOfElements() || TimeNow-LastBatchPubTime < getBatchDiffPeriod()))
     {
         return;
     }
 
     /* Choose what to send */
     bool batchFiller = false;
-    if (mqttMessageQueue.count() < 10 &&
-        mqttMessageQueue.count()*2 < BatchFullnessPercent())
+    if (NumberOfMsgs < 10 &&
+        NumberOfMsgs*2 < BatchFullnessPercent())
     {
         batchFiller = true;
     }
 
+
+    /* SEND NON-BATCH DATA */
     if (!batchFiller)
     {
-        char logData[256];
-        sprintf( logData, "Publishing message to topic: %s", mqttMessageQueue.peek().topic.c_str());
-        systemLog(tINFO, logData);
+        struct sMqttContainer *cont = mqttDataMsgs->get(0);
+        struct sMqttData *data = cont->data;
+        char *topic = cont->topic;
+        bool retain = (data->flags << 1) & 0x01;
 
-        if (_mqttClient->publish(mqttMessageQueue.peek().topic.c_str(),
-                                mqttMessageQueue.peek().payload.c_str(),
-                                mqttMessageQueue.peek().retain))
+        /* SEND DATA */
+        if (data->flags & (1<<2))
         {
-            mqttMessageQueue.pop(); // Removes message being published from Queue
-            systemLog(tINFO, "Message successfully published!");
+            char *payload = data->payload;
+            char logData[256];
+            sprintf( logData, "Publishing message to topic: %s", topic);
+            systemLog(tINFO, logData);
+
+            /* Publish */
+            if (_mqttClient->publish( topic, payload, retain))
+            {
+                delete[] payload;
+                delete data;
+                mqttDataMsgs->shift();
+                delete cont;
+                systemLog(tINFO, "Message successfully published!");
+            }
+            else
+            {
+                systemLog(tERROR, "There was a problem with message publishing!");
+            }
         }
         else
         {
-            systemLog(tERROR, "There was a problem with message publishing!");
+            char logData[256];
+            sprintf( logData, "Publishing message to topic: %s", topic);
+            systemLog(tINFO, logData);
+
+            /* Create JSON */
+            String payloadStr;
+            DynamicJsonDocument paramPublishDoc(512);
+            char Time[TIME_STRING_LENGTH];
+
+            paramPublishDoc.clear();
+            paramPublishDoc["device_id"] = SystemGetDeviceId();
+            paramPublishDoc["name"] = data->name;
+            paramPublishDoc["time"] = getSystemTimeString( Time, (data->unix_ms)/1000);
+            paramPublishDoc["unix_ms"] = data->unix_ms;
+
+            if (data->flags & 0x02)
+            {
+                paramPublishDoc["value"] = data->text;
+            }
+            else
+            {
+                paramPublishDoc["value"] = data->value;
+            }
+
+            serializeJson(paramPublishDoc, payloadStr);
+
+            /* Publish */
+            if (_mqttClient->publish( topic, payloadStr.c_str(), retain))
+            {
+                delete[] data->name;
+                if (data->flags & 0x02)
+                {
+                    delete[] data->text;
+                }
+                delete data;
+                mqttDataMsgs->shift(); // Removes message being published from Queue
+                delete cont;
+                systemLog(tINFO, "Message successfully published!");
+            }
+            else
+            {
+                systemLog(tERROR, "There was a problem with message publishing!");
+            }
         }
     }
+    /* SEND BATCH DATA */
     else
     {
         char topicChar[64];
@@ -324,30 +488,24 @@ static void publishMqttMessages( void)
         char *end = payload;
         end += sprintf( payload, "{\"device_id\":\"%s\",\"data\":[", SystemGetDeviceId());
 
-// Serial.println(BatchNumOfElements());
-// Serial.println(TimeNow);
         end += BatchGetLastData( end);
         while (BatchNumOfElements() && end-payload < maxPayloadLen*8/10)
         {
             *end = ',';
             end++;
             end += BatchGetLastData( end);
-// Serial.print(".");
         }
         *end = ']';
         end++;
         *end = '}';
         end++;
         *end = '\0';
-// Serial.println("BATCH");
-// Serial.println(payload);
         if (_mqttClient->publish(topicChar, payload, false))
         {
             systemLog(tINFO, "Batch Message successfully published!");
         }
         else
         {
-// Serial.println("fail");
             systemLog(tERROR, "There was a problem with batch message publishing!");
         }
 
@@ -362,6 +520,7 @@ static void publishMqttMessages( void)
 /**
  * Triggers (forces) MQTT publishing from external call
  */
-void triggerMqttPublish_Extern(){
+void triggerMqttPublish_Extern()
+{
     publishMqttMessages();
 }

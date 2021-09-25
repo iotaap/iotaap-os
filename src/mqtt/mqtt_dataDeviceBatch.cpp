@@ -14,7 +14,7 @@ static void BatchRemoveLastData( void);
 /**
  * Structure for MQTT message
  */
-struct sMqttData
+struct sBatMqttData
 {
     int64_t unix_ms;
     uint32_t flags; /* bit0-retain, bit1-(0-float, 1-char), bit2-payload */
@@ -84,7 +84,7 @@ int uDeviceCloudPublishParamBatch(const char *name, float value)
     /* Bytes until end of an array (here we dont check if memory is busy or not */
     int SpaceUntilEnd = batch + BATCH_SIZE - bwrite;
     /* Memory needed to write object */
-    int ElementSize = sizeof( struct sMqttData)  + nameLen + 1;
+    int ElementSize = sizeof( struct sBatMqttData)  + nameLen + 1;
     if (SpaceUntilEnd < ElementSize)
     {
         if (bread > bwrite)
@@ -103,7 +103,7 @@ int uDeviceCloudPublishParamBatch(const char *name, float value)
     }
 
     /* Start writing data */
-    struct sMqttData *data = (struct sMqttData *)bwrite;
+    struct sBatMqttData *data = (struct sBatMqttData *)bwrite;
     data->unix_ms = getUnixTimeMs();
     data->flags = (false << 0) | (0 << 1);
     data->value = value;
@@ -153,7 +153,7 @@ int uDeviceCloudPublishParamBatch(const char *name, const char *value)
     /* Bytes until end of an array (here we dont check if memory is busy or not */
     int SpaceUntilEnd = batch + BATCH_SIZE - bwrite;
     /* Memory needed to write object */
-    int ElementSize = sizeof( struct sMqttData)  + nameLen + 1 + valLen + 1;
+    int ElementSize = sizeof( struct sBatMqttData)  + nameLen + 1 + valLen + 1;
     if (SpaceUntilEnd < ElementSize)
     {
         if (bread > bwrite)
@@ -172,7 +172,7 @@ int uDeviceCloudPublishParamBatch(const char *name, const char *value)
     }
 
     /* Start writing data */
-    struct sMqttData *data = (struct sMqttData *)bwrite;
+    struct sBatMqttData *data = (struct sBatMqttData *)bwrite;
     data->unix_ms = getUnixTimeMs();
     data->flags = (false << 0) | (1 << 1);
 
@@ -209,7 +209,7 @@ size_t BatchGetLastData( char *buffer)
     }
 
     DynamicJsonDocument batcPublishDoc(256);
-    struct sMqttData *data = (struct sMqttData *)bread;
+    struct sBatMqttData *data = (struct sBatMqttData *)bread;
     uint32_t flags = data->flags;
     char Time[TIME_STRING_LENGTH];
 
@@ -280,7 +280,7 @@ static void BatchRemoveLastData( void)
         return;
     }
     
-    struct sMqttData *data = (struct sMqttData *)bread;
+    struct sBatMqttData *data = (struct sBatMqttData *)bread;
     uint32_t flags = data->flags;
 
     data->unix_ms = 0;

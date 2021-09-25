@@ -10,8 +10,6 @@
 #include "./system/system_configuration.h"
 
 
-DynamicJsonDocument paramPublishDoc(512);
-char paramPublishPayload[512];
 /**
  * @brief Creates and publishes parameter document to cloud or local
  * 
@@ -22,26 +20,7 @@ char paramPublishPayload[512];
  */
 int uDeviceCloudPublishParam(const char *name, float value)
 {
-    char Time[TIME_STRING_LENGTH];
-
-    paramPublishDoc.clear();
-    paramPublishDoc["device_id"] = SystemGetDeviceId();
-    paramPublishDoc["name"] = name;
-    paramPublishDoc["value"] = value;
-    paramPublishDoc["time"] = getSystemTimeString( Time);
-    paramPublishDoc["unix_ms"] = getUnixTimeMs();
-
-    serializeJson(paramPublishDoc, paramPublishPayload);
-
-    if (!MqttIsConnected() && systemStat.systemTimeSynced)
-    {
-        saveDataLocally(paramPublishPayload);
-    }
-    else
-    {
-        uDeviceCloudPublish( paramPublishPayload, "params");
-    }
-    return 0;
+    return uDeviceCloudPublish( "params", name, value);
 }
 
 /**
@@ -54,26 +33,7 @@ int uDeviceCloudPublishParam(const char *name, float value)
  */
 int uDeviceCloudPublishParam(const char *name, const char *value)
 {
-    char Time[TIME_STRING_LENGTH];
-
-    paramPublishDoc.clear();
-    paramPublishDoc["device_id"] = SystemGetDeviceId();
-    paramPublishDoc["name"] = name;
-    paramPublishDoc["value"] = value;
-    paramPublishDoc["time"] = getSystemTimeString( Time);
-    paramPublishDoc["unix_ms"] = getUnixTimeMs();
-
-    serializeJson(paramPublishDoc, paramPublishPayload);
-
-    if (!MqttIsConnected() && systemStat.systemTimeSynced)
-    {
-        saveDataLocally(paramPublishPayload);
-    }
-    else
-    {
-        uDeviceCloudPublish( paramPublishPayload, "params");
-    }
-    return 0;
+    return uDeviceCloudPublish( "params", name, value);
 }
 
 /**
@@ -89,6 +49,25 @@ int uDeviceCloudPublish(const char *payload, const char *uTopic)
     char topicChar[256];
     sprintf( topicChar, "/%s/devices/%s/%s", MqttGetUser(), SystemGetDeviceId(), uTopic);
     mqttPublish(topicChar, payload, false);
+
+    return 0;
+}
+
+int uDeviceCloudPublish(const char *uTopic, const char *uName, const char *value)
+{
+    /* Generate endpoint url and publish */
+    char topicChar[256];
+    sprintf( topicChar, "/%s/devices/%s/%s", MqttGetUser(), SystemGetDeviceId(), uTopic);
+    mqttPublish(topicChar, uName, value, false);
+
+    return 0;
+}
+int uDeviceCloudPublish(const char *uTopic, const char *uName, float value)
+{
+    /* Generate endpoint url and publish */
+    char topicChar[256];
+    sprintf( topicChar, "/%s/devices/%s/%s", MqttGetUser(), SystemGetDeviceId(), uTopic);
+    mqttPublish(topicChar, uName, value, false);
 
     return 0;
 }
