@@ -1,7 +1,7 @@
 // AsyncJson.h
 #ifndef ASYNC_JSON_H_
 #define ASYNC_JSON_H_
-#include "../../ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "../../ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "ESPAsyncWebServer.h"
 #include <Print.h>
 
