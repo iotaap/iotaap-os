@@ -78,7 +78,7 @@ void FSmanagerTask(void *parameter)
         if (systemStat.fsInitialized)
         {
             handleSystemLogs();
-            handleAndPublishLocalData();
+            handleLocalMqttMessages();
             sendSystemLogsToSerial();
         }
         if (systemStat.fatInitialized)
@@ -130,7 +130,7 @@ static bool CheckDirStructure( void)
     const char *DirNames[] = 
     {
         SYSTEM_LOG_DIR,
-        LOCAL_DATA_DIR,
+        BACKUP_DATA_DIR,
     };
     int Len = sizeof(DirNames)/sizeof(*DirNames);
 
