@@ -42,7 +42,8 @@ static void FillFileFromList( const char *FilePath,
  *              with data from temp file created just before reset. Also count
  *              backup files and file IDs for later.
  * 
- * @return 0 -> Ok, else -> fail or no FS
+ * @return  0 -> Ok
+ *          else -> fail or no FS
  */
 int InitMqttBackup( void)
 {
@@ -122,13 +123,15 @@ int InitMqttBackup( void)
     
     return 0;
 }
+
 /**
- * @brief Stores data locally from local queue
- * 
+ * @brief Handle mqtt list data
+ *          - if list is too big -> backup data to file
+ *          - if list is small and have backuped data -> fill list from file
  */
 #define LOW_MEM_LIST    10
 #define HIGH_MEM_LIST   150
-void handleLocalMqttMessages()
+void handleLocalMqttMessages( void)
 {
     if (!mqttDataMsgs)
     {
@@ -205,6 +208,7 @@ void handleLocalMqttMessages()
     }
 }
 
+
 /**
  * @brief   Set flag to backup data and reset device
  */
@@ -213,8 +217,9 @@ void backupData( void)
     WantToReset = true;
 }
 
+
 /**
- * 
+ * @brief From selected file fill list and remove file
  */
 static void FillListFromFile( const char *FilePath)
 {
@@ -246,7 +251,7 @@ static void FillListFromFile( const char *FilePath)
 
 
 /**
- * 
+ * @brief Backup data from list to file
  */
 static void FillFileFromList( const char *FilePath,
                 LinkedList<sMqttContainer*> *mqttList, unsigned int MaxFileSize)
@@ -308,8 +313,10 @@ static void FillFileFromList( const char *FilePath,
 
 
 /**
- * true  - use buffer
- * false - use cont->data->payload
+ * @brief   From mqtt container create JSON and save it into buffer
+ * 
+ * @return  true  - use buffer
+ *          false - use cont->data->payload
  */
 bool FromContCreateJson( struct sMqttContainer *cont, char *buffer)
 {
