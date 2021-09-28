@@ -15,5 +15,6 @@ uint64_t getSystemUptimeS( void);
 uint64_t getUnixTimeMs();
 void periphInit();
 void createSSID( char *ssid);
+void induceReset( void);
 
 #endif

@@ -8,6 +8,7 @@
 #include "./system/system_tasks.h"
 #include "./system/system_configuration.h"
 #include "./system/system_json.h"
+#include "./system/utils.h"
 #include "./fs/fs_module.h"
 #include "./fs/user_cfg.h"
 #include "./fs/sys_logs_data.h"
@@ -284,4 +285,13 @@ bool IoTaaP_OS::getSystemParameter(const char *element, bool *output)
 void IoTaaP_OS::checkForUpdates()
 {
     SystemStatUpdateRequest();
+}
+
+/**
+ * @brief Restart device with mqtt backup
+ * 
+ */
+void IoTaaP_OS::restart()
+{
+    induceReset();
 }

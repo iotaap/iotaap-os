@@ -45,6 +45,7 @@ public:
     bool getSystemParameter(const char *element, int *output);
     bool getSystemParameter(const char *element, bool *output);
     void checkForUpdates();
+    void restart(void);
 };
 
 #endif

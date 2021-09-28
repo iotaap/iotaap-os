@@ -205,6 +205,13 @@ void handleLocalMqttMessages()
     }
 }
 
+/**
+ * @brief   Set flag to backup data and reset device
+ */
+void backupData( void)
+{
+    WantToReset = true;
+}
 
 /**
  * 
