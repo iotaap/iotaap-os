@@ -45,5 +45,6 @@ bool MqttIsConnected( void);
 void MqttSetCallback( MQTT_CALLBACK_SIGNATURE);
 const char *MqttGetUser( void);
 void MqttRunUserCallback( char *Topic, uint8_t *Message, unsigned int Length);
+void stopPublishing( void);
 
 #endif

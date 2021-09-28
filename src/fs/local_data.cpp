@@ -27,6 +27,7 @@ static int PushMqttFileNumber = -1;
 static int PopMqttFileNumber = -1;
 
 /* Flag to signalize to create temporary backup (for reset only) */
+static bool WantToReset = false;
 FileSd LocalDataFile;
 
 static void FillListFromFile( const char *FilePath);
@@ -129,8 +130,17 @@ int InitMqttBackup( void)
 #define HIGH_MEM_LIST   150
 void handleLocalMqttMessages()
 {
-    if (!mqttDataMsgs || !systemStat.fsInitialized)
+    if (!mqttDataMsgs)
     {
+        return;
+    }
+
+    if (!systemStat.fsInitialized)
+    {
+        if (WantToReset)
+        {
+            ESP.restart();
+        }
         return;
     }
 
@@ -170,6 +180,28 @@ void handleLocalMqttMessages()
         systemLog( tSYSTEM, output);
         
         vTaskDelay( 100 / portTICK_PERIOD_MS);
+    }
+
+
+    /* Backup all data (reset is coming) */
+    if (WantToReset)
+    {
+        stopPublishing();
+
+        while (mqttDataMsgs->size())
+        {
+            char FullFileName[30];
+            sprintf( FullFileName, BACKUP_DATA_PATH, PushMqttFileNumber);
+            FillFileFromList( FullFileName, mqttDataMsgs, BACKUP_FILE_SIZE);
+            PushMqttFileNumber++;
+            
+            char output[50];
+            sprintf( output, "Backup file created (%d)", PushMqttFileNumber-PopMqttFileNumber);
+            systemLog( tSYSTEM, output);
+        }
+
+        vTaskDelay( 1000);
+        ESP.restart();
     }
 }
 

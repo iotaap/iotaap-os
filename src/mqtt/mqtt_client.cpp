@@ -80,6 +80,7 @@ PubSubClient *_mqttClient;
 
 
 bool InitMqttDone = true;
+bool blockPublish = false;
 
 /* Task */
 static void MqttTask( void *parameter);
@@ -127,6 +128,14 @@ void InitMqttconfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
 }
 
 /**
+ * @brief Stop publishing messages
+ */
+void stopPublishing( void)
+{
+    blockPublish = true;
+}
+
+/**
  * @brief Adds new message to queue, it will be picked up by the MqttProcess task and published to topic
  * 
  * @param topic MQTT topic
@@ -135,7 +144,7 @@ void InitMqttconfigDataFromJsonDocument( DynamicJsonDocument ConfigJson)
  */
 void mqttPublish(const char *topic, const char *name, const char *value, boolean retain)
 {
-    if (IsConfiguratorActive())
+    if (IsConfiguratorActive() || blockPublish)
     {
         return;
     }
@@ -155,7 +164,7 @@ void mqttPublish(const char *topic, const char *name, const char *value, boolean
 }
 void mqttPublish(const char *topic, const char *name, float value, boolean retain)
 {
-    if (IsConfiguratorActive())
+    if (IsConfiguratorActive() || blockPublish)
     {
         return;
     }
@@ -173,7 +182,7 @@ void mqttPublish(const char *topic, const char *name, float value, boolean retai
 }
 void mqttPublish(const char *topic, const char *payload, boolean retain)
 {
-    if (IsConfiguratorActive())
+    if (IsConfiguratorActive() || blockPublish)
     {
         return;
     }
@@ -378,6 +387,11 @@ static void mqttPub(const char *topic, struct sMqttData *mqttData)
  */
 static void publishMqttMessages( void)
 {
+    if (blockPublish)
+    {
+        return;
+    }
+
     static unsigned long LastBatchPubTime = 0;
     unsigned long TimeNow = millis();
 
