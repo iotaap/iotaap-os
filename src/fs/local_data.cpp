@@ -17,7 +17,7 @@
 #include "./system/system_configuration.h"
 #include "./system/utils.h"
 #include "./wifi/wifi_module.h"
-#include <LinkedList.h>
+#include "./libs_3rd_party/LinkedList/LinkedList.h"
 #include "./libs_3rd_party/micro-sdcard/mySD.h"
 
 

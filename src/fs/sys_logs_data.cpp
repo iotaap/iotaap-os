@@ -17,7 +17,7 @@
 #include "./system/utils.h"
 #include "./hmi/commands_engine.h"
 #include "./system/system_tasks.h"
-#include <LinkedList.h>
+#include "./libs_3rd_party/LinkedList/LinkedList.h"
 
 static LinkedList<String> logsQueue = LinkedList<String>();
 FileSd SystemFile;

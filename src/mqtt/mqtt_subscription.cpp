@@ -3,7 +3,7 @@
 #include "./system/definitions.h"
 #include "./fs/sys_logs_data.h"
 #include "./mqtt/mqtt_client.h"
-#include <LinkedList.h>
+#include "./libs_3rd_party/LinkedList/LinkedList.h"
 
 /* Max n topics can be added to queue. Once subscribed, topic will be added to subscribed queue */
 static LinkedList<String> subsTopicsPendingQueue = LinkedList<String>();
