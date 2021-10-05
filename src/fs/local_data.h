@@ -3,7 +3,7 @@
 
 int InitMqttBackup( void);
 void handleLocalMqttMessages( void);
-void backupData( void);
+void backupDataAndRestart( void);
 bool FromContCreateJson( struct sMqttContainer *cont, char *buffer);
 
 #endif

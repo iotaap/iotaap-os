@@ -128,9 +128,10 @@ void induceReset( void)
 {
     if (!systemStat.fsInitialized)
     {
+        SetRestartTime();
         ESP.restart();
     }
     
-    backupData();
     stopPublishing();
+    backupDataAndRestart();
 }

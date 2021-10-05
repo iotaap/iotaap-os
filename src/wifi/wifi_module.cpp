@@ -90,7 +90,7 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
         {
             systemLog(tERROR, "Could not connect to the WiFI AP");
             delay( 100 / portTICK_PERIOD_MS);
-            ESP.restart();
+            induceReset();
         }
     }
 

@@ -14,6 +14,7 @@ const char *SystemGetGroupId( void);
 const char *SystemGetDeviceToken( void);
 const char *SystemGetGroupToken( void);
 const char *SystemGetOtaServer( void);
+void SystemSetTimezone( int zone);
 int SystemGetTimezone( void);
 int SystemGetTimezoneOffsetMs( void);
 int SystemGetTimezoneOffsetS( void);

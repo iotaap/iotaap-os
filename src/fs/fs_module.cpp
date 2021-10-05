@@ -53,7 +53,7 @@ void initializeFileSystem()
         sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Internal filesystem initialization failed");
         Serial.println(logBuff);
         vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
-        ESP.restart();
+        induceReset();
     }
     else
     {

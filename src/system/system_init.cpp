@@ -9,6 +9,7 @@
 #include "./fs/local_data.h"
 #include "./mqtt/mqtt_client.h"
 #include "./system/system_configuration.h"
+#include "./system/system_tasks.h"
 #include "./configurator/configurator.h"
 
 /**
@@ -21,6 +22,7 @@ void systemInit()
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     periphInit();
+    InitTime();
     ConfiguratorInit();
     initializeFileSystem();
 

@@ -133,15 +133,12 @@ int InitMqttBackup( void)
 #define HIGH_MEM_LIST   150
 void handleLocalMqttMessages( void)
 {
-    if (!mqttDataMsgs)
-    {
-        return;
-    }
 
-    if (!systemStat.fsInitialized)
+    if (!mqttDataMsgs || !systemStat.fsInitialized)
     {
         if (WantToReset)
         {
+            SetRestartTime();
             ESP.restart();
         }
         return;
@@ -204,6 +201,8 @@ void handleLocalMqttMessages( void)
         }
 
         vTaskDelay( 1000);
+
+        SetRestartTime();
         ESP.restart();
     }
 }
@@ -212,7 +211,7 @@ void handleLocalMqttMessages( void)
 /**
  * @brief   Set flag to backup data and reset device
  */
-void backupData( void)
+void backupDataAndRestart( void)
 {
     WantToReset = true;
 }

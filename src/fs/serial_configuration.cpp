@@ -8,6 +8,7 @@
 #include "./fs/sys_logs_data.h"
 #include "./configurator/configurator.h"
 #include "./system/system_json.h"
+#include "./system/utils.h"
 
 
 /* Pointer to a filename, system or user */
@@ -144,7 +145,7 @@ void HandleJsonCfgFile( void)
                 {
                     ConfiguratorDeactivate();
                     vTaskDelay(1000/portTICK_PERIOD_MS);
-                    ESP.restart();
+                    induceReset();
                 }
             }
         }
