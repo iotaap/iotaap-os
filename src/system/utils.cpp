@@ -3,6 +3,8 @@
 #include "time.h"
 #include "./hmi/commands_engine.h"
 #include "./fs/fs_module.h"
+#include "./fs/local_data.h"
+#include "./mqtt/mqtt_client.h"
 #include "./hmi/led_task.h"
 #include <HTTPClient.h>
 #include "./system/system_tasks.h"
@@ -116,4 +118,20 @@ void createSSID( char *ssid)
 {
     uint64_t chipid = ESP.getEfuseMac() & 0xFFFFFFFFFFFF;
     snprintf(ssid, 32, "IoTaaP-%012llX", chipid);
+}
+
+
+/**
+ * @brief Backup files if needed and restart device
+ */
+void induceReset( void)
+{
+    if (!systemStat.fsInitialized)
+    {
+        SetRestartTime();
+        ESP.restart();
+    }
+    
+    stopPublishing();
+    backupDataAndRestart();
 }

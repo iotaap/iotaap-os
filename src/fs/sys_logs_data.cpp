@@ -16,10 +16,10 @@
 #include "./libs_3rd_party/micro-sdcard/mySD.h"
 #include "./system/utils.h"
 #include "./hmi/commands_engine.h"
-#include "./system/queue.h"
 #include "./system/system_tasks.h"
+#include "./libs_3rd_party/LinkedList/LinkedList.h"
 
-Queue<String> logsQueue(LOGS_QUEUE_SIZE);
+static LinkedList<String> logsQueue = LinkedList<String>();
 FileSd SystemFile;
 
 /* ID of first (oldest) file */
@@ -121,7 +121,7 @@ int InitSystemLogs( void)
 void handleSystemLogs()
 {
     /* Do not open file if queue is empty */
-    if (logsQueue.count() == 0)
+    if (logsQueue.size() == 0)
     {
         return;
     }
@@ -159,9 +159,9 @@ void handleSystemLogs()
     /* Save data to file */
     if (SystemFile)
     {
-        while (logsQueue.count() > 0)
+        while (logsQueue.size() > 0)
         {
-            SystemFile.println(logsQueue.pop());
+            SystemFile.println(logsQueue.shift());
             vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
         }
         SystemFile.flush();
@@ -190,7 +190,7 @@ void uWriteToSystemLogs( const char *data)
  */
 void createFSlog(char *log)
 {
-    logsQueue.push(String(log));
+    logsQueue.add(String(log));
     // If Queue is full data will be dropped
 }
 

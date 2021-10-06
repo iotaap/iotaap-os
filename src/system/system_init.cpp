@@ -6,8 +6,10 @@
 #include "./fs/user_cfg.h"
 #include "./fs/sys_cfg.h"
 #include "./fs/sys_logs_data.h"
+#include "./fs/local_data.h"
 #include "./mqtt/mqtt_client.h"
 #include "./system/system_configuration.h"
+#include "./system/system_tasks.h"
 #include "./configurator/configurator.h"
 
 /**
@@ -20,12 +22,14 @@ void systemInit()
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     periphInit();
+    InitTime();
     ConfiguratorInit();
     initializeFileSystem();
 
     InitSystemParameters();
     // InitUserParameters(); TODO - Currently not implemented, since writing user parameters to internal FAT is not implemented
     InitSystemLogs();
+    InitMqttBackup();
 
     loadCertificate(CA_CRT_PATH);
     systemInfo();

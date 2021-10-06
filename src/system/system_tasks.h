@@ -21,6 +21,8 @@ extern sSystemStat systemStat;
 
 void createSystemTasks();
 void SyncTimeTask(void *parameter);
+void InitTime( void);
+void SetRestartTime( void);
 void UpdateTime( uint64_t epoch_ms);
 void SystemStatUpdateRequest( void);
 

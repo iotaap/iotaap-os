@@ -128,6 +128,16 @@ const char *SystemGetOtaServer( void)
 /**
  * @brief Get system timezone
  */
+void SystemSetTimezone( int zone)
+{
+    systemConfig.timezone = zone;
+    systemConfig.timezoneOffsetMs = systemConfig.timezone*3600*1000;
+    systemConfig.timezoneOffsetS  = systemConfig.timezone*3600;
+}
+
+/**
+ * @brief Get system timezone
+ */
 int SystemGetTimezone( void)
 {
     return systemConfig.timezone;

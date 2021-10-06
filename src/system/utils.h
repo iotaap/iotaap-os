@@ -3,7 +3,7 @@
 
 #define ARDUINOJSON_USE_LONG_LONG 1 // Using int64 variables in JSON
 
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "stdint.h"
 
 float getBatteryPercentage();
@@ -15,5 +15,6 @@ uint64_t getSystemUptimeS( void);
 uint64_t getUnixTimeMs();
 void periphInit();
 void createSSID( char *ssid);
+void induceReset( void);
 
 #endif

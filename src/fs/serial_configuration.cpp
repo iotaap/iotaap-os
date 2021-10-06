@@ -3,11 +3,12 @@
 #include "./system/definitions.h"
 #include "./system/system_configuration.h"
 #include "FFat.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "./fs/json_memory.h"
 #include "./fs/sys_logs_data.h"
 #include "./configurator/configurator.h"
 #include "./system/system_json.h"
+#include "./system/utils.h"
 
 
 /* Pointer to a filename, system or user */
@@ -144,7 +145,7 @@ void HandleJsonCfgFile( void)
                 {
                     ConfiguratorDeactivate();
                     vTaskDelay(1000/portTICK_PERIOD_MS);
-                    ESP.restart();
+                    induceReset();
                 }
             }
         }

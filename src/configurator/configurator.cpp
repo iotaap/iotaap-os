@@ -128,7 +128,7 @@ void HandleConfiguratorActivity( void *par)
                 ConfiguratorActivate();
 
                 vTaskDelay( 500 / portTICK_PERIOD_MS );
-                ESP.restart();
+                induceReset();
             }
         }
         else

@@ -5,7 +5,7 @@
 #include "stdint.h"
 #include "./fs/sys_logs_data.h"
 #include "commands_engine.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "./mqtt/mqtt_client.h"
 #include "./mqtt/mqtt_remoteControl.h"
 #include "./system/system_configuration.h"

@@ -3,7 +3,7 @@
 #include "./system/definitions.h"
 #include "./system/utils.h"
 #include "./hmi/commands_serial.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "./fs/fs_module.h"
 #include "./hmi/led_task.h"
 #include "./fs/sys_logs_data.h"
@@ -16,6 +16,8 @@
 #include <sys/time.h>
 
 sSystemStat systemStat;
+uint64_t LastActiveTimeBeforeRestart __attribute__ ((section (".noinit")));
+int LastActiveTimeZoneBeforeRestart __attribute__ ((section (".noinit")));
 
 // Task handlers
 static TaskHandle_t SyncTimehandler = NULL;
@@ -68,6 +70,33 @@ void createSystemTasks()
         &SerialHandler);
 }
 
+
+/**
+ * @brief   Initialize time, if device was restarted by SW, restore time
+ */
+void InitTime( void)
+{
+    if (esp_reset_reason() == ESP_RST_SW && LastActiveTimeBeforeRestart)
+    {
+        systemStat.epochTimeUpdatedMs = 0;
+        systemStat.epochTimeMs = LastActiveTimeBeforeRestart;
+        systemStat.bootTimeEpochMs = LastActiveTimeBeforeRestart;
+        SystemSetTimezone( LastActiveTimeZoneBeforeRestart);
+        systemLog(tSYSTEM, "System time restored");
+
+    }
+
+    LastActiveTimeBeforeRestart = 0;
+}
+
+/**
+ * @brief   Remember restart time (to restore time at startup)
+ */
+void SetRestartTime( void)
+{
+    LastActiveTimeBeforeRestart = getUnixTimeMs();
+    LastActiveTimeZoneBeforeRestart = SystemGetTimezone();
+} 
 
 /**
  * @brief Update local system time
