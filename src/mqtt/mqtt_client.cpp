@@ -417,7 +417,7 @@ static void publishMqttMessages( void)
     /* SEND NON-BATCH DATA */
     if (!batchFiller)
     {
-        struct sMqttContainer *cont = mqttDataMsgs->get(0);
+        struct sMqttContainer *cont = mqttDataMsgs->shift();
         struct sMqttData *data = cont->data;
         char *topic = cont->topic;
         bool retain = (data->flags << 1) & 0x01;
@@ -435,12 +435,12 @@ static void publishMqttMessages( void)
             {
                 delete[] payload;
                 delete data;
-                mqttDataMsgs->shift();
                 delete cont;
                 systemLog(tINFO, "Message successfully published!");
             }
             else
             {
+                mqttDataMsgs->unshift( cont);
                 systemLog(tERROR, "There was a problem with message publishing!");
             }
         }
@@ -481,12 +481,12 @@ static void publishMqttMessages( void)
                     delete[] data->text;
                 }
                 delete data;
-                mqttDataMsgs->shift(); // Removes message being published from Queue
                 delete cont;
                 systemLog(tINFO, "Message successfully published!");
             }
             else
             {
+                mqttDataMsgs->unshift( cont);
                 systemLog(tERROR, "There was a problem with message publishing!");
             }
         }
