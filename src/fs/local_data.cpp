@@ -265,7 +265,8 @@ static void FillFileFromList( const char *FilePath,
         while (mqttList->size())
         {
             char buffer[PAR_JSON_MAX_LEN];
-            sMqttContainer *cont = mqttList->get(0);
+            sMqttContainer *cont = mqttList->shift();
+
             struct sMqttData *data = cont->data;
             char *payload = data->payload;
 
@@ -276,6 +277,7 @@ static void FillFileFromList( const char *FilePath,
             /* Check file length */
             if (Len+FileSize > MaxFileSize)
             {
+                mqttList->unshift( cont);
                 break;
             }
 
@@ -299,7 +301,6 @@ static void FillFileFromList( const char *FilePath,
             }
             
             delete data;
-            mqttList->shift();
             delete cont;
             
             msgs++;
