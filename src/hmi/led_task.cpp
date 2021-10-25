@@ -124,14 +124,14 @@ void LedSwitchOff(void)
 void LedBlinkFast(void)
 {
     Led.TaskState = LED_STATE_BLINK;
-    Led.HighPeriod = 80;
-    Led.LowPeriod = 80;
+    Led.HighPeriod = 100;
+    Led.LowPeriod = 100;
 }
 void LedBlinkConfigurator(void)
 {
     Led.TaskState = LED_STATE_BLINK;
     Led.HighPeriod = 500;
-    Led.LowPeriod = 50;
+    Led.LowPeriod = 100;
 }
 void LedBlinkSlow(void)
 {
@@ -142,7 +142,7 @@ void LedBlinkSlow(void)
 void LedBlinkPeriodic(void)
 {
     Led.TaskState = LED_STATE_BLINK;
-    Led.HighPeriod = 50;
+    Led.HighPeriod = 100;
     Led.LowPeriod = 10000;
 }
 void LedBlinkUser(unsigned int HighPeriodMs, unsigned int LowPeriodMs)
