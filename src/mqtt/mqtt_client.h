@@ -6,7 +6,8 @@
 #include <WiFiClientSecure.h>
 #include "./libs_3rd_party/pubsubclient-2.8/src/PubSubClient.h"
 #include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
-#include "./libs_3rd_party/LinkedList/LinkedList.h"
+#include <list>
+using namespace std;
 
 /**
  * Structure for MQTT message
@@ -29,8 +30,7 @@ struct sMqttContainer
     sMqttData *data;
 };
 
-extern LinkedList<sMqttContainer*> *mqttDataMsgs;
-extern LinkedList<char*> *mqttTopics;
+extern QueueHandle_t mqttDataMsgs;
 extern WiFiClient *wifiClient;
 extern PubSubClient *_mqttClient;
 

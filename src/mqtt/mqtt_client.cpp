@@ -69,9 +69,9 @@ struct sJsonKeys JsonMqttData[] =
 };
 
 /* Queue for MQTT messaging */
-LinkedList<sMqttContainer*> *mqttDataMsgs;
+QueueHandle_t mqttDataMsgs;
 /* Topic list */
-LinkedList<char*> *mqttTopics;
+list <char*> mqttTopics;
 
 /* Secure connection - EXTERN - shared between MQTT and OTA update */
 WiFiClient *wifiClient;
@@ -105,8 +105,7 @@ void connectToMqtt()
         return;
     }
 
-    mqttTopics = new LinkedList<char*>();
-    mqttDataMsgs  = new LinkedList<sMqttContainer*>();
+    mqttDataMsgs  = xQueueCreate( 200, sizeof( sMqttContainer*));
 
     xTaskCreate(
         MqttTask,
@@ -347,10 +346,11 @@ static void MqttTask(void *parameter)
 static void mqttPub(const char *topic, struct sMqttData *mqttData)
 {
     /* Check if topic already exist */
-    int TopicList = 0;
-    for (; TopicList<mqttTopics->size(); TopicList++)
+    // int TopicList = 0;
+    std::list<char*>::iterator it;
+    for (it=mqttTopics.begin(); it!=mqttTopics.end(); ++it)
     {
-        if (!strcmp(topic, mqttTopics->get(TopicList)))
+        if (!strcmp(topic, *it))
         {
             break;
         }
@@ -360,25 +360,24 @@ static void mqttPub(const char *topic, struct sMqttData *mqttData)
     sMqttContainer *newMessage = new sMqttContainer;
 
     /* Add new topic to list */
-    if (TopicList == mqttTopics->size())
+    if (it == mqttTopics.end())
     {
         char *newTopicInList = new char[strlen(topic)+1];
         strcpy( newTopicInList, topic);
-        mqttTopics->add( newTopicInList);
+        mqttTopics.push_back( newTopicInList);
 
         newMessage->topic = newTopicInList;
     }
     /* Topic already exist in list */
     else
     {
-        newMessage->topic = mqttTopics->get(TopicList);
+        newMessage->topic = *it;
     }
 
     newMessage->data = mqttData;
 
     /* Add full msg (topic+data) to list */
-    mqttDataMsgs->add( newMessage);
-
+    xQueueSendToBack( mqttDataMsgs, &newMessage, 0);
 }
 
 
@@ -396,7 +395,7 @@ static void publishMqttMessages( void)
     unsigned long TimeNow = millis();
 
     /* Calculate number of data in non-batch list */
-    int NumberOfMsgs = mqttDataMsgs->size();
+    int NumberOfMsgs = uxQueueMessagesWaiting( mqttDataMsgs);
 
     /* No data to send */
     if (!NumberOfMsgs &&
@@ -417,7 +416,11 @@ static void publishMqttMessages( void)
     /* SEND NON-BATCH DATA */
     if (!batchFiller)
     {
-        struct sMqttContainer *cont = mqttDataMsgs->shift();
+        struct sMqttContainer *cont;
+        if (xQueueReceive( mqttDataMsgs, &cont, 0) != pdPASS)
+        {
+            return;
+        }
         struct sMqttData *data = cont->data;
         char *topic = cont->topic;
         bool retain = (data->flags << 1) & 0x01;
@@ -440,7 +443,7 @@ static void publishMqttMessages( void)
             }
             else
             {
-                mqttDataMsgs->unshift( cont);
+                xQueueSendToFront( mqttDataMsgs, &cont, 0);
                 systemLog(tERROR, "There was a problem with message publishing!");
             }
         }
@@ -451,7 +454,7 @@ static void publishMqttMessages( void)
             systemLog(tINFO, logData);
 
             /* Create JSON */
-            String payloadStr;
+            char payloadStr[512];
             DynamicJsonDocument paramPublishDoc(512);
             char Time[TIME_STRING_LENGTH];
 
@@ -473,7 +476,7 @@ static void publishMqttMessages( void)
             serializeJson(paramPublishDoc, payloadStr);
 
             /* Publish */
-            if (_mqttClient->publish( topic, payloadStr.c_str(), retain))
+            if (_mqttClient->publish( topic, payloadStr, retain))
             {
                 delete[] data->name;
                 if (data->flags & 0x02)
@@ -486,7 +489,7 @@ static void publishMqttMessages( void)
             }
             else
             {
-                mqttDataMsgs->unshift( cont);
+                xQueueSendToFront( mqttDataMsgs, &cont, 0);
                 systemLog(tERROR, "There was a problem with message publishing!");
             }
         }
