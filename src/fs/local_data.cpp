@@ -17,7 +17,6 @@
 #include "./system/system_configuration.h"
 #include "./system/utils.h"
 #include "./wifi/wifi_module.h"
-#include "./libs_3rd_party/LinkedList/LinkedList.h"
 #include "./libs_3rd_party/micro-sdcard/mySD.h"
 
 
@@ -31,8 +30,8 @@ static bool WantToReset = false;
 FileSd LocalDataFile;
 
 static void FillListFromFile( const char *FilePath);
-static void FillFileFromList( const char *FilePath,
-                LinkedList<sMqttContainer*> *mqttList, unsigned int MaxFileSize);
+static void FillFileFromList( const char *FilePath, QueueHandle_t mqttList,
+                                                    unsigned int MaxFileSize);
 
 
 /**
@@ -145,7 +144,7 @@ void handleLocalMqttMessages( void)
     }
 
     /* Send data to output buffer */
-    if (mqttDataMsgs->size()<LOW_MEM_LIST && MqttIsConnected())
+    if (uxQueueMessagesWaiting( mqttDataMsgs)<LOW_MEM_LIST && MqttIsConnected())
     {
         /* Fill buffer from backup file */
         if (PushMqttFileNumber != PopMqttFileNumber)
@@ -166,7 +165,7 @@ void handleLocalMqttMessages( void)
     }
 
     /* Backup data to file (memory balancer) */
-    if (mqttDataMsgs->size() > HIGH_MEM_LIST)
+    if (uxQueueMessagesWaiting( mqttDataMsgs) > HIGH_MEM_LIST)
     {
         char FullFileName[30];
         sprintf( FullFileName, BACKUP_DATA_PATH, PushMqttFileNumber);
@@ -188,7 +187,7 @@ void handleLocalMqttMessages( void)
     {
         stopPublishing();
 
-        while (mqttDataMsgs->size())
+        while (uxQueueMessagesWaiting( mqttDataMsgs))
         {
             char FullFileName[30];
             sprintf( FullFileName, BACKUP_DATA_PATH, PushMqttFileNumber);
@@ -252,8 +251,8 @@ static void FillListFromFile( const char *FilePath)
 /**
  * @brief Backup data from list to file
  */
-static void FillFileFromList( const char *FilePath,
-                LinkedList<sMqttContainer*> *mqttList, unsigned int MaxFileSize)
+static void FillFileFromList( const char *FilePath, QueueHandle_t mqttList,
+                                                    unsigned int MaxFileSize)
 {
     /* If temp.log file exist, copy messages to list */
     SD.remove( (char *)FilePath);
@@ -262,10 +261,14 @@ static void FillFileFromList( const char *FilePath,
     {
         int msgs = 0;
 
-        while (mqttList->size())
+        while (uxQueueMessagesWaiting( mqttList))
         {
             char buffer[PAR_JSON_MAX_LEN];
-            sMqttContainer *cont = mqttList->shift();
+            sMqttContainer *cont;
+            if (xQueueReceive( mqttList, &cont, 0) != pdPASS)
+            {
+                break;
+            }
 
             struct sMqttData *data = cont->data;
             char *payload = data->payload;
@@ -277,7 +280,7 @@ static void FillFileFromList( const char *FilePath,
             /* Check file length */
             if (Len+FileSize > MaxFileSize)
             {
-                mqttList->unshift( cont);
+                xQueueSendToFront( mqttList, &cont, 0);
                 break;
             }
 

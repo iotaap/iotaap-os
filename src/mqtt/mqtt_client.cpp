@@ -69,7 +69,7 @@ struct sJsonKeys JsonMqttData[] =
 };
 
 /* Queue for MQTT messaging */
-LinkedList<sMqttContainer*> *mqttDataMsgs;
+QueueHandle_t mqttDataMsgs;
 /* Topic list */
 list <char*> mqttTopics;
 
@@ -105,7 +105,7 @@ void connectToMqtt()
         return;
     }
 
-    mqttDataMsgs  = new LinkedList<sMqttContainer*>();
+    mqttDataMsgs  = xQueueCreate( 200, sizeof( sMqttContainer*));
 
     xTaskCreate(
         MqttTask,
@@ -377,8 +377,7 @@ static void mqttPub(const char *topic, struct sMqttData *mqttData)
     newMessage->data = mqttData;
 
     /* Add full msg (topic+data) to list */
-    mqttDataMsgs->add( newMessage);
-
+    xQueueSendToBack( mqttDataMsgs, &newMessage, 0);
 }
 
 
@@ -396,7 +395,7 @@ static void publishMqttMessages( void)
     unsigned long TimeNow = millis();
 
     /* Calculate number of data in non-batch list */
-    int NumberOfMsgs = mqttDataMsgs->size();
+    int NumberOfMsgs = uxQueueMessagesWaiting( mqttDataMsgs);
 
     /* No data to send */
     if (!NumberOfMsgs &&
@@ -417,7 +416,11 @@ static void publishMqttMessages( void)
     /* SEND NON-BATCH DATA */
     if (!batchFiller)
     {
-        struct sMqttContainer *cont = mqttDataMsgs->shift();
+        struct sMqttContainer *cont;
+        if (xQueueReceive( mqttDataMsgs, &cont, 0) != pdPASS)
+        {
+            return;
+        }
         struct sMqttData *data = cont->data;
         char *topic = cont->topic;
         bool retain = (data->flags << 1) & 0x01;
@@ -440,7 +443,7 @@ static void publishMqttMessages( void)
             }
             else
             {
-                mqttDataMsgs->unshift( cont);
+                xQueueSendToFront( mqttDataMsgs, &cont, 0);
                 systemLog(tERROR, "There was a problem with message publishing!");
             }
         }
@@ -486,7 +489,7 @@ static void publishMqttMessages( void)
             }
             else
             {
-                mqttDataMsgs->unshift( cont);
+                xQueueSendToFront( mqttDataMsgs, &cont, 0);
                 systemLog(tERROR, "There was a problem with message publishing!");
             }
         }
