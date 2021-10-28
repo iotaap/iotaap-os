@@ -454,7 +454,7 @@ static void publishMqttMessages( void)
             systemLog(tINFO, logData);
 
             /* Create JSON */
-            String payloadStr;
+            char payloadStr[512];
             DynamicJsonDocument paramPublishDoc(512);
             char Time[TIME_STRING_LENGTH];
 
@@ -476,7 +476,7 @@ static void publishMqttMessages( void)
             serializeJson(paramPublishDoc, payloadStr);
 
             /* Publish */
-            if (_mqttClient->publish( topic, payloadStr.c_str(), retain))
+            if (_mqttClient->publish( topic, payloadStr, retain))
             {
                 delete[] data->name;
                 if (data->flags & 0x02)
