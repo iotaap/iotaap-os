@@ -3,12 +3,13 @@
 #include "./system/definitions.h"
 #include "./fs/sys_logs_data.h"
 #include "./mqtt/mqtt_client.h"
-#include "./libs_3rd_party/LinkedList/LinkedList.h"
+#include <list>
+using namespace std;
 
 /* Max n topics can be added to queue. Once subscribed, topic will be added to subscribed queue */
-static LinkedList<String> subsTopicsPendingQueue = LinkedList<String>();
-static LinkedList<String> subsTopicsSubscribedQueue = LinkedList<String>();
-static LinkedList<String> unsubsTopicsQueue = LinkedList<String>();
+static list <char*> subsTopicsPendingQueue;
+static list <char*> subsTopicsSubscribedQueue;
+static list <char*> unsubsTopicsQueue;
 
 
 /**
@@ -20,11 +21,12 @@ void unsubscribeFromTopics()
     if (unsubsTopicsQueue.size() > 0)
     {
         char unsubsStr[256];
-        sprintf( unsubsStr, "Unsubscribing from: %s", unsubsTopicsQueue.get(0).c_str());
+        sprintf( unsubsStr, "Unsubscribing from: %s", unsubsTopicsQueue.front());
         systemLog(tINFO, unsubsStr);
         
-        if (_mqttClient->unsubscribe(unsubsTopicsQueue.pop().c_str()))
+        if (_mqttClient->unsubscribe(unsubsTopicsQueue.front()))
         {
+            unsubsTopicsQueue.pop_front();
             systemLog(tINFO, "Successfully unsubscribed!");
         }
         else
@@ -43,12 +45,13 @@ void subscribeToTopics()
     if (subsTopicsPendingQueue.size() > 0)
     {
         char subsStr[256];
-        sprintf( subsStr, "Subscribing from: %s", subsTopicsPendingQueue.get(0).c_str());
+        sprintf( subsStr, "Subscribing from: %s", subsTopicsPendingQueue.front());
         systemLog(tINFO, subsStr);
 
-        if (_mqttClient->subscribe(subsTopicsPendingQueue.get(0).c_str()))
+        if (_mqttClient->subscribe(subsTopicsPendingQueue.front()))
         {
-            subsTopicsSubscribedQueue.add(subsTopicsPendingQueue.shift()); // Add topics to Subscribed Queue, so we know to which topics we are subscribed
+            subsTopicsSubscribedQueue.push_back(subsTopicsPendingQueue.front()); // Add topics to Subscribed Queue, so we know to which topics we are subscribed
+            subsTopicsPendingQueue.pop_front();
             systemLog(tINFO, "Successfully subscribed!");
         }
         else
@@ -64,11 +67,10 @@ void subscribeToTopics()
  */
 void restoreSubscribedTopics()
 {
-    uint16_t subsTopicsCount = subsTopicsSubscribedQueue.size();
-
-    for (int i = 0; i < subsTopicsCount; i++)
+    while (subsTopicsSubscribedQueue.size())
     {
-        subsTopicsPendingQueue.add(subsTopicsSubscribedQueue.shift());
+        subsTopicsPendingQueue.push_back(subsTopicsSubscribedQueue.front());
+        subsTopicsSubscribedQueue.pop_front();
     }
 }
 
@@ -80,8 +82,9 @@ void restoreSubscribedTopics()
  */
 void mqttSubscribe(const char *topic)
 {
-    subsTopicsPendingQueue.add(String(topic));
-    // If Queue is full data will be dropped
+    char *data = new char[strlen(topic)+1];
+    strcpy( data, topic);
+    subsTopicsPendingQueue.push_back( data);
 }
 
 /**
@@ -91,31 +94,26 @@ void mqttSubscribe(const char *topic)
  */
 void mqttUnsubscribe(const char *topic)
 {
-    String topicStr = String(topic);
+    char *data = new char[strlen(topic)+1];
+    strcpy( data, topic);
+
     /* Check if already exist in subscribe queue - if so, drop it */
     for (int i=0; i<subsTopicsPendingQueue.size(); i++)
     {
-        if (topicStr == subsTopicsPendingQueue.get(0))
+        if (strcmp( data, subsTopicsPendingQueue.front()))
         {
-            subsTopicsPendingQueue.pop();
+            subsTopicsPendingQueue.push_back( subsTopicsPendingQueue.front());
         }
-        else
-        {
-            subsTopicsPendingQueue.add( subsTopicsPendingQueue.shift());
-        }
+        subsTopicsPendingQueue.pop_front();
     }
     /* Check if already exist in subscribe queue - if so, drop it */
     for (int i=0; i<subsTopicsSubscribedQueue.size(); i++)
     {
-        if (topicStr == subsTopicsSubscribedQueue.get(0))
+        if (strcmp( data, subsTopicsSubscribedQueue.front()))
         {
-            subsTopicsSubscribedQueue.pop();
+            subsTopicsSubscribedQueue.push_back( subsTopicsSubscribedQueue.front());
         }
-        else
-        {
-            subsTopicsSubscribedQueue.add( subsTopicsSubscribedQueue.shift());
-        }
+        subsTopicsSubscribedQueue.pop_front();
     }
-    unsubsTopicsQueue.add(topicStr);
-    // If Queue is full data will be dropped
+    unsubsTopicsQueue.push_back( data);
 }
