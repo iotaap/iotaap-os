@@ -17,9 +17,10 @@
 #include "./system/utils.h"
 #include "./hmi/commands_engine.h"
 #include "./system/system_tasks.h"
-#include "./libs_3rd_party/LinkedList/LinkedList.h"
+#include <list>
+using namespace std;
 
-static LinkedList<String> logsQueue = LinkedList<String>();
+static list <char*> logsQueue;
 FileSd SystemFile;
 
 /* ID of first (oldest) file */
@@ -161,7 +162,12 @@ void handleSystemLogs()
     {
         while (logsQueue.size() > 0)
         {
-            SystemFile.println(logsQueue.shift());
+            char *log = logsQueue.front();
+            logsQueue.pop_front();
+
+            SystemFile.println( log);
+            delete[] log;
+
             vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
         }
         SystemFile.flush();
@@ -190,8 +196,11 @@ void uWriteToSystemLogs( const char *data)
  */
 void createFSlog(char *log)
 {
-    logsQueue.add(String(log));
-    // If Queue is full data will be dropped
+    char *fslog = new char[strlen(log)+1];
+    if (fslog)
+    {
+        logsQueue.push_back( fslog);
+    }
 }
 
 
