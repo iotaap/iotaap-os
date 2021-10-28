@@ -71,7 +71,7 @@ struct sJsonKeys JsonMqttData[] =
 /* Queue for MQTT messaging */
 LinkedList<sMqttContainer*> *mqttDataMsgs;
 /* Topic list */
-LinkedList<char*> *mqttTopics;
+list <char*> mqttTopics;
 
 /* Secure connection - EXTERN - shared between MQTT and OTA update */
 WiFiClient *wifiClient;
@@ -105,7 +105,6 @@ void connectToMqtt()
         return;
     }
 
-    mqttTopics = new LinkedList<char*>();
     mqttDataMsgs  = new LinkedList<sMqttContainer*>();
 
     xTaskCreate(
@@ -347,10 +346,11 @@ static void MqttTask(void *parameter)
 static void mqttPub(const char *topic, struct sMqttData *mqttData)
 {
     /* Check if topic already exist */
-    int TopicList = 0;
-    for (; TopicList<mqttTopics->size(); TopicList++)
+    // int TopicList = 0;
+    std::list<char*>::iterator it;
+    for (it=mqttTopics.begin(); it!=mqttTopics.end(); ++it)
     {
-        if (!strcmp(topic, mqttTopics->get(TopicList)))
+        if (!strcmp(topic, *it))
         {
             break;
         }
@@ -360,18 +360,18 @@ static void mqttPub(const char *topic, struct sMqttData *mqttData)
     sMqttContainer *newMessage = new sMqttContainer;
 
     /* Add new topic to list */
-    if (TopicList == mqttTopics->size())
+    if (it == mqttTopics.end())
     {
         char *newTopicInList = new char[strlen(topic)+1];
         strcpy( newTopicInList, topic);
-        mqttTopics->add( newTopicInList);
+        mqttTopics.push_back( newTopicInList);
 
         newMessage->topic = newTopicInList;
     }
     /* Topic already exist in list */
     else
     {
-        newMessage->topic = mqttTopics->get(TopicList);
+        newMessage->topic = *it;
     }
 
     newMessage->data = mqttData;
