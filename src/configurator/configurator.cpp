@@ -33,7 +33,7 @@ void ConfiguratorInit( void)
 {
     if (esp_reset_reason() != ESP_RST_SW)
     {
-        ConfiguratorActive = 0;
+        ConfiguratorDeactivate();
     }
 
     pinMode(CONFIGURATOR_BUTTON, INPUT);
@@ -47,6 +47,8 @@ void ConfiguratorInit( void)
  */
 void startConfigurator( void)
 {
+    ConfiguratorActivate();
+
     /* Create a Unique AP from MAC address */
     char ssid[32];
     char password[32];
