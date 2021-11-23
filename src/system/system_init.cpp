@@ -6,8 +6,10 @@
 #include "./fs/user_cfg.h"
 #include "./fs/sys_cfg.h"
 #include "./fs/sys_logs_data.h"
+#include "./fs/local_data.h"
 #include "./mqtt/mqtt_client.h"
 #include "./system/system_configuration.h"
+#include "./system/system_tasks.h"
 #include "./configurator/configurator.h"
 
 /**
@@ -20,14 +22,16 @@ void systemInit()
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     periphInit();
+    InitTime();
     ConfiguratorInit();
     initializeFileSystem();
 
     InitSystemParameters();
     // InitUserParameters(); TODO - Currently not implemented, since writing user parameters to internal FAT is not implemented
     InitSystemLogs();
+    InitMqttBackup();
 
-    loadCertificate(CA_CRT_PATH, SystemGetCAcertificate());
+    loadCertificate(CA_CRT_PATH);
     systemInfo();
     vTaskDelay(500 / portTICK_PERIOD_MS);
 }
@@ -42,7 +46,7 @@ void systemInfo()
     Serial.println();
     Serial.println("**************************************** IoTaaP OS ****************************************");
     Serial.println();
-    sprintf(sysInfoBuff, "OS version - v%s", LIB_VERSION);
+    sprintf(sysInfoBuff, "OS version: %s", LIB_VERSION);
     systemLog(tSYSTEM, sysInfoBuff);
     sprintf(sysInfoBuff, "Firmware version: %s", SystemGetFwVersion());
     systemLog(tSYSTEM, sysInfoBuff);

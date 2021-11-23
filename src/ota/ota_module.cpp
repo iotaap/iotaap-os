@@ -1,6 +1,6 @@
 #include "ota_module.h"
 #include "./system/definitions.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include <HTTPUpdate.h>
 #include "./system/utils.h"
 #include "esp_task_wdt.h"
@@ -13,10 +13,6 @@
 #include "./system/system_configuration.h"
 #include "./mqtt/mqtt_remoteControl.h"
 
-HTTPClient updatesHttpClient;
-
-DynamicJsonDocument updateResponse(64);
-char updateResponseChar[64];
 
 void sendUpdateResponse(int code);
 bool updateCheckRequestedPrev;
@@ -52,6 +48,11 @@ void handleUpdates()
  */
 void checkUpdate()
 {
+    /* Do not check for update if no OTA server */
+    if (!strlen(SystemGetOtaServer()))
+    {
+        return;
+    }
     systemLog(tSYSTEM, "Checking for updates");
 
     /* Notify cloud that update request is received */
@@ -60,23 +61,24 @@ void checkUpdate()
     }
     vTaskDelay(2000 / portTICK_PERIOD_MS); // Wait at least 2s to be sure that response is published to the cloud
 
-    DynamicJsonDocument versionJson(128);
-    
-    wifiClientSecure.stop();
+    HTTPClient updatesHttpClient;
+
+    wifiClient->stop();
     
     if (strlen(SystemGetGroupId()) == 0)
     { // Checking either this device is part of a group or a standalone device
-        updatesHttpClient.begin(wifiClientSecure, OTA_CHECK_DEVICE_URL + String(SystemGetDeviceId()));
+        updatesHttpClient.begin(*wifiClient, String(SystemGetOtaServer()) + OTA_CHECK_DEVICE_URI + String(SystemGetDeviceId()));
     }
     else
     {
-        updatesHttpClient.begin(wifiClientSecure, OTA_CHECK_GROUP_URL + String(SystemGetGroupId()));
+        updatesHttpClient.begin(*wifiClient, String(SystemGetOtaServer()) + OTA_CHECK_GROUP_URI + String(SystemGetGroupId()));
     }
 
     int httpCode = updatesHttpClient.GET(); // return code for HTTP Get request
 
     if (httpCode == 200)
     { // Sucess return code
+        DynamicJsonDocument versionJson(128);
         String payload = updatesHttpClient.getString();
         deserializeJson(versionJson, payload);
 
@@ -122,7 +124,7 @@ void checkUpdate()
         }
     }
     systemStat.updateCheckRequested = false;
-    wifiClientSecure.stop();
+    wifiClient->stop();
 
 }
 
@@ -148,12 +150,14 @@ void otaUpdate()
     // Update respective to device group or standalone
     if (strlen(SystemGetGroupId()) == 0)
     {
-        ret = httpUpdate.update(wifiClientSecure, OTA_DOWNLOAD_DEVICE_URL +
+        ret = httpUpdate.update(*wifiClient,
+                    String(SystemGetOtaServer()) + OTA_DOWNLOAD_DEVICE_URI +
                     String(SystemGetDeviceId()) + String(SystemGetDeviceToken()));
     }
     else
     {
-        ret = httpUpdate.update(wifiClientSecure, OTA_DOWNLOAD_GROUP_URL +
+        ret = httpUpdate.update(*wifiClient,
+                    String(SystemGetOtaServer()) + OTA_DOWNLOAD_GROUP_URI +
                     String(SystemGetGroupId()) + String(SystemGetGroupToken()));
     }
 
@@ -201,7 +205,11 @@ void otaUpdate()
 /**
  * Send update response based on code
  */
-void sendUpdateResponse(int code){
+void sendUpdateResponse(int code)
+{
+    DynamicJsonDocument updateResponse(64);
+    char updateResponseChar[64];
+ 
     updateResponse["code"] = code;
     serializeJson(updateResponse, updateResponseChar);
     MqttRespondToUpdateRequest(updateResponseChar);

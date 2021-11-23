@@ -3,7 +3,7 @@
 
 #define ARDUINOJSON_USE_LONG_LONG 1 // Using int64 variables in JSON
 
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 
 void InitSystemConfigDataFromJsonDocument( DynamicJsonDocument ConfigJson);
 
@@ -13,10 +13,13 @@ const char *SystemGetDeviceId( void);
 const char *SystemGetGroupId( void);
 const char *SystemGetDeviceToken( void);
 const char *SystemGetGroupToken( void);
-const char *SystemGetNtp1( void);
-const char *SystemGetNtp2( void);
+const char *SystemGetOtaServer( void);
+void SystemSetTimezone( int zone);
 int SystemGetTimezone( void);
+int SystemGetTimezoneOffsetMs( void);
+int SystemGetTimezoneOffsetS( void);
 bool SystemGetAutoUpdateFlag( void);
 char *SystemGetCAcertificate( void);
+char *SystemNewCAcertificate( int certLen);
 
 #endif

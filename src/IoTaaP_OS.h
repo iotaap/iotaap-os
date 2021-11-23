@@ -30,8 +30,12 @@ public:
     int basicCloudPublish(const char *payload, const char *uTopic);
     int basicSubscribe(const char *uTopic);
     int basicUnsubscribe(const char *uTopic);
+    int customSubscribe(const char *uTopic);
+    int customUnsubscribe(const char *uTopic);
     int deviceCloudPublishParam(const char *name, float value);
     int deviceCloudPublishParam(const char *name, const char *value);
+    int deviceCloudPublishParamBatch(const char *name, float value);
+    int deviceCloudPublishParamBatch(const char *name, const char *value);
     void writeToSystemLogs(const char *data);
     /* User parameter functions are not implemented since writing user parameters to internal FAT is not implemented */
     // bool getUserParameter(const char *element, char *output);
@@ -41,6 +45,7 @@ public:
     bool getSystemParameter(const char *element, int *output);
     bool getSystemParameter(const char *element, bool *output);
     void checkForUpdates();
+    void restart(void);
 };
 
 #endif

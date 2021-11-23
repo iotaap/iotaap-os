@@ -33,7 +33,7 @@ Keep it consistent!
 We use GitHub issues to track bugs. Report a bug by opening a new issue.
 
 ## Request features and improvements
-Check out our [Roadmap](https://community.iotaap.io/t/roadmap/77), request features and improvements by [creating a new topic](https://community.iotaap.io/c/iotaap-os/features/15).
+Request features and improvements by [creating a new topic](https://community.iotaap.io/c/iotaap-os/features/15).
 
 ## Write bug reports with detail, background, and sample code
 Be clear and informative

@@ -13,6 +13,7 @@
 #include "./fs/local_data.h"
 #include "./fs/serial_configuration.h"
 #include "./system/system_tasks.h"
+#include "./system/system_configuration.h"
 #include "./system/utils.h"
 
 static bool CheckDirStructure( void);
@@ -52,7 +53,7 @@ void initializeFileSystem()
         sprintf(logBuff, "[%s] [%s] - %s", getSystemTimeString(Time), "ERROR", "Internal filesystem initialization failed");
         Serial.println(logBuff);
         vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
-        ESP.restart();
+        induceReset();
     }
     else
     {
@@ -77,7 +78,7 @@ void FSmanagerTask(void *parameter)
         if (systemStat.fsInitialized)
         {
             handleSystemLogs();
-            handleAndPublishLocalData();
+            handleLocalMqttMessages();
             sendSystemLogsToSerial();
         }
         if (systemStat.fatInitialized)
@@ -95,23 +96,27 @@ void FSmanagerTask(void *parameter)
  * @param path Absolute path to the certificate
  * @param buffer Char array destination
  */
-void loadCertificate(const char *path, char *buffer)
+void loadCertificate(const char *path)
 {
     fs::File CertFile = FFat.open(path, FILE_READ);
     if (CertFile)
     {
         size_t fileSize = CertFile.size();
-        while (CertFile.available())
+        char *buffer = SystemNewCAcertificate( fileSize+1);
+
+        if (buffer)
         {
-            CertFile.readBytes(buffer, fileSize);
+            while (CertFile.available())
+            {
+                CertFile.readBytes(buffer, fileSize);
+            }
+            *(buffer + fileSize) = '\0'; // Terminate file
+            CertFile.close();
+            return;
         }
-        *(buffer + fileSize) = '\0'; // Terminate file
-        CertFile.close();
     }
-    else
-    {
-        systemLog(tERROR, "Failed to load SSL certificate");
-    }
+    
+    systemLog(tERROR, "Failed to load SSL certificate");
 }
 
 /**
@@ -125,7 +130,7 @@ static bool CheckDirStructure( void)
     const char *DirNames[] = 
     {
         SYSTEM_LOG_DIR,
-        LOCAL_DATA_DIR,
+        BACKUP_DATA_DIR,
     };
     int Len = sizeof(DirNames)/sizeof(*DirNames);
 

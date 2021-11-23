@@ -3,9 +3,12 @@
 #include "time.h"
 #include "./hmi/commands_engine.h"
 #include "./fs/fs_module.h"
+#include "./fs/local_data.h"
+#include "./mqtt/mqtt_client.h"
 #include "./hmi/led_task.h"
 #include <HTTPClient.h>
 #include "./system/system_tasks.h"
+#include "./system/system_configuration.h"
 
 /**
  * @brief Get the Battery Percentage
@@ -53,20 +56,49 @@ float getVoltage(unsigned long reading)
  */
 char *getSystemTimeString( char *Timestamp)
 {
-    strftime(Timestamp, TIME_STRING_LENGTH, "%Y-%m-%d %H:%M:%S", &systemStat.systemTime);
+    unsigned long TimeNow = millis();
+    uint64_t epoch_ms = systemStat.epochTimeMs
+                        + (TimeNow - systemStat.epochTimeUpdatedMs)
+                        + SystemGetTimezoneOffsetMs();
+    time_t epoch_s = epoch_ms/1000;
+
+    strftime(Timestamp, TIME_STRING_LENGTH, "%Y-%m-%d %H:%M:%S", localtime(&epoch_s));
     return Timestamp;
 }
 
 /**
- * @brief Get the System Time in ms
+ * @brief Gets current system time in YYYY-MM-DD HH:MM:SS format
  * 
- * @return uint64_t system time in ms
  */
-uint64_t getSystemTimeMs()
+char *getSystemTimeString( char *Timestamp, time_t unix_s)
 {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (tv.tv_sec * 1000LL + (tv.tv_usec / 1000LL));
+    unix_s += SystemGetTimezoneOffsetS();
+    struct tm ts = *localtime(&unix_s);
+    strftime(Timestamp, TIME_STRING_LENGTH, "%Y-%m-%d %H:%M:%S", &ts);
+    return Timestamp;
+}
+
+/**
+ * @brief Get the Unix Time in ms
+ * 
+ * @return uint64_t unix time in ms
+ */
+uint64_t getUnixTimeMs()
+{
+    return systemStat.epochTimeMs + (millis() - systemStat.epochTimeUpdatedMs);
+}
+
+
+/**
+ * @brief Get system uptime
+ */
+uint64_t getSystemUptimeS( void)
+{
+    unsigned long TimeNow = millis();
+    uint64_t uptime_ms = systemStat.epochTimeMs
+                        + (TimeNow - systemStat.epochTimeUpdatedMs)
+                        - systemStat.bootTimeEpochMs;
+    return uptime_ms/1000;
 }
 
 /**
@@ -86,4 +118,20 @@ void createSSID( char *ssid)
 {
     uint64_t chipid = ESP.getEfuseMac() & 0xFFFFFFFFFFFF;
     snprintf(ssid, 32, "IoTaaP-%012llX", chipid);
+}
+
+
+/**
+ * @brief Backup files if needed and restart device
+ */
+void induceReset( void)
+{
+    if (!systemStat.fsInitialized)
+    {
+        SetRestartTime();
+        ESP.restart();
+    }
+    
+    stopPublishing();
+    backupDataAndRestart();
 }

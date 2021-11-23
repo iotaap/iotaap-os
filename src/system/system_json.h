@@ -3,7 +3,7 @@
 
 #define ARDUINOJSON_USE_LONG_LONG 1 // Using int64 variables in JSON
 
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 
 /**
  * Data types used in JSON configuration file
@@ -13,20 +13,21 @@ enum eJsonDataType
 {
     JsonDataTypeInt,
     JsonDataTypeBool,
-    JsonDataTypeString_20,
-    JsonDataTypeString_30,
-    JsonDataTypeString_32,
-    JsonDataTypePass_20,
-    JsonDataTypePass_30,
-    JsonDataTypePass_32,
+    JsonDataTypeString,
+    JsonDataTypePass,
 };
 
 struct sJsonKeys
 {
-    void *ElementPointer;
+    union
+    {
+        void *ElementPointer;
+        void **ElDoublePointer;
+    };
     enum eJsonDataType ElementDataType;
     const char *ElementKey;
     const char *ElementDesc;
+    const char *Block_IngEd;    /* Blocking some div or blocked by dome div */
 };
 
 void InitDataFromSystemJson( DynamicJsonDocument ConfigJson,

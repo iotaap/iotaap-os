@@ -7,12 +7,12 @@
  */
 
 #include "./system/definitions.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "FFat.h"
 #include "./fs/json_memory.h"
 #include "./fs/sys_logs_data.h"
 
-DynamicJsonDocument userConfigDoc(0);
+DynamicJsonDocument* userConfigDoc;
 
 /**
  * @brief Load user configuration from SD card
@@ -39,13 +39,10 @@ int InitUserParameters( void)
     }
 
     /* Allocate memory, and deserialize JSON file */
-    DynamicJsonDocument doc(MemSizeForJson);
+    userConfigDoc = new DynamicJsonDocument(MemSizeForJson);
     UserCfgFile.seek(0);
 
-    deserializeJson(doc, UserCfgFile);
-
-    /* Make it visible to global userConfigDoc */
-    userConfigDoc = std::move(doc);
+    deserializeJson(*userConfigDoc, UserCfgFile);
 
     /* Close file and exit */
     UserCfgFile.close();
@@ -59,9 +56,9 @@ int InitUserParameters( void)
  */
 bool uGetUserParameter( const char *Element, char *Output)
 {
-    if (userConfigDoc.containsKey(Element))
+    if (userConfigDoc->containsKey(Element))
     {
-        strcpy(Output, userConfigDoc[Element]);
+        strcpy(Output, (*userConfigDoc)[Element]);
         return true;
     }
     return false;
@@ -72,9 +69,9 @@ bool uGetUserParameter( const char *Element, char *Output)
  */
 bool uGetUserParameter( const char *Element, int *Output)
 {
-    if (userConfigDoc.containsKey(Element))
+    if (userConfigDoc->containsKey(Element))
     {
-        *Output = userConfigDoc[Element];
+        *Output = (*userConfigDoc)[Element];
         return true;
     }
     return false;
@@ -85,9 +82,9 @@ bool uGetUserParameter( const char *Element, int *Output)
  */
 bool uGetUserParameter( const char *Element, bool *Output)
 {
-    if (userConfigDoc.containsKey(Element))
+    if (userConfigDoc->containsKey(Element))
     {
-        *Output = userConfigDoc[Element];
+        *Output = (*userConfigDoc)[Element];
         return true;
     }
     return false;

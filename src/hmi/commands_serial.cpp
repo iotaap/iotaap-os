@@ -44,7 +44,7 @@ void SerialTask(void *parameter)
             }
             vTaskDelay(1 / portTICK_PERIOD_MS);
         }
-        vTaskDelay(20 / portTICK_PERIOD_MS);
+        vTaskDelay(200 / portTICK_PERIOD_MS);
     }
 }
 

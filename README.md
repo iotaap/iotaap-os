@@ -42,10 +42,6 @@ Follow [official tutorials](https://docs.iotaap.io/docs-tutorials/) for even fas
 
 Official [documentation](https://docs.iotaap.io)
 
-## Roadmap
-
-Check out our [Roadmap](https://community.iotaap.io/t/roadmap/77), request features and improvements
-
 ## Community
 
 Join [IoTaaP community](https://community.iotaap.io) today!

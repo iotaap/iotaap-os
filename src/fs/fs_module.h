@@ -3,6 +3,6 @@
 
 void initializeFileSystem();
 void FSmanagerTask(void *parameter);
-void loadCertificate(const char *path, char *buffer);
+void loadCertificate(const char *path);
 
 #endif

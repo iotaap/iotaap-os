@@ -3,7 +3,7 @@
 #include "./system/definitions.h"
 #include "./system/utils.h"
 #include "./hmi/commands_serial.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "./fs/fs_module.h"
 #include "./hmi/led_task.h"
 #include "./fs/sys_logs_data.h"
@@ -11,12 +11,16 @@
 #include "./fs/sys_cfg.h"
 #include "./system/system_configuration.h"
 #include "./configurator/configurator.h"
+#include "./mqtt/mqtt_subscription.h"
+#include <time.h>
+#include <sys/time.h>
 
 sSystemStat systemStat;
+uint64_t LastActiveTimeBeforeRestart __attribute__ ((section (".noinit")));
+int LastActiveTimeZoneBeforeRestart __attribute__ ((section (".noinit")));
 
 // Task handlers
-static TaskHandle_t SystemStatusHandler = NULL;
-static TaskHandle_t SyncNTPhandler = NULL;
+static TaskHandle_t SyncTimehandler = NULL;
 static TaskHandle_t FSmanagerHandler = NULL;
 static TaskHandle_t LedTaskHandler = NULL;
 static TaskHandle_t SerialHandler = NULL;
@@ -50,20 +54,12 @@ void createSystemTasks()
         &FSmanagerHandler);
 
     xTaskCreate(
-        SystemStatusTask,
-        "SystemStatusProcess",
-        1000,
+        SyncTimeTask,
+        "SyncTimeprocess",
+        1024,
         NULL,
         1,
-        &SystemStatusHandler);
-
-    xTaskCreate(
-        SyncNTPtask,
-        "SyncNTPprocess",
-        8000,
-        NULL,
-        1,
-        &SyncNTPhandler);
+        &SyncTimehandler);
 
     xTaskCreate(
         SerialTask,
@@ -74,81 +70,72 @@ void createSystemTasks()
         &SerialHandler);
 }
 
-/**
- * @brief Basic system task for altering system status values
- * 
- * @param parameter 
- */
-void SystemStatusTask(void *parameter)
-{
-    while (1)
-    {
-        systemStat.uptime = (getSystemTimeMs() - systemStat.bootTime) / 1000;
-        systemStat.batteryPerc = getBatteryPercentage();
 
-        vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
+/**
+ * @brief   Initialize time, if device was restarted by SW, restore time
+ */
+void InitTime( void)
+{
+    if (esp_reset_reason() == ESP_RST_SW && LastActiveTimeBeforeRestart)
+    {
+        systemStat.epochTimeUpdatedMs = 0;
+        systemStat.epochTimeMs = LastActiveTimeBeforeRestart;
+        systemStat.bootTimeEpochMs = LastActiveTimeBeforeRestart;
+        SystemSetTimezone( LastActiveTimeZoneBeforeRestart);
+        systemLog(tSYSTEM, "System time restored");
+
     }
+
+    LastActiveTimeBeforeRestart = 0;
 }
 
 /**
- * @brief Takes care of sync with NTP server
- * 
- * @param parameter 
+ * @brief   Remember restart time (to restore time at startup)
  */
-void SyncNTPtask(void *parameter)
+void SetRestartTime( void)
 {
-    unsigned long int backupTime;
+    LastActiveTimeBeforeRestart = getUnixTimeMs();
+    LastActiveTimeZoneBeforeRestart = SystemGetTimezone();
+} 
+
+/**
+ * @brief Update local system time
+ */
+void UpdateTime( uint64_t epoch_ms)
+{
+    systemStat.epochTimeUpdatedMs = millis();
+    systemStat.epochTimeMs = epoch_ms;
+
+    if (!systemStat.systemTimeSynced)
+    {
+        systemStat.systemTimeSynced = true;
+        systemStat.bootTimeEpochMs = epoch_ms;
+        systemLog(tSYSTEM, "Synced system time with server");
+    }
+    else
+    {
+        systemLog(tINFO, "Synced system time with server");
+    }
+
+    mqttUnsubscribe( MQTT_TIME_TOPIC);
+}
+
+/**
+ * @brief Subscribe to time topic once in a while to fetch data. After fetching data
+ *          unsubscribe in UpdateTime() function
+ */
+void SyncTimeTask(void *parameter)
+{
     systemStat.systemTimeSynced = false;
-    bool previouslySynced = false;
+
     while (1)
     {
         PRINT_EXTRA_STACK_IN_TASK();
-        if (!systemStat.systemTimeSynced && WifiIsConnected())
-        {
-            configTime(SystemGetTimezone() * 3600, 0, SystemGetNtp1(), SystemGetNtp2()); // Configure system time
-            systemStat.systemTimeSynced = true;
-            previouslySynced = true;
-            getLocalTime(&systemStat.systemTime);
-            systemStat.bootTime = getSystemTimeMs();
-            systemLog(tSYSTEM, "Synced system time with NTP");
-        }
-        if (!WifiIsConnected() && systemStat.systemTimeSynced)
-        {
-            systemStat.systemTimeSynced = false;
-        }
-
-        if (!getLocalTime(&systemStat.systemTime) && !previouslySynced)
-        {
-            systemLog(tERROR, "NTP sync failed, timestamp switched from timestamp to time from boot");
-            backupTime = millis();
-            systemStat.systemTime.tm_hour = backupTime / 3600000;
-            systemStat.systemTime.tm_min = backupTime / 60000;
-            systemStat.systemTime.tm_sec = backupTime / 1000;
-
-            systemStat.systemTime.tm_isdst = 0;
-            systemStat.systemTime.tm_mday = 0;
-            systemStat.systemTime.tm_mon = 0;
-            systemStat.systemTime.tm_wday = 0;
-            systemStat.systemTime.tm_yday = 0;
-            systemStat.systemTime.tm_year = 0;
-            systemStat.systemTimeMs = (int64_t)millis();
-        }
-        else
-        {
-            systemStat.systemTimeMs = getSystemTimeMs();
-        }
-        vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
+        mqttSubscribe( MQTT_TIME_TOPIC);
+        vTaskDelay( MQTT_TIME_UPDATE_PERIOD_S*1000 / portTICK_PERIOD_MS);
     }
 }
 
-
-/**
- * @brief Reset system uptime to 0
- */
-void SystemStatUptimeReset( void)
-{
-    systemStat.uptime = 0;
-}
 
 /**
  * @brief Set check for updates flag

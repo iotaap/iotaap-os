@@ -2,11 +2,13 @@
 #include "./wifi/wifi_module.h"
 #include "./mqtt/mqtt_client.h"
 #include "./mqtt/mqtt_dataDevice.h"
+#include "./mqtt/mqtt_dataDeviceBatch.h"
 #include "./mqtt/mqtt_dataUser.h"
 #include "./system/system_init.h"
 #include "./system/system_tasks.h"
 #include "./system/system_configuration.h"
 #include "./system/system_json.h"
+#include "./system/utils.h"
 #include "./fs/fs_module.h"
 #include "./fs/user_cfg.h"
 #include "./fs/sys_logs_data.h"
@@ -31,7 +33,6 @@ IoTaaP_OS::IoTaaP_OS(const char *fwVersion)
  * 
  */
 void IoTaaP_OS::start(){
-    SystemStatUptimeReset();
     systemInit();
     createSystemTasks();
 }
@@ -113,6 +114,28 @@ int IoTaaP_OS::basicUnsubscribe(const char *uTopic)
 }
 
 /**
+ * @brief Subscribe to a specific topic. Root topic (username) will NOT be added automatically
+ * 
+ * @param uTopic - Topic to subscribe to
+ * @return int Returns 0 if successful
+ */
+int IoTaaP_OS::customSubscribe(const char *uTopic)
+{
+    return uCustomSubscribe(uTopic);
+}
+
+/**
+ * @brief Unsubscribe from the specific topic. Username will not be added
+ * 
+ * @param uTopic Topic
+ * @return int Returns 0 if successfull
+ */
+int IoTaaP_OS::customUnsubscribe(const char *uTopic)
+{
+    return uCustomUnsubscribe(uTopic);
+}
+
+/**
  * @brief Publishes measured parameter to the cloud in predefined format (Numeric input)
  * 
  * @param name Parameter name
@@ -134,6 +157,30 @@ int IoTaaP_OS::deviceCloudPublishParam(const char *name, float value)
 int IoTaaP_OS::deviceCloudPublishParam(const char *name, const char *value)
 {
     return uDeviceCloudPublishParam(name, value);
+}
+
+/**
+ * @brief Publishes measured parameter to the cloud in predefined format (Numeric input)
+ * 
+ * @param name Parameter name
+ * @param value Numeric parameter value
+ * @return int Returns 0 if successfully published
+ */
+int IoTaaP_OS::deviceCloudPublishParamBatch(const char *name, float value)
+{
+    return uDeviceCloudPublishParamBatch(name, value);
+}
+
+/**
+ * @brief Publishes measured parameter to the cloud in predefined format (Non-Numeric input)
+ * 
+ * @param name Parameter name
+ * @param value Non-numeric parameter value
+ * @return int Returns 0 if successfully published
+ */
+int IoTaaP_OS::deviceCloudPublishParamBatch(const char *name, const char *value)
+{
+    return uDeviceCloudPublishParamBatch(name, value);
 }
 
 /**
@@ -238,4 +285,13 @@ bool IoTaaP_OS::getSystemParameter(const char *element, bool *output)
 void IoTaaP_OS::checkForUpdates()
 {
     SystemStatUpdateRequest();
+}
+
+/**
+ * @brief Restart device with mqtt backup
+ * 
+ */
+void IoTaaP_OS::restart()
+{
+    induceReset();
 }

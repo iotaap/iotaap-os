@@ -49,21 +49,27 @@ const char configPageTitleAdd[] PROGMEM = R"rawliteral(
 <title>IoTaaP OS</title>
 )rawliteral";
 
-/* Title */
+/* Scripting */
+const char configPageScriptOpen[] PROGMEM = R"rawliteral(<script>)rawliteral";
+const char configPageScriptClose[] PROGMEM = R"rawliteral(</script>)rawliteral";
 const char configPagePassToggleScript[] PROGMEM = R"rawliteral(
-<script>
 function toggle(id) {
 var x = document.getElementById(id);
 if (x.type === "password") { x.type = "text"; }
 else { x.type = "password";}}
-</script>
+function showDiv(ida, idb){
+document.getElementById(ida).style.display = "block";
+document.getElementById(idb).style.display = "block";}
+function hideDiv(ida, idb){
+document.getElementById(ida).style.display= "none";
+document.getElementById(idb).style.display= "none";}
 )rawliteral";
 
 /******************/
 /* Style elements */
 /******************/
 const char configPageStyleBody[] PROGMEM = R"rawliteral(
-body {background: #3498db;font-family: sans-serif;font-size: 14px;color: #777;}
+body {background: #00a99d;font-family: sans-serif;font-size: 14px;color: #777;}
 )rawliteral";
 const char configPageStyleForm[] PROGMEM = R"rawliteral(
 form {background: #fff;max-width: 400px;margin: 75px auto;
@@ -80,7 +86,7 @@ box-sizing: border-box;border: 0;border-radius: 4px;background-color: #f1f1f1;
 font-size: 15px;resize: none;font-family: sans-serif;margin: 5px auto;}
 )rawliteral";
 const char configPageStyleBtn[] PROGMEM = R"rawliteral(
-.btn {background: #3498db;color: #fff;cursor: pointer;}
+.btn {background: #00a99d;color: #fff;cursor: pointer;}
 )rawliteral";
 const char configPageStyleContainer[] PROGMEM = R"rawliteral(
 .container {display: grid;width: 100%;}
@@ -117,7 +123,7 @@ padding: 30px;border-radius: 5px;text-align: center;}
 /* Div elements */
 /****************/
 const char configPageDivLogo[] PROGMEM = R"rawliteral(
-<div><svg width="78pt" height="25pt" viewBox="0 0 78 25" version="1.1"><defs><image id="image5" width="179" height="57" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALMAAAA5CAYAAAB9PxpNAAAABmJLR0QA/wD/AP+gvaeTAAAKCUlEQVR4nO2dTXbaShbH/7dExs0OuizhczwLXkFkd+ZxVmA4L52p8QoIKzCeJnkHvILgeXesrKB5s5wTg6t3oB4/UbcHkp/50DcCYazfzJZUt1T86+vWrRKhAp2BXcfMsMHcBPEbQNQBbsY84gI8BtMYAn9AaKffdtS28lsRDpWdgbLoDGwJLc7AdJ4g3LQoMEZgfdP/6IwLSK8iIy9OzJ0vb22QvgBwtjkrNAbxdf+378PN2ahY5sWI2RfxrAuQvUWzCoReJertsPdi7gxsiZm4QvaWWAGsVv9NEoDMlhQ70HxZDT82y16LufP1H2cADwDUE251ATgg/MBMO2lE1/lsN2GIJhhv4FeUJBsA4bL/2/d+mrxXZGdvxdz5ejoA0Iq/ix0Q3RQxDAgqzjmSe4ARDN3utx13XZsVi+ydmAM32128h4IdsNHr//NfzgbsS8xEF7EVicYwZu8rd16x7JWYUwhZgUU7TsS+GI0mOEiD+M3CDUw/IOBCi3FsOp/tJgRdxUw4XWh9Uo2ji2O/xPzl9AqETuhFRh813Qvr3gN33TkAG5kndxiBcBs1VOn8ftoB4yrq2f6H7+8z2quIYL/E/PX0G8LGrIR2mNg6v5+2wOgiu4DDcMG4Rk33lyuM30qLO6xMEtnpf7g7KcB2BQBRdgaKhW6W/uFC6+NlIXe+vLU7X08fwBigGCEDQB2ELmbiP/5k8In+R2cMQx8AtDikYPpRkO0K7FnLDDx6FfQFQAqG7s1PsjoDuw5PdCOHIsWy4rV4ss/NorwoFU/snZijSOflAPAYYyHwB7RQYM/tf3TGnS9vbQCA0BIar0Fkp0pL6/fVJG87vAgxR49ZFxhC6+sswusMbAlPXIDQikm78lpsiZch5q8ndzEushEMfbmOzzfF8EX1P3w/yJt+RTpqZWdgO4QK2QWo3f/w79G6qQfj4svOZ/sGQnzD6qRy+e+KDbBn3oxIlgRLYxj6uAghzxN4LY5XvBYrf1dsgpchZkO34QtaARjCmJ1saim533ZcGLMTMPoAOwBGMGbVwkhFRUVFxQuETLPBm0qcGc7Dw/1OLdc2Gg1ba9xtwVRvOr3/tAU7z4KDg8YdEex10mCGQ4RbrWsjpX6q5esvY8xcsRcEleFKCO/BNBufpJQLvv1KzBXPla4Qtbt5QVdirnjONOcFXYm54rnTFKLWBSoxV+wHHSmPZA1AL/4+Pg+214ddGwL036gnhSCVL2+bw/NqSggv4Z2B+PdOKjNACDgZsvXCidcRgHcAYiMUhfAuEgON4lwqQuDk/v7eSUrjORL33tPp/YsI0CqSdXVkWdYZM8UcG8GqGmZUPAsmk8mIiNvRd5Dc6ag5KQ+bhoEmM8v5/wsBx/O8sVJqb86ekFLWDcOwmWmhOxUCzqZ7vzJtZ2EymYxM01JRw7+dE7OUh00h9AVAZwDXOWR9Umt0hajBNBtjIrqeTH4Nt57RgpDySArxZxegVtS7mmbDBXD9uKJoWYctrfk8LL0sK65+WXMXwFmC7d50et8v0nZemEkRhYfU7oyYpZR1IYwrgFsZ9gw0mXlgmlZXCGrvUiuSBss6bDF7gxTvWwfQNU3r79PppM3Mct2lYdNsfAK4m+LWOoAr07ReF2V7U+zEmNlvIWoPALXypUBSa9z5P9DzwDQbV8w8yPYUtUyzsfZmXNO0BgDSCHnBtmVZGzwGOGUuaHHIOU/pLXPQ1SXtz0vLX61XAWltDL9F5ryi7ALs5t3xFlT4Vp5nfW9CftvrEng0ZNT1Ultmf2hRmJADqGVZh63i0isWKY8kM0edcJSGeoz/O8H2YROZW+RibK9Lo9GwA9dcFONSW2Z/jJxGyKyCgX8dCc5zAGDmKymPnLAwwbIJJnuFv3MaiFJXojEzXL9LJ1mE7Ti05nPTbNgxt7zTOrEMbksTs99KcCv+Lh5q/ao3L0rfjfTqjFl3Ywq67osGOzXc8ANiEucFPa1rw8V3PpJCeC2s0apKeSSJPDvZttefd3nOe1vy2k5m/bS1rg1LE3Pgfou67GpNJ0rdr2wEDQp6KKUcCVG7Q2SrRS0p5eUu+aL9Shi9F4KI2mFuxkDYnyzrUGWfNPoI4V3EXdeajpX6FVLePxWAtmUd/shrewv0lPpZ5gogRc6MibgdVrDzKKVcrb2T8E81+BjGq9Jn3/Mw87uYy/0kf3lwPUVcSZjt2G76Mqm8fds8zGN7w4wf/e+liDmYiISOG5nhTCaTVEcAKKVcIhH54zLz65xZ3BDRx3lpnSb4CdDay/UZiRjfsPu4IJJs+1WuirRBxn6D5lOKmA1Dy6hrQqyc5BlLXGuW0BqVAMmw/zLDSTscUkq5zNki8pa3Fy1ZT312SDDk2IUzQB5XJY/ny60UMS/HAMxDFD1siE7veYdbEmUTCBEyHYVbq9ViKnVs6OUKzChtDhL8zpdaewdhm4VLXzSpAAD8r+wMpCWoSHbByV4KEV2h04YpVGKuyMrfik5QCIyLiKspy5tRaFcVt17/TMg6Uc0kKM+jwsp79+YhT5Qi5rguRWvEua9WkPJIlrXEWhyZP0RvZ7k5zu3G/kc5U0NUiXkBz6up6Kt8Fj/7XiRYGQsl60Rp00RPVEk2GrHLuX/hV95cggptnYlgB2kmEuSxwDiaYilFzL6LJ8prQTKI2UgkKXBm1zaVxnkttI78vNpSGl7eVTgn6oIQXqJtKWU9bR7LopbUImgdXRO1RrPRaEQ+63nkRndxdINIIVLLNC1oPYtcjvbDAeOWV1nd30+c6Ovbh4h/MFNU6GfTNK1B1Ds/bV6IH2JYlnUWtuhERLfMHLUiemaa1iAqdFZKWSeqfUNCjyDlYTNpJXGTlHZwov/j1B4Q222xAmgkBG6f0iSpNZ8n7XaIinNIy6Z2Z5um9RA/xmcF0PX8vMKPGOOLDHODle1kGcp72fY7IPabLYspMBxmWlke38Yu/9Jcc0op1zQb14iNBCMJoKP1/LdCGJQspfGu7gskEr34HoUkgCutV/6fxczKJuAM5R1iOz1EsA2DSxlXlxqcP53ef9rA6p2rNe1U6Oc8k8mvYQHvnKsr9+M6sq+wLrLu85uj9D2AzN57FLfeH4SOljduSwNzrY38vnZ3PrgmC36koXif3zYrrWfH+Z7dPKWLeS6Uc7heSqyeg5AB35ujNZ0gh6j88Fjl5i0vpX6N89oWgtp5Ap22ReliBnxBT6eTthCIjU+OwAXQ03oWGly+q/ii8g6w8iWsaPxJre+p0Hp2iZw9mm+7dpxBlC7R01EOQc+yc2Wd4uDE/GQ9ODEorIPgUw3v4LuhwtxBLgCHiG5nsz9Hm9hNIgTdMPNGF12CfL9/OvgGdojHwgV4tLx9LHj2OCgrezntJB97kNaJ/zyfB5slliZuvjdJ69r1ou2fCsBxsFt65fcJWxSLK8/4RbT0/B+cGOTVCGiE3QAAAABJRU5ErkJggg=="/></defs><g id="surface2"><use xlink:href="#image5" transform="matrix(0.435754,0,0,0.438596,0,0)"/></g></svg></div>
+<div><svg width="176pt" height="70pt" viewBox="0 0 78 25" version="1.1"><defs><image id="image5" width="179" height="57" xlink:href="data:image/png;base64,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"/></defs><g id="surface2"><use xlink:href="#image5" transform="matrix(0.435754,0,0,0.438596,0,0)"/></g></svg></div>
 )rawliteral";
 const char configPageDivInvalidData[] PROGMEM = R"rawliteral(
 <div><form action="/"><h1>Invalid data!</h1><input type=submit class=btn value="Go back"></form></div>
@@ -137,7 +143,8 @@ const char configNewLiner[] PROGMEM = R"rawliteral(
 
 const char *configDivInputText_a = configDivInput_a;
 const char *configDivInputText_b = configDivInput_b;
-const char configDivInputText_c[] PROGMEM = R"rawliteral(:</label><span><input name=")rawliteral";
+const char configDivInputText_c1[]  PROGMEM = R"rawliteral(:</label><span)rawliteral";
+const char configDivInputText_c2[] PROGMEM = R"rawliteral(><input name=")rawliteral";
 const char configDivInputText_d[] PROGMEM = R"rawliteral(" type="text" value=")rawliteral";
 const char configDivInputText_e[] PROGMEM = R"rawliteral("></span></div>)rawliteral";
 
@@ -150,13 +157,27 @@ const char configDivInputPass_f[] PROGMEM = R"rawliteral("></span><span class="p
 const char configDivInputPass_g[] PROGMEM = R"rawliteral(')"></span><a class="showHide">Show/Hide</a></div>)rawliteral";
 
 
+const char configDivInputBlocked_a[] PROGMEM = R"rawliteral(" id=")rawliteral";
+const char configDivInputBlocked_b[] PROGMEM = R"rawliteral( id=")rawliteral";
+const char configDivInputBlocked_c[] PROGMEM = R"rawliteral(1")rawliteral";
 
-#define configDivInputText( desc, tag, val)             \
+#define configDivInputBlocked_1( blocked)                           \
+                                    configDivInputBlocked_a +       \
+                                    String(blocked)
+#define configDivInputBlocked_2( blocked)                           \
+                                    configDivInputBlocked_b +       \
+                                    String(blocked) +               \
+                                    configDivInputBlocked_c
+
+#define configDivInputTextBlocked( desc, tag, blocked, val)             \
                                     configDivInputText_a +  \
                                     String(tag) +       \
+                                    (blocked ? configDivInputBlocked_1(blocked) : "") + \
                                     configDivInputText_b +  \
                                     String(desc) +      \
-                                    configDivInputText_c +  \
+                                    configDivInputText_c1 +  \
+                                    (blocked ? configDivInputBlocked_2(blocked) : "") + \
+                                    configDivInputText_c2 +  \
                                     String(tag) +       \
                                     configDivInputText_d +  \
                                     String(val) +       \
@@ -189,7 +210,26 @@ const char configDivRadioBool_f[] PROGMEM = R"rawliteral(" value="true" class="r
 const char configDivRadioBool_g[] PROGMEM = R"rawliteral(></div>)rawliteral";
 const char configDivRadioCh[] PROGMEM = R"rawliteral( checked="checked")rawliteral";
 
-#define configDivInputRadioBool( desc, tag, val)                    \
+const char configDivRadioBoolBlock_a_hide[] PROGMEM = R"rawliteral( onclick="hideDiv(')rawliteral";
+const char configDivRadioBoolBlock_a_show[] PROGMEM = R"rawliteral( onclick="showDiv(')rawliteral";
+const char configDivRadioBoolBlock_b[] PROGMEM = R"rawliteral(',')rawliteral";
+const char configDivRadioBoolBlock_c[] PROGMEM = R"rawliteral(1')")rawliteral";
+
+#define configDivRadioBoolBlock_hide( blocking)                          \
+                                    configDivRadioBoolBlock_a_hide +     \
+                                    String(blocking) +                   \
+                                    configDivRadioBoolBlock_b +          \
+                                    String(blocking) +                   \
+                                    configDivRadioBoolBlock_c
+#define configDivRadioBoolBlock_show( blocking)                          \
+                                    configDivRadioBoolBlock_a_show +     \
+                                    String(blocking) +                   \
+                                    configDivRadioBoolBlock_b +          \
+                                    String(blocking) +                   \
+                                    configDivRadioBoolBlock_c
+
+
+#define configDivInputRadioBoolBlocking( desc, tag, blocking, val)  \
                                     configDivRadioBool_a +          \
                                     String(tag) +                   \
                                     configDivRadioBool_b +          \
@@ -197,30 +237,37 @@ const char configDivRadioCh[] PROGMEM = R"rawliteral( checked="checked")rawliter
                                     configDivRadioBool_c +          \
                                     String(tag) +                   \
                                     configDivRadioBool_d +          \
+                                    (blocking ? configDivRadioBoolBlock_hide(blocking) : "") + \
                                     (val ? "" : configDivRadioCh) + \
                                     configDivRadioBool_e +          \
                                     String(tag) +                   \
                                     configDivRadioBool_f +          \
+                                    (blocking ? configDivRadioBoolBlock_show(blocking) : "") + \
                                     (val ? configDivRadioCh : "") + \
                                     configDivRadioBool_g + \
                                     configNewLiner
 
 
+
 const char *configDivTextArea_a = configDivInput_a;
 const char *configDivTextArea_b = configDivInput_b;
-const char configDivTextArea_c[] PROGMEM = R"rawliteral(:</label><span><textarea name=)rawliteral";
+const char configDivTextArea_c1[] PROGMEM = R"rawliteral(:</label><span)rawliteral";
+const char configDivTextArea_c2[] PROGMEM = R"rawliteral(><textarea name=)rawliteral";
 const char configDivTextArea_d[] PROGMEM = R"rawliteral(>)rawliteral";
 const char configDivTextArea_e[] PROGMEM = R"rawliteral(</textarea></span></div>)rawliteral";
 
-#define configDivInputTextArea( desc, tag, val)             \
-                                    configDivTextArea_a +   \
-                                    String(tag) +           \
-                                    configDivTextArea_b +   \
-                                    String(desc) +          \
-                                    configDivTextArea_c +   \
-                                    String(tag) +           \
-                                    configDivTextArea_d +   \
-                                    String(val) +           \
+#define configDivInputTextAreaBlocked( desc, tag, blocked, val)             \
+                                    configDivTextArea_a +  \
+                                    String(tag) +       \
+                                    (blocked ? configDivInputBlocked_1(blocked) : "") + \
+                                    configDivTextArea_b +  \
+                                    String(desc) +      \
+                                    configDivTextArea_c1 +  \
+                                    (blocked ? configDivInputBlocked_2(blocked) : "") + \
+                                    configDivTextArea_c2 +  \
+                                    String(tag) +       \
+                                    configDivTextArea_d +  \
+                                    String(val) +       \
                                     configDivTextArea_e + \
                                     configNewLiner
 
@@ -232,7 +279,9 @@ const char configPageSubmitButton[] PROGMEM = R"rawliteral(<input type=submit cl
 #define configPageHtmlStart     configPageHtmlOpen + \
                                 configPageHeadOpen + \
                                 configPageTitleAdd + \
+                                configPageScriptOpen + \
                                 configPagePassToggleScript + \
+                                configPageScriptClose + \
                                 configPageStyleOpen + \
                                 configPageStyleBody + \
                                 configPageStyleForm + \
@@ -250,10 +299,11 @@ const char configPageSubmitButton[] PROGMEM = R"rawliteral(<input type=submit cl
                                 configPageHtmlFormOpen + \
                                 configPageDivLogo
 
-#define configPageHtmlEnd       configPageSubmitButton + \
+#define configPageBodyEnd       configPageSubmitButton + \
                                 configPageHtmlFormClose + \
-                                configPageHtmlBodyClose + \
-                                configPageHtmlClose
+                                configPageHtmlBodyClose
+
+#define configPageHtmlEnd       configPageHtmlClose
 
 
 #define errorPageHtml           configPageHtmlOpen + \

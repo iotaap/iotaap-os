@@ -2,7 +2,7 @@
 #define __IOTAAP_OS_DEFINITIONS_H__
 
 /* GENERAL CONFIG */
-#define LIB_VERSION "4.0.1"
+#define LIB_VERSION "5.0.0"
 #define STATUS_PUBLISH_TIME 5000 // How often system status is published in ms
 #define OTA_CHECK_TIME 21600000 // Period in ms for checking for OTA updates
 #define CUSTOM_WDT_TIMEOUT 30 // Watchdog timeout in seconds
@@ -16,6 +16,9 @@
 #define SUBS_TOPIC_QUEUE_SIZE 10
 #define UNSUBS_TOPIC_QUEUE_SIZE 10
 #define MQTT_MESSAGES_QUEUE_SIZE 50
+
+/* PARAMETER JSON MAX SIZE */
+#define PAR_JSON_MAX_LEN    256
 
 /* PINS */
 #define BATSENS_PIN 36 // Battery voltage sensor pin
@@ -40,16 +43,20 @@
 /* Custom configuration file path */
 #define USER_CFG_PATH       CFG_DIR"custom.cfg"
 /* System temporary publishing data log path */
-#define LOCAL_DATA_DIR      "home/iotaap/"
-#define LOCAL_DATA_PATH     LOCAL_DATA_DIR"data.log"
+#define BACKUP_DATA_DIR      "var/backup/"
+#define BACKUP_DATA_TEMPLATE "%04d.log"
+#define BACKUP_DATA_PATH     BACKUP_DATA_DIR"%04d.log"
+#define BACKUP_FILE_SIZE    (4096*4)
 
 /* OTA */
-#define OTA_CHECK_DEVICE_URL "https://ota.iotaap.io/v1/ota/device/latest/"      // OTA update check endpoint for device
-#define OTA_CHECK_GROUP_URL "https://ota.iotaap.io/v1/ota/group/latest/"        // OTA update check endpoint for group
-#define OTA_DOWNLOAD_DEVICE_URL "https://ota.iotaap.io/v1/ota/device/download/" // OTA update download endpoint for device
-#define OTA_DOWNLOAD_GROUP_URL "https://ota.iotaap.io/v1/ota/group/download/"   // OTA update download endpoint for group
+#define OTA_CHECK_DEVICE_URI "/v1/ota/device/latest/"      // OTA update check endpoint for device
+#define OTA_CHECK_GROUP_URI "/v1/ota/group/latest/"        // OTA update check endpoint for group
+#define OTA_DOWNLOAD_DEVICE_URI "/v1/ota/device/download/" // OTA update download endpoint for device
+#define OTA_DOWNLOAD_GROUP_URI "/v1/ota/group/download/"   // OTA update download endpoint for group
 
 #define TIME_STRING_LENGTH  64
+#define MQTT_TIME_TOPIC             "/iotaapsys/services/heartbeat"
+#define MQTT_TIME_UPDATE_PERIOD_S   300
 
 /* Maximum stack memory used in task */
 #if (0)

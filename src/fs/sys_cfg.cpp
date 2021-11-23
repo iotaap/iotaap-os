@@ -7,7 +7,7 @@
  */
 
 #include "./system/definitions.h"
-#include "./libs_3rd_party/ArduinoJson-v6.14.1/ArduinoJson-v6.14.1.h"
+#include "./libs_3rd_party/ArduinoJson-v6.18.4/ArduinoJson-v6.18.4.h"
 #include "FFat.h"
 #include "./fs/json_memory.h"
 #include "./fs/sys_logs_data.h"
@@ -74,10 +74,8 @@ int InitSystemParameters( void)
  *          "group_id": "",
  *          "group_token": "",
  *          "auto_update": false,
- *          "ntp_1": "pool.ntp.org",
- *          "ntp_2": "time.nist.gov",
  *          "timezone": 4,
- *          "mqtt_server": "mqtt1.iotaap.io",
+ *          "mqtt_server": "mqtt.iotaap.io",
  *          "mqtt_user": "",
  *          "mqtt_pass": "",
  *          "mqtt_port": 8883

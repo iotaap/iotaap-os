@@ -9,106 +9,348 @@
  */
 
 #include "./system/definitions.h"
-#include "./libs_3rd_party/micro-sdcard/mySD.h"
-#include "./system/queue.h"
+#include "./fs/local_data.h"
 #include "./fs/sys_logs_data.h"
 #include "./mqtt/mqtt_client.h"
 #include "./mqtt/mqtt_dataDevice.h"
 #include "./system/system_tasks.h"
+#include "./system/system_configuration.h"
+#include "./system/utils.h"
+#include "./wifi/wifi_module.h"
+#include "./libs_3rd_party/micro-sdcard/mySD.h"
 
-Queue<String> localDataQueue(LOCAL_DATA_QUEUE_SIZE);
+
+/* File to backup data */
+static int PushMqttFileNumber = -1;
+/* File to get backuped data */
+static int PopMqttFileNumber = -1;
+
+/* Flag to signalize to create temporary backup (for reset only) */
+static bool WantToReset = false;
 FileSd LocalDataFile;
 
+static void FillListFromFile( const char *FilePath);
+static void FillFileFromList( const char *FilePath, QueueHandle_t mqttList,
+                                                    unsigned int MaxFileSize);
+
+
 /**
- * @brief Saves payload locally if there is no Cloud connection - adds data to
- *          queue which will be handled by FSmanager
+ * @brief   Initialize MQTT backup
  * 
- * @param payload 
+ * @details This works only if SD card is present! First fill output list
+ *              with data from temp file created just before reset. Also count
+ *              backup files and file IDs for later.
+ * 
+ * @return  0 -> Ok
+ *          else -> fail or no FS
  */
-void saveDataLocally(const char *payload)
+int InitMqttBackup( void)
 {
-    if(systemStat.fsInitialized){
-        localDataQueue.push(String(payload));
-        // If Queue is full data will be dropped
+    /* Logs are disabled if SD card is not initialized */
+    if (!systemStat.fsInitialized)
+    {
+        return 1;
     }
+
+    /* If no file structure, create and exit */
+    if (!SD.exists((char *)BACKUP_DATA_DIR))
+    {
+        /* Directory does not exist - Create it */
+        SD.mkdir((char *)BACKUP_DATA_DIR);
+        return 0;
+    }
+
+    /* Future backup files */
+    FileSd Directory = SD.open(BACKUP_DATA_DIR);
+    while (1)
+    {
+        /* Search for files */
+        LocalDataFile = Directory.openNextFile();
+        
+        if (LocalDataFile)
+        {
+            int FileId;
+            /* Check if filename is good and parse ID */
+            if (!sscanf(LocalDataFile.name(), BACKUP_DATA_TEMPLATE, &FileId))
+            {
+                /* If not -> delete file */
+                char FullFileName[30];
+                sprintf( FullFileName, "%s%s", BACKUP_DATA_DIR, LocalDataFile.name());
+                LocalDataFile.close();
+                SD.remove( FullFileName);
+                vTaskDelay( 300 / portTICK_PERIOD_MS);
+                continue;
+            }
+
+            /* Check for min/max */
+            if (PushMqttFileNumber == -1)
+            {
+                PushMqttFileNumber = FileId;
+                PopMqttFileNumber = FileId;
+            }
+            else if (FileId < PopMqttFileNumber)
+            {
+                PopMqttFileNumber = FileId;
+            }
+            else if (FileId > PushMqttFileNumber)
+            {
+                PushMqttFileNumber = FileId;
+            }
+        }
+        /* All files found (or no file found) */
+        else
+        {
+            if (PushMqttFileNumber == -1)
+            {
+                PushMqttFileNumber = 0;
+                PopMqttFileNumber = 0;
+            }
+            else
+            {
+                PushMqttFileNumber++;
+            }
+
+            char output[50];
+            sprintf( output, "Backup file count: %d", PushMqttFileNumber-PopMqttFileNumber);
+            systemLog( tSYSTEM, output);
+
+            break;
+        }
+    }
+    Directory.close();
+    vTaskDelay( 300 / portTICK_PERIOD_MS);
+    
+    return 0;
 }
 
 /**
- * @brief Stores data locally from local queue
- * 
+ * @brief Handle mqtt list data
+ *          - if list is too big -> backup data to file
+ *          - if list is small and have backuped data -> fill list from file
  */
-void handleAndPublishLocalData()
+#define LOW_MEM_LIST    10
+#define HIGH_MEM_LIST   150
+void handleLocalMqttMessages( void)
 {
-    /**
-     * If system is connected and file doesn't exist
-     *      -> send data from queue to web
-     */
-    if (MqttIsConnected() && !SD.exists((char *)LOCAL_DATA_PATH))
-    {
-        while (MqttIsConnected() && localDataQueue.count() > 0)
-        {
-            uDeviceCloudPublish(localDataQueue.pop().c_str(), "params");
 
-            systemLog(tINFO, "Data stored locally!");
-            vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
+    if (!mqttDataMsgs || !systemStat.fsInitialized)
+    {
+        if (WantToReset)
+        {
+            SetRestartTime();
+            ESP.restart();
+        }
+        return;
+    }
+
+    /* Send data to output buffer */
+    if (uxQueueMessagesWaiting( mqttDataMsgs)<LOW_MEM_LIST && MqttIsConnected())
+    {
+        /* Fill buffer from backup file */
+        if (PushMqttFileNumber != PopMqttFileNumber)
+        {
+            char FullFileName[30];
+            sprintf( FullFileName, BACKUP_DATA_PATH, PopMqttFileNumber);
+
+            /* Fill list and destroy backup file */
+            FillListFromFile( FullFileName);
+            SD.remove( FullFileName);
+
+            PopMqttFileNumber++;
+
+            char output[50];
+            sprintf( output, "Backup file sent (%d)", PushMqttFileNumber-PopMqttFileNumber);
+            systemLog( tSYSTEM, output);
         }
     }
 
-    /**
-     * System is not connected to web or file with data exists
-     *      -> Sends queue to file and file to web
-     */
+    /* Backup data to file (memory balancer) */
+    if (uxQueueMessagesWaiting( mqttDataMsgs) > HIGH_MEM_LIST)
+    {
+        char FullFileName[30];
+        sprintf( FullFileName, BACKUP_DATA_PATH, PushMqttFileNumber);
+
+        /* Store up to 4096bytes */
+        FillFileFromList( FullFileName, mqttDataMsgs, BACKUP_FILE_SIZE);
+        PushMqttFileNumber++;
+
+        char output[50];
+        sprintf( output, "Backup file created (%d)", PushMqttFileNumber-PopMqttFileNumber);
+        systemLog( tSYSTEM, output);
+        
+        vTaskDelay( 100 / portTICK_PERIOD_MS);
+    }
+
+
+    /* Backup all data (reset is coming) */
+    if (WantToReset)
+    {
+        stopPublishing();
+
+        while (uxQueueMessagesWaiting( mqttDataMsgs))
+        {
+            char FullFileName[30];
+            sprintf( FullFileName, BACKUP_DATA_PATH, PushMqttFileNumber);
+            FillFileFromList( FullFileName, mqttDataMsgs, BACKUP_FILE_SIZE);
+            PushMqttFileNumber++;
+            
+            char output[50];
+            sprintf( output, "Backup file created (%d)", PushMqttFileNumber-PopMqttFileNumber);
+            systemLog( tSYSTEM, output);
+        }
+
+        vTaskDelay( 1000);
+
+        SetRestartTime();
+        ESP.restart();
+    }
+}
+
+
+/**
+ * @brief   Set flag to backup data and reset device
+ */
+void backupDataAndRestart( void)
+{
+    WantToReset = true;
+}
+
+
+/**
+ * @brief From selected file fill list and remove file
+ */
+static void FillListFromFile( const char *FilePath)
+{
+    /* If file exist, copy messages to list */
+    LocalDataFile = SD.open( FilePath, FILE_READ);
+    if (LocalDataFile && LocalDataFile.size()<BACKUP_FILE_SIZE)
+    {
+        int msgs = 0;
+        char Data[1024];
+        
+        /* Take all from file and fill list */
+        while (LocalDataFile.readBytesUntil('\n', Data, 1024))
+        {
+            char *topicEnd = strchr( Data, ' ');
+            char *payload = topicEnd+1;
+            char *topic = Data;
+            *topicEnd = '\0';
+            msgs++;
+
+            /* Publish, but to output! */
+            mqttPublish( topic, payload, false);
+        }
+
+        /* Destroy file */
+        LocalDataFile.close();
+        SD.remove( (char *)FilePath);
+    }
+}
+
+
+/**
+ * @brief Backup data from list to file
+ */
+static void FillFileFromList( const char *FilePath, QueueHandle_t mqttList,
+                                                    unsigned int MaxFileSize)
+{
+    /* If temp.log file exist, copy messages to list */
+    SD.remove( (char *)FilePath);
+    LocalDataFile = SD.open( FilePath, FILE_WRITE);
+    if (LocalDataFile)
+    {
+        int msgs = 0;
+
+        while (uxQueueMessagesWaiting( mqttList))
+        {
+            char buffer[PAR_JSON_MAX_LEN];
+            sMqttContainer *cont;
+            if (xQueueReceive( mqttList, &cont, 0) != pdPASS)
+            {
+                break;
+            }
+
+            struct sMqttData *data = cont->data;
+            char *payload = data->payload;
+
+            unsigned int FileSize = LocalDataFile.size();
+            bool UseBuffer = FromContCreateJson( cont, buffer);
+            unsigned int Len = strlen(cont->topic)+3+ (UseBuffer ? strlen(buffer) : strlen(cont->data->payload));
+
+            /* Check file length */
+            if (Len+FileSize > MaxFileSize)
+            {
+                xQueueSendToFront( mqttList, &cont, 0);
+                break;
+            }
+
+            /* Fill data */
+            LocalDataFile.print( cont->topic);
+            LocalDataFile.print( " ");
+            LocalDataFile.println( UseBuffer ? buffer : payload);
+
+            /* Destroy data */
+            if (!UseBuffer)
+            {
+                delete[] payload;
+            }
+            else
+            {
+                delete[] data->name;
+                if (data->flags & 0x02)
+                {
+                    delete[] data->text;
+                }
+            }
+            
+            delete data;
+            delete cont;
+            
+            msgs++;
+        }
+
+        LocalDataFile.flush();
+        LocalDataFile.close();
+    }
+}
+
+
+/**
+ * @brief   From mqtt container create JSON and save it into buffer
+ * 
+ * @return  true  - use buffer
+ *          false - use cont->data->payload
+ */
+bool FromContCreateJson( struct sMqttContainer *cont, char *buffer)
+{
+    struct sMqttData *data = cont->data;
+
+    if (data->flags & (1<<2))
+    {
+        return false;
+    }
     else
     {
-        /* Open file */
-        LocalDataFile = SD.open(LOCAL_DATA_PATH, FILE_WRITE);
+        /* Create JSON */
+        DynamicJsonDocument paramPublishDoc(PAR_JSON_MAX_LEN);
+        char Time[TIME_STRING_LENGTH];
 
-        /* Send from queue to file 
-         *  - System is in a state without connection (save to file) OR
-         *  - System is in a state with connection but with data in file. In this
-         *    case data to web must go in right order, so first save data to
-         *    end of file. Later this data will be sent in right order.
-         */
-        if (LocalDataFile)
+        paramPublishDoc.clear();
+        paramPublishDoc["device_id"] = SystemGetDeviceId();
+        paramPublishDoc["name"] = data->name;
+        paramPublishDoc["time"] = getSystemTimeString( Time, (data->unix_ms)/1000);
+        paramPublishDoc["unix_ms"] = data->unix_ms;
+
+        if (data->flags & 0x02)
         {
-            while (localDataQueue.count() > 0)
-            {
-                LocalDataFile.println(localDataQueue.pop());
-
-                systemLog(tINFO, "Data stored locally!");
-                vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
-            }
-            LocalDataFile.flush();
+            paramPublishDoc["value"] = data->text;
         }
         else
         {
-            systemLog(tERROR, "Failed to write data to SD");
-            return;
+            paramPublishDoc["value"] = data->value;
         }
 
-        /* Send data from file to web in right order and delete file */
-        if (MqttIsConnected())
-        {
-            char lineFromLocalData[256];
-            bool infoLogged = false;
-
-            while (LocalDataFile.available())
-            {
-                if (!infoLogged)
-                {
-                    systemLog(tINFO, "Publishing local data");
-                    infoLogged = true;
-                }
-                LocalDataFile.readBytesUntil('\n', lineFromLocalData, 256);
-                uDeviceCloudPublish(lineFromLocalData, "params");
-                vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
-            }
-            LocalDataFile.close();
-            SD.remove((char *)LOCAL_DATA_PATH);
-        }
-        else
-        {
-            LocalDataFile.close();
-        }
+        serializeJson( paramPublishDoc, buffer, PAR_JSON_MAX_LEN);
+        return true;
     }
 }

@@ -4,7 +4,7 @@
 #include "stdint.h"
 
 /* Minimum time between toggling the led */
-#define LED_TASK_PERIOD_MS  10
+#define LED_TASK_PERIOD_MS  100
 
 /* Init */
 void LedPinInit(unsigned int PinNum);
