@@ -1,3 +1,38 @@
+## [5.0.0] - 2021-11-22
+
+IoTaaP OS v5.0.0 introduces performance and usability improvements, stability updates, improved web configurator and various bug fixes. This version also
+intruduces batch data publishing to ensure fast and reliable publishing of high frequency data. 
+  
+### Added
+- MQTT Batch implemented
+- Support for unsecured MQTT connection (without encryption)
+- Subscribing to any topic is now supported 
+- Backup before reset
+- 
+
+### Changed
+- Using WiFi events instead of basic functional approach 
+- Certificate is now using dynamic allocation of the memory
+- Web configurator imrovements and new fields
+- OTA server configuration improvement 
+- NTP servers are removed, IoTaaP Heartbeat is now used to sync time with server 
+- MQTT client now accepts IP addres for server
+- 3rd party libraries updated
+- Task timing optimized
+- Configurator internal handling
+
+### Fixed
+
+- WiFi password generator bug
+- Starting web server dinamically 
+- Static allocation is replaced by dynamic
+- Fixed rebooting issue with local configurator
+- High memory usage is now optimized  
+- Queue is fixed and replaced by native solution
+- Timestamp was reseting after restart
+- Linked list
+
+
 ## [4.0.1] - 2021-04-01
    
 ### Fixed
