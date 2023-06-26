@@ -1,3 +1,7 @@
+## [5.2.2] - 2023-06-27
+
+IoTaaP OS v5.2.2 - hotfix
+  
 ## [5.2.1] - 2023-06-26
 
 IoTaaP OS v5.2.1 introduces compatibility with espressif32@6.3.2 platform version (latest).

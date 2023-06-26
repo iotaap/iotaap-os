@@ -85,7 +85,7 @@ void loop()
   {
     char message[50];
     sprintf(message, "Current temperature is: %.1f°C", temperatureC);
-    iotaapOs.smsServiceSend(TOKEN, "+385994158386", message, "/pgiIzx7n/smsservice/response");
+    iotaapOs.smsServiceSend(TOKEN, "+38599", message, "/pgiIzx7n/smsservice/response");
   }
 
   delay(5000);
