@@ -2,7 +2,7 @@
 #define __IOTAAP_OS_DEFINITIONS_H__
 
 /* GENERAL CONFIG */
-#define LIB_VERSION "5.0.0"
+#define LIB_VERSION "5.1.0"
 #define STATUS_PUBLISH_TIME 5000 // How often system status is published in ms
 #define OTA_CHECK_TIME 21600000 // Period in ms for checking for OTA updates
 #define CUSTOM_WDT_TIMEOUT 30 // Watchdog timeout in seconds

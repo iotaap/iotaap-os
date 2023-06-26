@@ -1,7 +1,6 @@
 # IoTaaP OS
 > Open Source IoT Operating System
 
-[![Build Status](https://jenkins.iotaap.io/buildStatus/icon?job=iotaap-os%2Fmaster)](https://jenkins.iotaap.io/job/iotaap-os/job/master/)
 
 ## Usage
 
@@ -27,16 +26,9 @@ void setup()
 ...
 ```
 
-## Hardware
-
-For development you can use official [IoTaaP Hardware](https://www.iotaap.io/)
-
-* [IoTaaP Boards](https://www.iotaap.io/boards/)
-* [IoTaaP Modules](https://www.iotaap.io/iot-modules/)
-
 ## Tutorials
 
-Follow [official tutorials](https://docs.iotaap.io/docs-tutorials/) for even faster IoT development process!
+Follow [official tutorials](https://docs.iotaap.io/en/tutorials/introdcution) for even faster IoT development process!
 
 ## Documentation
 

@@ -1,3 +1,13 @@
+## [5.1.0] - 2023-06-26
+
+IoTaaP OS v5.1.0 introduces new functions and integration of IoTaaP Services.
+  
+### Added
+- customPublish function for publishing to topics of other users (Topic Access Control)
+- storageServiceStore function to support IoTaaP Storage service 
+- smsServiceSend function to support IoTaaP SMS service 
+- Example of services usage is now added to examples folder
+
 ## [5.0.0] - 2021-11-22
 
 IoTaaP OS v5.0.0 introduces performance and usability improvements, stability updates, improved web configurator and various bug fixes. This version also

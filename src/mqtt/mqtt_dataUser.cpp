@@ -2,6 +2,8 @@
 
 #include "./mqtt/mqtt_client.h"
 #include "./mqtt/mqtt_subscription.h"
+#include "./system/utils.h"
+#include "./system/system_configuration.h"
 
 
 /**
@@ -53,6 +55,117 @@ int uBasicUnsubscribe(const char *uTopic)
     return 0;
 }
 
+/**
+ * @brief Sends SMS using IoTaaP SMS service, without callback topic
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param receiver - Receivers phone number including country code
+ * @param content - content of SMS message up to 120 characters
+ * @return int - Returns 0 if successful
+ */
+int uSmsServiceSend(const char *token, const char *receiver, const char *content){
+    // Generates SMS service message and publishes to SMS service
+    DynamicJsonDocument doc(512);
+    doc["token"] = token;
+    doc["receiver"] = receiver;
+    doc["content"] = content;
+
+    char payloadStr[512];
+    serializeJson(doc, payloadStr);
+    doc.clear();
+
+    return uCustomPublish(payloadStr, "/iotaapsys/services/mqttsms");
+}
+
+/**
+ * @brief Sends SMS using IoTaaP SMS service, with callback topic
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param receiver - Receivers phone number including country code
+ * @param content - content of SMS message up to 120 characters
+ * @param callbackTopic - Topic for listening to responses from the service
+ * @return int - Returns 0 if successful
+ */
+int uSmsServiceSend(const char *token, const char *receiver, const char *content, const char *callbackTopic){
+    uCustomSubscribe(callbackTopic);
+    // Generates storage message and publishes it to storage topic
+    DynamicJsonDocument doc(512);
+    doc["token"] = token;
+    doc["receiver"] = receiver;
+    doc["content"] = content;
+    doc["callbackTopic"] = callbackTopic;
+
+    char payloadStr[512];
+    serializeJson(doc, payloadStr);
+    doc.clear();
+
+    return uCustomPublish(payloadStr, "/iotaapsys/services/mqttsms");
+}
+
+/**
+ * @brief Send data to storage service, without callback topic
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param name - Variable name
+ * @param value - Variable value
+ * @return int - Returns 0 if successful
+ */
+int uStorageServiceStore(const char *token, const char *name, float value){
+    // Generates storage message and publishes it to storage topic
+    DynamicJsonDocument doc(512);
+    doc["token"] = token;
+    doc["device"] = SystemGetDeviceId();
+    doc["name"] = name;
+    doc["value"] = value;
+    doc["timestamp"] = getUnixTimeMs();
+
+    char payloadStr[512];
+    serializeJson(doc, payloadStr);
+    doc.clear();
+
+    return uCustomPublish(payloadStr, "/iotaapsys/services/storage/store");
+}
+
+/**
+ * @brief Send data to storage service, with callback topic, automatically subscribes
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param name - Variable name
+ * @param value - Variable value
+ * @param callbackTopic - Full callback topic (including root username)
+ * @return int - Returns 0 if successful
+ */
+int uStorageServiceStore(const char *token, const char *name, float value, const char *callbackTopic){
+    uCustomSubscribe(callbackTopic);
+    // Generates storage message and publishes it to storage topic
+    DynamicJsonDocument doc(512);
+    doc["token"] = token;
+    doc["device"] = SystemGetDeviceId();
+    doc["name"] = name;
+    doc["value"] = value;
+    doc["timestamp"] = getUnixTimeMs();
+    doc["callbackTopic"] = callbackTopic;
+
+    char payloadStr[512];
+    serializeJson(doc, payloadStr);
+    doc.clear();
+
+    return uCustomPublish(payloadStr, "/iotaapsys/services/storage/store");
+}
+
+/**
+ * @brief Publish to a specific topic. Root topic (username) will NOT be added automatically
+ * 
+ * @param payload - Payload (JSON)
+ * @param uTopic - Topic to publish to
+ * @return int Returns 0 if successful
+ */
+int uCustomPublish(const char *payload, const char *uTopic)
+{
+    mqttPublish(uTopic, payload, false);
+    
+    return 0;
+}
 
 /**
  * @brief Subscribe to a specific topic. Root topic (username) will NOT be added automatically
