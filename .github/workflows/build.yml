@@ -1,0 +1,36 @@
+name: IoTaaP OS Build
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example: [./tests/test_code.cpp]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Install PlatformIO platform 3.5.0
+        run: pio platform install espressif32@3.5.0
+
+      - name: Build PlatformIO examples
+        run: pio ci --lib="." --board="esp32dev"
+        env:
+          PLATFORMIO_CI_SRC: ${{ matrix.example }}

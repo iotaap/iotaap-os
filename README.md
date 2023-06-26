@@ -1,6 +1,7 @@
-# IoTaaP OS
-> Open Source IoT Operating System
+# IoTaaP OS - Open Source IoT Operating System
 
+## Build status
+[![IoTaaP OS Build](https://github.com/iotaap/iotaap-os/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/iotaap/iotaap-os/actions/workflows/build.yml)
 
 ## Usage
 
