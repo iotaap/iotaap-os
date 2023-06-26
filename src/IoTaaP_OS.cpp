@@ -114,6 +114,31 @@ int IoTaaP_OS::basicUnsubscribe(const char *uTopic)
 }
 
 /**
+ * @brief Send data to storage service, without callback topic
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param name - Variable name
+ * @param value - Variable value
+ * @return int - Returns 0 if successful
+ */
+int IoTaaP_OS::storageServiceStore(const char *token, const char *name, float value){
+    return uStorageServiceStore(token, name, value);
+}
+
+/**
+ * @brief Send data to storage service, with callback topic
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param name - Variable name
+ * @param value - Variable value
+ * @param callbackTopic 
+ * @return int - Returns 0 if successful
+ */
+int IoTaaP_OS::storageServiceStore(const char *token, const char *name, float value, const char *callbackTopic){
+    return uStorageServiceStore(token, name, value, callbackTopic);
+}
+
+/**
  * @brief Publish to a specific topic. Root topic (username) will NOT be added automatically
  * 
  * @param uTopic - Topic to publish to
