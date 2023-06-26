@@ -53,6 +53,20 @@ int uBasicUnsubscribe(const char *uTopic)
     return 0;
 }
 
+/**
+ * @brief Publish to a specific topic. Root topic (username) will NOT be added automatically
+ * 
+ * @param payload - Payload (JSON)
+ * @param uTopic - Topic to publish to
+ * @return int Returns 0 if successful
+ */
+int uCustomPublish(const char *payload, const char *uTopic)
+{
+    mqttPublish(uTopic, payload, false);
+    
+    return 0;
+}
+
 
 /**
  * @brief Subscribe to a specific topic. Root topic (username) will NOT be added automatically

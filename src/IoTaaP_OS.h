@@ -30,6 +30,7 @@ public:
     int basicCloudPublish(const char *payload, const char *uTopic);
     int basicSubscribe(const char *uTopic);
     int basicUnsubscribe(const char *uTopic);
+    int customPublish(const char *payload, const char *uTopic);
     int customSubscribe(const char *uTopic);
     int customUnsubscribe(const char *uTopic);
     int deviceCloudPublishParam(const char *name, float value);

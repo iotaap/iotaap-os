@@ -114,6 +114,18 @@ int IoTaaP_OS::basicUnsubscribe(const char *uTopic)
 }
 
 /**
+ * @brief Publish to a specific topic. Root topic (username) will NOT be added automatically
+ * 
+ * @param uTopic - Topic to publish to
+ * @param payload = Payload (JSON)
+ * @return int Returns 0 if successful
+ */
+int IoTaaP_OS::customPublish(const char *payload,const char *uTopic)
+{
+    return uCustomPublish(payload, uTopic);
+}
+
+/**
  * @brief Subscribe to a specific topic. Root topic (username) will NOT be added automatically
  * 
  * @param uTopic - Topic to subscribe to
