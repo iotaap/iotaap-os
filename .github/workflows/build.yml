@@ -1,4 +1,4 @@
-name: IoTaaP OS CI
+name: IoTaaP OS Build
 
 on:
   push:
