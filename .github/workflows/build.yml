@@ -1,4 +1,4 @@
-name: PlatformIO CI
+name: IoTaaP OS Build
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        example: [examples/iotaap_services.cpp]
+        example: [./tests/test_code.cpp]
 
     steps:
       - uses: actions/checkout@v3
@@ -27,7 +27,10 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
+      - name: Install PlatformIO platform 3.5.0
+        run: pio platform install espressif32@3.5.0
+
       - name: Build PlatformIO examples
-        run: pio ci --board="esp32dev"
+        run: pio ci --lib="." --board="esp32dev"
         env:
           PLATFORMIO_CI_SRC: ${{ matrix.example }}
