@@ -49,7 +49,7 @@ struct sMqttStat mqttStat;
 /* MQTT configuration */
 struct sMqttConfig mqttConfig
 {
-    "mqtt.iotaap.io",   /* mqttServer              */
+    "network.iotaap.io",   /* mqttServer              */
     "",                 /* mqttUser                */
     "",                 /* mqttPassword            */
     8883,               /* port                    */
