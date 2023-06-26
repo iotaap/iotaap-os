@@ -30,6 +30,8 @@ public:
     int basicCloudPublish(const char *payload, const char *uTopic);
     int basicSubscribe(const char *uTopic);
     int basicUnsubscribe(const char *uTopic);
+    int smsServiceSend(const char *token, const char *receiver, const char *content);
+    int smsServiceSend(const char *token, const char *receiver, const char *content, const char *callbackTopic);
     int storageServiceStore(const char *token, const char *name, float value);
     int storageServiceStore(const char *token, const char *name, float value, const char *callbackTopic);
     int customPublish(const char *payload, const char *uTopic);

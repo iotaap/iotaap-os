@@ -114,6 +114,31 @@ int IoTaaP_OS::basicUnsubscribe(const char *uTopic)
 }
 
 /**
+ * @brief Sends SMS using IoTaaP SMS service, without callback topic
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param receiver - Receivers phone number including country code
+ * @param content - content of SMS message up to 120 characters
+ * @return int - Returns 0 if successful
+ */
+int IoTaaP_OS::smsServiceSend(const char *token, const char *receiver, const char *content){
+    return uSmsServiceSend(token, receiver, content);
+}
+
+/**
+ * @brief Sends SMS using IoTaaP SMS service, with callback topic
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param receiver - Receivers phone number including country code
+ * @param content - content of SMS message up to 120 characters
+ * @param callbackTopic - Topic for listening to responses from the service
+ * @return int - Returns 0 if successful
+ */
+int IoTaaP_OS::smsServiceSend(const char *token, const char *receiver, const char *content, const char *callbackTopic){
+    return uSmsServiceSend(token, receiver, content, callbackTopic);
+}
+
+/**
  * @brief Send data to storage service, without callback topic
  * 
  * @param token - IoTaaP Link Secret
@@ -131,7 +156,7 @@ int IoTaaP_OS::storageServiceStore(const char *token, const char *name, float va
  * @param token - IoTaaP Link Secret
  * @param name - Variable name
  * @param value - Variable value
- * @param callbackTopic 
+ * @param callbackTopic - Topic for listening to responses from the service
  * @return int - Returns 0 if successful
  */
 int IoTaaP_OS::storageServiceStore(const char *token, const char *name, float value, const char *callbackTopic){

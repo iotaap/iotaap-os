@@ -10,5 +10,7 @@ int uCustomSubscribe(const char *uTopic);
 int uCustomUnsubscribe(const char *uTopic);
 int uStorageServiceStore(const char *token, const char *name, float value);
 int uStorageServiceStore(const char *token, const char *name, float value, const char *callbackTopic);
+int uSmsServiceSend(const char *token, const char *receiver, const char *content);
+int uSmsServiceSend(const char *token, const char *receiver, const char *content, const char *callbackTopic);
 
 #endif

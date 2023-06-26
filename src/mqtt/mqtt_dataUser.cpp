@@ -56,6 +56,53 @@ int uBasicUnsubscribe(const char *uTopic)
 }
 
 /**
+ * @brief Sends SMS using IoTaaP SMS service, without callback topic
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param receiver - Receivers phone number including country code
+ * @param content - content of SMS message up to 120 characters
+ * @return int - Returns 0 if successful
+ */
+int uSmsServiceSend(const char *token, const char *receiver, const char *content){
+    // Generates SMS service message and publishes to SMS service
+    DynamicJsonDocument doc(512);
+    doc["token"] = token;
+    doc["receiver"] = receiver;
+    doc["content"] = content;
+
+    char payloadStr[512];
+    serializeJson(doc, payloadStr);
+    doc.clear();
+
+    return uCustomPublish(payloadStr, "/iotaapsys/services/mqttsms");
+}
+
+/**
+ * @brief Sends SMS using IoTaaP SMS service, with callback topic
+ * 
+ * @param token - IoTaaP Link Secret
+ * @param receiver - Receivers phone number including country code
+ * @param content - content of SMS message up to 120 characters
+ * @param callbackTopic - Topic for listening to responses from the service
+ * @return int - Returns 0 if successful
+ */
+int uSmsServiceSend(const char *token, const char *receiver, const char *content, const char *callbackTopic){
+    uCustomSubscribe(callbackTopic);
+    // Generates storage message and publishes it to storage topic
+    DynamicJsonDocument doc(512);
+    doc["token"] = token;
+    doc["receiver"] = receiver;
+    doc["content"] = content;
+    doc["callbackTopic"] = callbackTopic;
+
+    char payloadStr[512];
+    serializeJson(doc, payloadStr);
+    doc.clear();
+
+    return uCustomPublish(payloadStr, "/iotaapsys/services/mqttsms");
+}
+
+/**
  * @brief Send data to storage service, without callback topic
  * 
  * @param token - IoTaaP Link Secret
