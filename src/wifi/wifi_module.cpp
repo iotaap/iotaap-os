@@ -108,9 +108,9 @@ void wifiConnect( void)
 
     delay(1000);
 
-    WiFi.onEvent(WiFiStationConnected, SYSTEM_EVENT_STA_CONNECTED);
-    WiFi.onEvent(WiFiGotIP, SYSTEM_EVENT_STA_GOT_IP);
-    WiFi.onEvent(WiFiStationDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
+    WiFi.onEvent(WiFiStationConnected, ARDUINO_EVENT_WIFI_STA_CONNECTED);
+    WiFi.onEvent(WiFiGotIP, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+    WiFi.onEvent(WiFiStationDisconnected, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 
     LedBlinkSlow();
 
