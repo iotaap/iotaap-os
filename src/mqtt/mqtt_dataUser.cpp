@@ -167,7 +167,6 @@ int uCustomPublish(const char *payload, const char *uTopic)
     return 0;
 }
 
-
 /**
  * @brief Subscribe to a specific topic. Root topic (username) will NOT be added automatically
  * 
