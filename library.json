@@ -15,7 +15,7 @@
         "maintainer": true
       }
     ],
-    "version": "5.1.0",
+    "version": "5.2.1",
     "frameworks": "arduino",
     "platforms": "espressif32"
   }

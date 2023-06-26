@@ -25,7 +25,7 @@ sSystemConfig systemConfig =
     "",                      /* deviceToken      */
     "",                      /* groupID          */
     "",                      /* groupToken       */
-    4,                       /* timezone         */
+    2,                       /* timezone         */
     0,                       /* timezoneOffsetMs */
     0,                       /* timezoneOffsetS  */
     "",                      /* fwVersion        */

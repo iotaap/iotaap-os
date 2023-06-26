@@ -74,8 +74,8 @@ int InitSystemParameters( void)
  *          "group_id": "",
  *          "group_token": "",
  *          "auto_update": false,
- *          "timezone": 4,
- *          "mqtt_server": "mqtt.iotaap.io",
+ *          "timezone": 2,
+ *          "mqtt_server": "network.iotaap.io",
  *          "mqtt_user": "",
  *          "mqtt_pass": "",
  *          "mqtt_port": 8883
