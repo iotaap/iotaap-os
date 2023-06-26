@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        example: [./examples/iotaap_services.cpp]
+        example: [./tests/test_code.cpp]
 
     steps:
       - uses: actions/checkout@v3
