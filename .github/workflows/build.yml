@@ -27,6 +27,9 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
+      - name: Install PlatformIO platform 3.5.0
+        run: pio pkg install --platform "espressif32@3.5.0"
+
       - name: Build PlatformIO examples
         run: pio ci --lib="." --board="esp32dev"
         env:
